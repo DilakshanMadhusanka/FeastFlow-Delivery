@@ -1,0 +1,34 @@
+{
+  "name": "food-delivery-platform",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Production-ready Food Delivery Application Monorepo",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "dev:api": "npm --workspace=apps/api run dev",
+    "dev:web": "npm --workspace=apps/web run dev",
+    "dev:mobile": "npm --workspace=apps/mobile run start",
+    "dev:mobile:web": "npm --workspace=apps/mobile run web",
+    "db:generate": "npm --workspace=apps/api run db:generate",
+    "db:migrate": "npm --workspace=apps/api run db:migrate",
+    "db:push": "npm --workspace=apps/api run db:push",
+    "db:seed": "npm --workspace=apps/api run db:seed"
+  },
+  "keywords": [
+    "food-delivery",
+    "react-native",
+    "expo",
+    "express",
+    "prisma",
+    "postgresql",
+    "socket.io"
+  ],
+  "author": "Antigravity",
+  "license": "ISC"
+}
