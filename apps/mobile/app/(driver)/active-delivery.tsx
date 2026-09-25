@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Alert,
   Linking,
+  Modal,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -45,11 +46,34 @@ export default function ActiveDeliveryScreen() {
   const [showChatModal, setShowChatModal] = useState(false);
   const [chatTarget, setChatTarget] = useState<'CUSTOMER' | 'STORE'>('CUSTOMER');
   const [showProofModal, setShowProofModal] = useState(false);
+  const [showMapModal, setShowMapModal] = useState(false);
+  const [showCelebrationModal, setShowCelebrationModal] = useState(false);
+  const [completedOrderSummary, setCompletedOrderSummary] = useState<any>(null);
 
-  const { data: delivery, isLoading, refetch } = useQuery({
+  const { data: rawDelivery, isLoading, refetch } = useQuery({
     queryKey: ['activeDelivery'],
     queryFn: () => driverService.getActiveDelivery(),
     refetchInterval: 6000,
+  });
+
+  const delivery = rawDelivery || completedOrderSummary;
+
+  const advanceStepMutation = useMutation({
+    mutationFn: ({ nextStep, notes }: { nextStep: DeliveryWorkflowStep; notes?: string }) =>
+      driverService.advanceWorkflowStep(nextStep, notes),
+    onSuccess: (updated, variables) => {
+      queryClient.setQueryData(['activeDelivery'], updated);
+      queryClient.invalidateQueries({ queryKey: ['driverEarnings'] });
+      queryClient.invalidateQueries({ queryKey: ['driverProfile'] });
+
+      if (variables.nextStep === 'DELIVERED' || !updated || updated.currentStep === 'DELIVERED') {
+        setCompletedOrderSummary(updated || delivery);
+        setShowCelebrationModal(true);
+      }
+    },
+    onError: (err: any) => {
+      Alert.alert('Workflow Error', err?.message || 'Failed to advance delivery step.');
+    },
   });
 
   // Stream live GPS telemetry over WebSocket while delivery is active
@@ -93,71 +117,6 @@ export default function ActiveDeliveryScreen() {
       clearInterval(interval);
     };
   }, [delivery?.orderId, delivery?.currentStep]);
-
-  const advanceStepMutation = useMutation({
-    mutationFn: (nextStep: DeliveryWorkflowStep) =>
-      driverService.advanceWorkflowStep(nextStep),
-    onSuccess: (updated) => {
-      queryClient.setQueryData(['activeDelivery'], updated);
-      queryClient.invalidateQueries({ queryKey: ['driverEarnings'] });
-
-      if (!updated || updated.currentStep === 'DELIVERED') {
-        Alert.alert(
-          'Delivery Completed! 🎉',
-          `Great job! Payout of $${formatCurrency(delivery?.driverPayout || 5)} + $${formatCurrency(
-            delivery?.customerTip || 0
-          )} tip has been credited to your account.`,
-          [
-            {
-              text: 'Back to Radar',
-              onPress: () => router.replace('/(driver)/dashboard'),
-            },
-          ]
-        );
-      }
-    },
-    onError: (err: any) => {
-      Alert.alert('Workflow Error', err?.message || 'Failed to advance delivery step.');
-    },
-  });
-
-  const handleCall = (phoneNumber?: string | null) => {
-    if (!phoneNumber) {
-      Alert.alert('Unavailable', 'No phone contact provided.');
-      return;
-    }
-    Linking.openURL(`tel:${phoneNumber}`);
-  };
-
-  const handleToggleCheck = (itemId: string) => {
-    setCheckedItems((prev) => ({ ...prev, [itemId]: !prev[itemId] }));
-  };
-
-  if (isLoading) {
-    return <Loading fullScreen message="Loading delivery route..." />;
-  }
-
-  if (!delivery) {
-    return (
-      <View style={styles.centerContainer}>
-        <CheckCircle2 size={48} color="#16A34A" />
-        <Text style={styles.noActiveTitle}>No Active Delivery</Text>
-        <Text style={styles.noActiveSub}>
-          You do not have any orders assigned at the moment.
-        </Text>
-        <Button
-          title="Return to Dashboard"
-          style={{ marginTop: 16 }}
-          onPress={() => router.replace('/(driver)/dashboard')}
-        />
-      </View>
-    );
-  }
-
-  const step = delivery.currentStep;
-  const isCod = delivery.paymentMethod === 'COD';
-
-  const [showMapModal, setShowMapModal] = useState(false);
 
   const driverMapMarkers: OSMMarker[] = useMemo(() => {
     if (!delivery) return [];
@@ -239,6 +198,42 @@ export default function ActiveDeliveryScreen() {
       [delivery.deliveryAddress.latitude, delivery.deliveryAddress.longitude],
     ];
   }, [delivery]);
+
+  const handleCall = (phoneNumber?: string | null) => {
+    if (!phoneNumber) {
+      Alert.alert('Unavailable', 'No phone contact provided.');
+      return;
+    }
+    Linking.openURL(`tel:${phoneNumber}`);
+  };
+
+  const handleToggleCheck = (itemId: string) => {
+    setCheckedItems((prev) => ({ ...prev, [itemId]: !prev[itemId] }));
+  };
+
+  if (isLoading) {
+    return <Loading fullScreen message="Loading delivery route..." />;
+  }
+
+  if (!delivery) {
+    return (
+      <View style={styles.centerContainer}>
+        <CheckCircle2 size={48} color="#16A34A" />
+        <Text style={styles.noActiveTitle}>No Active Delivery</Text>
+        <Text style={styles.noActiveSub}>
+          You do not have any orders assigned at the moment.
+        </Text>
+        <Button
+          title="Return to Dashboard"
+          style={{ marginTop: 16 }}
+          onPress={() => router.replace('/(driver)/dashboard')}
+        />
+      </View>
+    );
+  }
+
+  const step = delivery.currentStep;
+  const isCod = delivery.paymentMethod === 'COD';
 
   return (
     <View style={styles.container}>
@@ -375,7 +370,7 @@ export default function ActiveDeliveryScreen() {
             {/* Checklist of items to collect */}
             <View style={styles.itemsSection}>
               <Text style={styles.itemsSectionTitle}>Order Items Checklist</Text>
-              {delivery.items.map((item) => {
+              {delivery.items.map((item: any) => {
                 const isChecked = Boolean(checkedItems[item.id]);
                 return (
                   <TouchableOpacity
@@ -418,7 +413,7 @@ export default function ActiveDeliveryScreen() {
                 size="lg"
                 variant="primary"
                 isLoading={advanceStepMutation.isPending}
-                onPress={() => advanceStepMutation.mutate('ARRIVED_AT_RESTAURANT')}
+                onPress={() => advanceStepMutation.mutate({ nextStep: 'ARRIVED_AT_RESTAURANT' })}
                 style={{ marginTop: 16 }}
               />
             ) : (
@@ -427,7 +422,7 @@ export default function ActiveDeliveryScreen() {
                 size="lg"
                 variant="primary"
                 isLoading={advanceStepMutation.isPending}
-                onPress={() => advanceStepMutation.mutate('PICKED_UP')}
+                onPress={() => advanceStepMutation.mutate({ nextStep: 'PICKED_UP' })}
                 style={{ marginTop: 16 }}
               />
             )}
@@ -487,7 +482,7 @@ export default function ActiveDeliveryScreen() {
                 size="lg"
                 variant="primary"
                 isLoading={advanceStepMutation.isPending}
-                onPress={() => advanceStepMutation.mutate('HEADING_TO_CUSTOMER')}
+                onPress={() => advanceStepMutation.mutate({ nextStep: 'HEADING_TO_CUSTOMER' })}
                 style={{ marginTop: 16 }}
               />
             ) : step === 'HEADING_TO_CUSTOMER' ? (
@@ -496,7 +491,7 @@ export default function ActiveDeliveryScreen() {
                 size="lg"
                 variant="primary"
                 isLoading={advanceStepMutation.isPending}
-                onPress={() => advanceStepMutation.mutate('ARRIVED_AT_CUSTOMER')}
+                onPress={() => advanceStepMutation.mutate({ nextStep: 'ARRIVED_AT_CUSTOMER' })}
                 style={{ marginTop: 16 }}
               />
             ) : (
@@ -543,7 +538,7 @@ export default function ActiveDeliveryScreen() {
           isLoading={advanceStepMutation.isPending}
           onConfirm={(proofNotes, photoTaken) => {
             setShowProofModal(false);
-            advanceStepMutation.mutate('DELIVERED');
+            advanceStepMutation.mutate({ nextStep: 'DELIVERED', notes: proofNotes });
           }}
         />
       ) : null}
@@ -575,6 +570,54 @@ export default function ActiveDeliveryScreen() {
           subtitle="OpenStreetMap Live Courier Navigation"
         />
       ) : null}
+
+      {/* Delivery Completed Celebration Modal */}
+      <Modal visible={showCelebrationModal} transparent animationType="fade">
+        <View style={styles.celebrationOverlay}>
+          <View style={styles.celebrationCard}>
+            <View style={styles.celebrationIconBox}>
+              <CheckCircle2 size={52} color="#16A34A" />
+            </View>
+            <Text style={styles.celebrationTitle}>Delivery Completed! 🎉</Text>
+            <Text style={styles.celebrationSub}>
+              Order #{completedOrderSummary?.orderNumber || delivery?.orderNumber}
+            </Text>
+
+            <View style={styles.celebrationPayoutBox}>
+              <Text style={styles.celebrationPayoutLabel}>Total Earnings Credited</Text>
+              <Text style={styles.celebrationPayoutAmount}>
+                ${formatCurrency(
+                  toNumber(completedOrderSummary?.driverPayout || delivery?.driverPayout || 5) +
+                    toNumber(completedOrderSummary?.customerTip || delivery?.customerTip || 0)
+                )}
+              </Text>
+              <Text style={styles.celebrationPayoutNote}>
+                Base Payout: ${formatCurrency(completedOrderSummary?.driverPayout || delivery?.driverPayout || 5)}
+                {Number(completedOrderSummary?.customerTip || delivery?.customerTip) > 0
+                  ? ` • Tip: +$${formatCurrency(completedOrderSummary?.customerTip || delivery?.customerTip)}`
+                  : ''}
+              </Text>
+            </View>
+
+            <Text style={styles.celebrationCongratsText}>
+              Outstanding job! The customer has been notified and the trip payout is available in your balance.
+            </Text>
+
+            <Button
+              title="Return to Job Radar"
+              size="lg"
+              variant="primary"
+              style={{ width: '100%', marginTop: 20 }}
+              onPress={() => {
+                setShowCelebrationModal(false);
+                queryClient.invalidateQueries({ queryKey: ['activeDelivery'] });
+                queryClient.invalidateQueries({ queryKey: ['availableJobs'] });
+                router.replace('/(driver)/dashboard');
+              }}
+            />
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -899,6 +942,81 @@ const styles = StyleSheet.create({
   },
   mapSectionCard: {
     marginVertical: 4,
+  },
+  celebrationOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.65)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  celebrationCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    padding: 28,
+    width: '100%',
+    maxWidth: 420,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.25,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  celebrationIconBox: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+    backgroundColor: '#F0FDF4',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  celebrationTitle: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: '#0F172A',
+    marginBottom: 4,
+  },
+  celebrationSub: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#64748B',
+    marginBottom: 18,
+  },
+  celebrationPayoutBox: {
+    backgroundColor: '#F8FAFC',
+    borderRadius: 16,
+    padding: 16,
+    width: '100%',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    marginBottom: 16,
+  },
+  celebrationPayoutLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#64748B',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  celebrationPayoutAmount: {
+    fontSize: 32,
+    fontWeight: '900',
+    color: '#16A34A',
+    marginVertical: 4,
+  },
+  celebrationPayoutNote: {
+    fontSize: 12,
+    color: '#475569',
+  },
+  celebrationCongratsText: {
+    fontSize: 13,
+    color: '#64748B',
+    textAlign: 'center',
+    lineHeight: 19,
+    paddingHorizontal: 12,
   },
 });
 

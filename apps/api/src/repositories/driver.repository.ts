@@ -139,12 +139,16 @@ export class DriverRepository {
   /**
    * Queries orders currently awaiting courier pickup.
    */
-  async findAvailableOrders(driverLat?: number, driverLng?: number, maxDistanceKm: number = 25) {
-    // Orders in kitchen preparation or ready for courier without active driver assignment
+  async findAvailableOrders(driverLat?: number, driverLng?: number, maxDistanceKm: number = 35) {
+    // Orders confirmed by restaurant, preparing, or ready for courier pickup without active driver
     const orders = await prisma.order.findMany({
       where: {
         status: {
-          in: [OrderStatusEnum.PREPARING, OrderStatusEnum.READY_FOR_PICKUP],
+          in: [
+            OrderStatusEnum.RESTAURANT_ACCEPTED,
+            OrderStatusEnum.PREPARING,
+            OrderStatusEnum.READY_FOR_PICKUP,
+          ],
         },
         OR: [
           { deliveryAssignment: null },
@@ -348,20 +352,22 @@ export class DriverRepository {
           status: AssignmentStatusEnum.ACCEPTED,
           acceptedAt: new Date(),
           driverPayout: new Prisma.Decimal(payout.toFixed(2)),
+          notes: 'HEADING_TO_RESTAURANT',
         },
         update: {
           driverId,
           status: AssignmentStatusEnum.ACCEPTED,
           acceptedAt: new Date(),
           driverPayout: new Prisma.Decimal(payout.toFixed(2)),
+          notes: 'HEADING_TO_RESTAURANT',
         },
         include: {
           order: true,
         },
       });
 
-      // 4. Update order status if not yet marked as DRIVER_ASSIGNED
-      if (order.status !== OrderStatusEnum.READY_FOR_PICKUP) {
+      // 4. Update order status to DRIVER_ASSIGNED
+      if (order.status !== OrderStatusEnum.DRIVER_ASSIGNED) {
         await tx.order.update({
           where: { id: orderId },
           data: { status: OrderStatusEnum.DRIVER_ASSIGNED },
@@ -413,12 +419,27 @@ export class DriverRepository {
 
       const orderId = assignment.orderId;
 
-      if (step === 'PICKED_UP') {
+      if (step === 'ARRIVED_AT_RESTAURANT') {
+        await tx.deliveryAssignment.update({
+          where: { id: assignmentId },
+          data: { notes: 'ARRIVED_AT_RESTAURANT' },
+        });
+
+        await tx.orderStatusHistory.create({
+          data: {
+            orderId,
+            status: assignment.order.status,
+            notes: notes || 'Courier arrived at restaurant to collect order',
+            changedById: driver?.userId || null,
+          },
+        });
+      } else if (step === 'PICKED_UP') {
         await tx.deliveryAssignment.update({
           where: { id: assignmentId },
           data: {
             status: AssignmentStatusEnum.PICKED_UP,
             pickedUpAt: new Date(),
+            notes: 'PICKED_UP',
           },
         });
 
@@ -436,6 +457,11 @@ export class DriverRepository {
           },
         });
       } else if (step === 'HEADING_TO_CUSTOMER') {
+        await tx.deliveryAssignment.update({
+          where: { id: assignmentId },
+          data: { notes: 'HEADING_TO_CUSTOMER' },
+        });
+
         await tx.order.update({
           where: { id: orderId },
           data: { status: OrderStatusEnum.ON_THE_WAY },
@@ -449,12 +475,27 @@ export class DriverRepository {
             changedById: driver?.userId || null,
           },
         });
+      } else if (step === 'ARRIVED_AT_CUSTOMER') {
+        await tx.deliveryAssignment.update({
+          where: { id: assignmentId },
+          data: { notes: 'ARRIVED_AT_CUSTOMER' },
+        });
+
+        await tx.orderStatusHistory.create({
+          data: {
+            orderId,
+            status: OrderStatusEnum.ON_THE_WAY,
+            notes: notes || 'Courier arrived at customer dropoff destination',
+            changedById: driver?.userId || null,
+          },
+        });
       } else if (step === 'DELIVERED') {
         await tx.deliveryAssignment.update({
           where: { id: assignmentId },
           data: {
             status: AssignmentStatusEnum.DELIVERED,
             deliveredAt: new Date(),
+            notes: 'DELIVERED',
           },
         });
 

@@ -145,6 +145,12 @@ export class DriverService {
       return [];
     }
 
+    // 1-job constraint: Driver cannot receive new offers while on an active delivery
+    const active = await driverRepository.findActiveAssignment(driver.id);
+    if (active) {
+      return [];
+    }
+
     const lat = driverLat || driver.currentLatitude || 40.7128;
     const lng = driverLng || driver.currentLongitude || -74.006;
 
@@ -162,6 +168,14 @@ export class DriverService {
 
     if (!driver.isOnline) {
       throw new BadRequestError('You must go online to accept delivery requests');
+    }
+
+    // 1-job constraint: Verify driver doesn't already have an in-flight delivery
+    const active = await driverRepository.findActiveAssignment(driver.id);
+    if (active) {
+      throw new BadRequestError(
+        'You already have an active in-flight delivery. Complete it before accepting another.'
+      );
     }
 
     const assignment = await driverRepository.acceptJob(driver.id, orderId);
@@ -197,9 +211,21 @@ export class DriverService {
 
     const order = assignment.order;
 
-    // Derive step based on order and assignment state
+    // Derive step based on assignment.notes, order, and assignment state
     let currentStep: DeliveryWorkflowStep = 'HEADING_TO_RESTAURANT';
-    if (assignment.status === AssignmentStatusEnum.PICKED_UP) {
+    if (
+      assignment.notes &&
+      [
+        'HEADING_TO_RESTAURANT',
+        'ARRIVED_AT_RESTAURANT',
+        'PICKED_UP',
+        'HEADING_TO_CUSTOMER',
+        'ARRIVED_AT_CUSTOMER',
+        'DELIVERED',
+      ].includes(assignment.notes)
+    ) {
+      currentStep = assignment.notes as DeliveryWorkflowStep;
+    } else if (assignment.status === AssignmentStatusEnum.PICKED_UP) {
       currentStep =
         order.status === OrderStatusEnum.ON_THE_WAY
           ? 'HEADING_TO_CUSTOMER'
@@ -271,25 +297,101 @@ export class DriverService {
       throw new BadRequestError('No active in-flight delivery assignment found');
     }
 
-    await driverRepository.advanceWorkflowStep(driver.id, active.id, step, notes);
-    const updated = await this.getActiveDelivery(userId);
+    const updatedAssignment = await driverRepository.advanceWorkflowStep(
+      driver.id,
+      active.id,
+      step,
+      notes
+    );
 
-    if (updated) {
+    // Broadcast status change over socket to customer & store
+    if (step === 'DELIVERED') {
       emitOrderStatusChanged(
         active.orderId,
         {
           orderId: active.orderId,
           orderNumber: active.order.orderNumber,
           previousStatus: active.order.status as any,
-          newStatus: updated.status as any,
+          newStatus: OrderStatus.DELIVERED,
           updatedAt: new Date().toISOString(),
-          notes: `Courier workflow advanced to ${step}`,
+          notes: notes || 'Courier successfully delivered order to customer',
+        },
+        active.order.restaurantId
+      );
+    } else if (step === 'PICKED_UP') {
+      emitOrderStatusChanged(
+        active.orderId,
+        {
+          orderId: active.orderId,
+          orderNumber: active.order.orderNumber,
+          previousStatus: active.order.status as any,
+          newStatus: OrderStatus.PICKED_UP,
+          updatedAt: new Date().toISOString(),
+          notes: notes || 'Courier picked up order from restaurant',
+        },
+        active.order.restaurantId
+      );
+    } else if (step === 'HEADING_TO_CUSTOMER') {
+      emitOrderStatusChanged(
+        active.orderId,
+        {
+          orderId: active.orderId,
+          orderNumber: active.order.orderNumber,
+          previousStatus: active.order.status as any,
+          newStatus: OrderStatus.ON_THE_WAY,
+          updatedAt: new Date().toISOString(),
+          notes: notes || 'Courier is en route to customer destination',
         },
         active.order.restaurantId
       );
     }
 
-    return updated;
+    if (step === 'DELIVERED' && updatedAssignment) {
+      const order = updatedAssignment.order;
+      return {
+        assignmentId: updatedAssignment.id,
+        orderId: order.id,
+        orderNumber: order.orderNumber,
+        status: OrderStatusEnum.DELIVERED,
+        currentStep: 'DELIVERED' as DeliveryWorkflowStep,
+        restaurant: {
+          id: order.restaurant.id,
+          name: order.restaurant.name,
+          street: order.restaurant.street,
+          city: order.restaurant.city,
+          latitude: order.restaurant.latitude,
+          longitude: order.restaurant.longitude,
+          phone: order.restaurant.phone,
+        },
+        customer: {
+          name: order.customer.name,
+          phone: order.customer.phone,
+        },
+        deliveryAddress: {
+          street: order.deliveryAddress.street,
+          apartment: order.deliveryAddress.apartment,
+          city: order.deliveryAddress.city,
+          latitude: order.deliveryAddress.latitude,
+          longitude: order.deliveryAddress.longitude,
+          deliveryInstructions: order.deliveryAddress.deliveryInstructions,
+        },
+        items: order.items.map((i: any) => ({
+          id: i.id,
+          quantity: i.quantity,
+          name: i.nameSnapshot,
+          addons: i.addons ? i.addons.map((a: any) => a.nameSnapshot) : [],
+          specialNotes: i.specialNotes,
+        })),
+        totalAmount: Number(order.totalAmount),
+        driverPayout: Number(updatedAssignment.driverPayout),
+        customerTip: Number(order.tipAmount || 0),
+        paymentMethod: order.payment?.paymentMethod || PaymentMethodEnum.COD,
+        acceptedAt: updatedAssignment.acceptedAt?.toISOString() || null,
+        pickedUpAt: updatedAssignment.pickedUpAt?.toISOString() || null,
+      };
+    }
+
+    return this.getActiveDelivery(userId);
   }
 
   /**

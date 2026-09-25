@@ -79,6 +79,7 @@ export default function DriverDashboardScreen() {
 
     const unsubJob = mobileSocketService.onJobAvailable((newJob) => {
       console.log('⚡ New job broadcast received on radar:', newJob.orderNumber);
+      if (activeDelivery) return;
       queryClient.setQueryData(['availableJobs'], (oldJobs: DeliveryJobRequestDto[] = []) => {
         if (oldJobs.some((j) => j.orderId === newJob.orderId)) {
           return oldJobs;
@@ -90,7 +91,7 @@ export default function DriverDashboardScreen() {
     return () => {
       unsubJob();
     };
-  }, [isOnline, queryClient]);
+  }, [isOnline, activeDelivery, queryClient]);
 
   // Available jobs on radar (real-time jobs received via Socket.IO above)
   const {
@@ -439,6 +440,24 @@ export default function DriverDashboardScreen() {
               variant="primary"
               style={{ marginTop: 14 }}
               onPress={() => toggleStatusMutation.mutate(true)}
+            />
+          </View>
+        ) : activeDelivery ? (
+          <View style={styles.activeRadarNotice}>
+            <View style={styles.activeRadarIcon}>
+              <Bike size={32} color="#FF4B3A" />
+            </View>
+            <Text style={styles.activeRadarNoticeTitle}>Active Delivery in Progress</Text>
+            <Text style={styles.activeRadarNoticeSub}>Order #{activeDelivery.orderNumber}</Text>
+            <Text style={styles.activeRadarNoticeText}>
+              A courier driver can accept only one job at a time. Please fulfill Order #{activeDelivery.orderNumber} before accepting new radar requests.
+            </Text>
+            <Button
+              title="Resume Delivery Navigation"
+              size="sm"
+              variant="primary"
+              style={{ marginTop: 14 }}
+              onPress={() => router.push('/(driver)/active-delivery')}
             />
           </View>
         ) : jobs.length === 0 ? (
@@ -831,6 +850,48 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 4,
     lineHeight: 18,
+  },
+  activeRadarNotice: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 18,
+    padding: 28,
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#FED7AA',
+    shadowColor: '#EA580C',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  activeRadarIcon: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#FFF7ED',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  activeRadarNoticeTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#1E293B',
+    marginTop: 6,
+  },
+  activeRadarNoticeSub: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#EA580C',
+    marginTop: 2,
+  },
+  activeRadarNoticeText: {
+    fontSize: 13,
+    color: '#64748B',
+    textAlign: 'center',
+    marginTop: 6,
+    lineHeight: 19,
+    paddingHorizontal: 10,
   },
   emptyRadarState: {
     backgroundColor: '#FFFFFF',
