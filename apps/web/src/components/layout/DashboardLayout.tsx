@@ -26,7 +26,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = () => {
   useEffect(() => {
     if (restaurants && restaurants.length > 0) {
       const current = useAuthStore.getState().restaurant;
-      if (!current || !restaurants.some((r) => r.id === current.id)) {
+      if (!current || (current.id !== 'all' && !restaurants.some((r) => r.id === current.id))) {
         setRestaurants(restaurants);
       }
     }

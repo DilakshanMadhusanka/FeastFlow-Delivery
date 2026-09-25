@@ -59,8 +59,12 @@ export class RestaurantController {
   async createRestaurant(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       if (!req.user) throw new UnauthorizedError();
-      const restaurant = await restaurantService.createRestaurant(req.user.id, req.body);
-      sendCreated(res, restaurant, 'Restaurant submitted successfully. Awaiting approval.');
+      const userRoles = (req.user.roles || []) as unknown as UserRoleEnum[];
+      const restaurant = await restaurantService.createRestaurant(req.user.id, req.body, userRoles);
+      const message = userRoles.includes(UserRoleEnum.ADMIN)
+        ? 'Restaurant created and approved successfully.'
+        : 'Restaurant submitted successfully. Awaiting approval.';
+      sendCreated(res, restaurant, message);
     } catch (error) {
       next(error);
     }

@@ -11,9 +11,13 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
+import { UserRole } from '@food-delivery/shared';
 
 export const Sidebar: React.FC = () => {
   const { user, restaurant, restaurants, setRestaurant, logout } = useAuthStore();
+  const isAdmin = Boolean(
+    user?.roles?.includes(UserRole.ADMIN) || user?.roles?.includes('ADMIN' as any)
+  );
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -36,6 +40,11 @@ export const Sidebar: React.FC = () => {
       to: '/analytics',
       icon: BarChart3,
       label: 'Daily Stats & KPIs',
+    },
+    {
+      to: '/restaurants',
+      icon: Store,
+      label: 'Restaurants',
     },
     {
       to: '/settings',
@@ -70,27 +79,44 @@ export const Sidebar: React.FC = () => {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs font-bold text-gray-900 truncate">
-                {restaurant?.name || 'No Restaurant Selected'}
+                {isAdmin
+                  ? restaurant?.id === 'all'
+                    ? 'All Restaurants'
+                    : restaurant?.name || 'All Restaurants'
+                  : restaurant?.name || 'No Restaurant Selected'}
               </p>
               <p className="text-[11px] text-gray-500 truncate">
-                {restaurant?.city ? `${restaurant.city} Branch` : 'Kitchen Terminal'}
+                {isAdmin
+                  ? 'System Administrator'
+                  : restaurant?.city
+                  ? `${restaurant.city} Branch`
+                  : 'Kitchen Terminal'}
               </p>
             </div>
           </div>
 
-          {restaurants.length > 1 && (
+          {(restaurants.length > 1 || isAdmin) && (
             <div className="mt-2.5 pt-2 border-t border-gray-200/60">
               <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
                 Switch Restaurant / Branch
               </label>
               <select
-                value={restaurant?.id || ''}
+                value={restaurant?.id || (isAdmin ? 'all' : '')}
                 onChange={(e) => {
+                  if (e.target.value === 'all') {
+                    setRestaurant({
+                      id: 'all',
+                      name: 'All Restaurants',
+                      city: 'Platform Wide',
+                    } as any);
+                    return;
+                  }
                   const found = restaurants.find((r) => r.id === e.target.value);
                   if (found) setRestaurant(found);
                 }}
                 className="w-full text-xs font-semibold bg-white border border-gray-200 rounded-lg p-1.5 text-gray-700 focus:outline-none focus:ring-1 focus:ring-brand-500 shadow-sm cursor-pointer"
               >
+                {isAdmin && <option value="all">🌐 All Restaurants (Platform)</option>}
                 {restaurants.map((r) => (
                   <option key={r.id} value={r.id}>
                     {r.name} ({r.city})

@@ -31,8 +31,13 @@ export interface Restaurant {
   slug: string;
   description?: string | null;
   phone: string;
+  email?: string | null;
   street: string;
   city: string;
+  latitude?: number;
+  longitude?: number;
+  deliveryRadiusKm?: number;
+  minimumOrderAmount?: number;
   logoUrl?: string | null;
   bannerUrl?: string | null;
   deliveryFeeBase: number;
@@ -43,6 +48,38 @@ export interface Restaurant {
   isActive: boolean;
   isApproved: boolean;
   operatingHours?: OperatingHour[];
+  owner?: {
+    id: string;
+    name: string;
+    email: string;
+    phone?: string;
+  };
+  categoryLinks?: Array<{
+    category: {
+      id: string;
+      name: string;
+      slug: string;
+    };
+  }>;
+}
+
+export interface CreateRestaurantInput {
+  name: string;
+  description?: string;
+  phone: string;
+  email?: string;
+  street: string;
+  city: string;
+  latitude?: number;
+  longitude?: number;
+  deliveryRadiusKm?: number;
+  minimumOrderAmount?: number;
+  deliveryFeeBase?: number;
+  estimatedDeliveryMin?: number;
+  estimatedDeliveryMax?: number;
+  categoryIds?: string[];
+  ownerId?: string;
+  isApproved?: boolean;
 }
 
 export interface FoodAddon {
@@ -75,6 +112,12 @@ export interface FoodItem {
   category?: {
     id: string;
     name: string;
+  };
+  restaurant?: {
+    id: string;
+    name: string;
+    slug?: string;
+    city?: string;
   };
   options?: FoodOption[];
 }

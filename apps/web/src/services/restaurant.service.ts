@@ -1,13 +1,27 @@
 import { apiClient } from './api';
 import { ApiResponse } from '@food-delivery/shared';
-import { Restaurant, OperatingHour } from '../types';
+import { Restaurant, OperatingHour, CreateRestaurantInput } from '../types';
 
 export const restaurantService = {
   async getMyRestaurants(): Promise<Restaurant[]> {
     const response = await apiClient.get<ApiResponse<Restaurant[]>>(
       '/restaurants/owner/my-restaurants'
     );
-    return response.data.data || [];
+    const list = response.data.data || [];
+    return list.map((r: any) => ({
+      ...r,
+      deliveryFeeBase: Number(r.deliveryFeeBase || 0),
+      minimumOrderAmount: Number(r.minimumOrderAmount || 0),
+      ratingAverage: Number(r.ratingAverage || 0),
+    }));
+  },
+
+  async createRestaurant(data: CreateRestaurantInput): Promise<Restaurant> {
+    const response = await apiClient.post<ApiResponse<Restaurant>>('/restaurants', data);
+    if (!response.data.data) {
+      throw new Error(response.data.message || 'Failed to create restaurant');
+    }
+    return response.data.data;
   },
 
   async getRestaurantById(id: string): Promise<Restaurant> {

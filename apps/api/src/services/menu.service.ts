@@ -193,6 +193,18 @@ export class MenuService {
   }
 
   async getRestaurantMenu(restaurantId: string) {
+    if (restaurantId === 'all') {
+      const categories = await menuRepository.findRestaurantMenu('all');
+      return {
+        restaurant: {
+          id: 'all',
+          name: 'All Restaurants',
+          slug: 'all-restaurants',
+        },
+        categories,
+      };
+    }
+
     const restaurant = await restaurantRepository.findById(restaurantId);
     if (!restaurant) {
       throw new NotFoundError('Restaurant not found.', ErrorCode.RESTAURANT_NOT_FOUND);

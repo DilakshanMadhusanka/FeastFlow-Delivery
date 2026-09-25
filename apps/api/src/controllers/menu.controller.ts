@@ -66,6 +66,15 @@ export class MenuController {
     }
   }
 
+  async getAllRestaurantsMenu(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const menu = await menuService.getRestaurantMenu('all');
+      sendSuccess(res, menu, 'All restaurants menu retrieved successfully');
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async getFoodItemDetails(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { id } = req.params;

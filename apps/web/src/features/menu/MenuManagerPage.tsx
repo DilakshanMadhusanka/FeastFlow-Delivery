@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Plus,
@@ -10,17 +10,38 @@ import {
   CheckCircle2,
   XCircle,
   FolderPlus,
+  Store,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { menuService } from '../../services/menu.service';
 import { FoodCategory, FoodItem } from '../../types';
+import { UserRole } from '@food-delivery/shared';
 import { Button } from '../../components/ui/Button';
 import { Modal } from '../../components/ui/Modal';
 import { Navbar } from '../../components/layout/Navbar';
 
 export const MenuManagerPage: React.FC = () => {
   const queryClient = useQueryClient();
-  const { restaurant } = useAuthStore();
+  const { restaurant, restaurants, setRestaurant, user } = useAuthStore();
+  const isAdmin = Boolean(
+    user?.roles?.includes(UserRole.ADMIN) || user?.roles?.includes('ADMIN' as any)
+  );
+
+  const [selectedBranchId, setSelectedBranchId] = useState<string>(() =>
+    isAdmin ? 'ALL' : restaurant?.id || 'ALL'
+  );
+
+  useEffect(() => {
+    if (isAdmin) {
+      setSelectedBranchId('ALL');
+    } else if (restaurant?.id && selectedBranchId === 'ALL') {
+      setSelectedBranchId(restaurant.id);
+    }
+  }, [isAdmin, restaurant?.id]);
+
+  const isViewingAll = selectedBranchId === 'ALL';
+  const queryRestaurantId = isViewingAll ? 'all' : selectedBranchId;
+
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
@@ -33,17 +54,18 @@ export const MenuManagerPage: React.FC = () => {
   const [categoryId, setCategoryId] = useState('');
   const [prepTime, setPrepTime] = useState('15');
   const [newCatName, setNewCatName] = useState('');
+  const [targetRestaurantId, setTargetRestaurantId] = useState('');
 
-  // Fetch restaurant menu categories and items
+  // Fetch restaurant menu categories and items (pushed all-restaurants if admin)
   const {
     data: rawCategories = [],
     isLoading,
     isFetching,
     refetch,
   } = useQuery({
-    queryKey: ['restaurantMenu', restaurant?.id],
-    queryFn: () => menuService.getRestaurantMenu(restaurant!.id),
-    enabled: Boolean(restaurant?.id),
+    queryKey: ['restaurantMenu', queryRestaurantId],
+    queryFn: () => menuService.getRestaurantMenu(queryRestaurantId),
+    enabled: Boolean(isViewingAll || selectedBranchId || restaurant?.id),
     staleTime: 30 * 1000,
   });
 
@@ -67,45 +89,61 @@ export const MenuManagerPage: React.FC = () => {
     mutationFn: ({ id, isAvailable }: { id: string; isAvailable: boolean }) =>
       menuService.toggleAvailability(id, isAvailable),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['restaurantMenu', restaurant?.id] });
-      queryClient.refetchQueries({ queryKey: ['restaurantMenu', restaurant?.id] });
+      queryClient.invalidateQueries({ queryKey: ['restaurantMenu'] });
+      queryClient.refetchQueries({ queryKey: ['restaurantMenu'] });
     },
   });
 
   // Create new food item mutation
   const createItemMutation = useMutation({
-    mutationFn: () =>
-      menuService.createFoodItem({
-        restaurantId: restaurant!.id,
+    mutationFn: () => {
+      const activeRestId = isViewingAll
+        ? targetRestaurantId
+        : selectedBranchId !== 'ALL'
+        ? selectedBranchId
+        : restaurant?.id;
+      if (!activeRestId) {
+        throw new Error('Please select a target restaurant');
+      }
+      return menuService.createFoodItem({
+        restaurantId: activeRestId,
         categoryId,
         name: name.trim(),
         description: description.trim() || undefined,
         price: parseFloat(price),
         preparationTimeMin: parseInt(prepTime, 10) || 15,
         isAvailable: true,
-      }),
+      });
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['restaurantMenu', restaurant?.id] });
-      queryClient.refetchQueries({ queryKey: ['restaurantMenu', restaurant?.id] });
+      queryClient.invalidateQueries({ queryKey: ['restaurantMenu'] });
+      queryClient.refetchQueries({ queryKey: ['restaurantMenu'] });
       setShowAddModal(false);
       setName('');
       setDescription('');
       setPrice('');
       setCategoryId('');
       setPrepTime('15');
+      setTargetRestaurantId('');
     },
   });
 
   // Create new category mutation
   const createCatMutation = useMutation({
-    mutationFn: () =>
-      menuService.createCategory({
+    mutationFn: () => {
+      const activeRestId = isViewingAll
+        ? undefined
+        : selectedBranchId !== 'ALL'
+        ? selectedBranchId
+        : restaurant?.id;
+      return menuService.createCategory({
         name: newCatName.trim(),
-        restaurantId: restaurant!.id,
-      }),
+        restaurantId: activeRestId,
+      });
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['restaurantMenu', restaurant?.id] });
-      queryClient.refetchQueries({ queryKey: ['restaurantMenu', restaurant?.id] });
+      queryClient.invalidateQueries({ queryKey: ['restaurantMenu'] });
+      queryClient.refetchQueries({ queryKey: ['restaurantMenu'] });
       queryClient.invalidateQueries({ queryKey: ['globalCategories'] });
       setShowCategoryModal(false);
       setNewCatName('');
@@ -116,8 +154,8 @@ export const MenuManagerPage: React.FC = () => {
   const deleteMutation = useMutation({
     mutationFn: (id: string) => menuService.deleteFoodItem(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['restaurantMenu', restaurant?.id] });
-      queryClient.refetchQueries({ queryKey: ['restaurantMenu', restaurant?.id] });
+      queryClient.invalidateQueries({ queryKey: ['restaurantMenu'] });
+      queryClient.refetchQueries({ queryKey: ['restaurantMenu'] });
     },
   });
 
@@ -138,9 +176,74 @@ export const MenuManagerPage: React.FC = () => {
     return matchesCategory && matchesSearch;
   });
 
+  const currentBranchName = isViewingAll
+    ? 'All Restaurants (Platform Wide)'
+    : restaurants.find((r) => r.id === selectedBranchId)?.name || restaurant?.name || 'Kitchen';
+
   return (
     <div className="space-y-6">
-      <Navbar title="Menu & Inventory Management" onRefresh={refetch} isRefreshing={isFetching} />
+      <Navbar
+        title={`${currentBranchName} • Menu & Inventory Management`}
+        onRefresh={refetch}
+        isRefreshing={isFetching}
+      />
+
+      {/* Quick Branch Filter Bar */}
+      {(isAdmin || restaurants.length > 1) && (
+        <div className="flex items-center gap-3 bg-white p-3 rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-gray-500 uppercase tracking-wider shrink-0">
+            <Store className="w-4 h-4 text-brand-500" />
+            <span>{isAdmin ? 'View Scope:' : 'Active Branch:'}</span>
+          </div>
+          <div className="flex gap-2">
+            {isAdmin && (
+              <button
+                onClick={() => setSelectedBranchId('ALL')}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
+                  isViewingAll
+                    ? 'bg-brand-500 text-white shadow-sm shadow-brand-500/20'
+                    : 'bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200/60'
+                }`}
+              >
+                <span>🌐 All Restaurants</span>
+                <span
+                  className={`text-[10px] px-1.5 py-0.5 rounded-md ${
+                    isViewingAll ? 'bg-white/20 text-white' : 'bg-gray-200 text-gray-600'
+                  }`}
+                >
+                  All ({allItems.length})
+                </span>
+              </button>
+            )}
+            {restaurants.map((r) => {
+              const isSelected = !isViewingAll && selectedBranchId === r.id;
+              return (
+                <button
+                  key={r.id}
+                  onClick={() => {
+                    setSelectedBranchId(r.id);
+                    setRestaurant(r);
+                  }}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
+                    isSelected
+                      ? 'bg-brand-500 text-white shadow-sm shadow-brand-500/20'
+                      : 'bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200/60'
+                  }`}
+                >
+                  <span>{r.name}</span>
+                  <span
+                    className={`text-[10px] px-1.5 py-0.5 rounded-md ${
+                      isSelected ? 'bg-white/20 text-white' : 'bg-gray-200 text-gray-600'
+                    }`}
+                  >
+                    {r.city}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Action Bar */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
@@ -210,7 +313,9 @@ export const MenuManagerPage: React.FC = () => {
           <table className="w-full text-left text-xs">
             <thead className="bg-gray-50/75 border-b border-gray-100 text-gray-400 font-extrabold uppercase tracking-wider">
               <tr>
-                <th className="py-3.5 px-6">Item Name</th>
+                <th className="py-3.5 px-6">
+                  {isAdmin || isViewingAll ? 'Item Name & Restaurant' : 'Item Name'}
+                </th>
                 <th className="py-3.5 px-4">Category</th>
                 <th className="py-3.5 px-4">Price</th>
                 <th className="py-3.5 px-4">Prep Time</th>
@@ -242,7 +347,14 @@ export const MenuManagerPage: React.FC = () => {
                           </div>
                         )}
                         <div>
-                          <p className="font-extrabold text-sm text-gray-900">{item.name}</p>
+                          <div className="flex items-center gap-2">
+                            <p className="font-extrabold text-sm text-gray-900">{item.name}</p>
+                            {item.restaurant && (
+                              <span className="text-[10px] font-bold bg-orange-50 text-orange-700 border border-orange-200/80 px-2 py-0.5 rounded-md shrink-0">
+                                {item.restaurant.name}
+                              </span>
+                            )}
+                          </div>
                           <p className="text-gray-500 line-clamp-1 text-[11px] max-w-xs mt-0.5">
                             {item.description || 'No description provided'}
                           </p>
@@ -329,6 +441,27 @@ export const MenuManagerPage: React.FC = () => {
           }}
           className="space-y-4"
         >
+          {isViewingAll && (
+            <div>
+              <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                Target Restaurant
+              </label>
+              <select
+                value={targetRestaurantId}
+                onChange={(e) => setTargetRestaurantId(e.target.value)}
+                className="w-full text-xs p-2.5 rounded-xl border border-gray-200 focus:ring-1 focus:ring-brand-500 font-medium"
+                required
+              >
+                <option value="">Select a restaurant</option>
+                {restaurants.map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {r.name} ({r.city})
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           <div>
             <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
               Food Item Name
@@ -415,7 +548,7 @@ export const MenuManagerPage: React.FC = () => {
               size="sm"
               type="submit"
               isLoading={createItemMutation.isPending}
-              disabled={!name.trim() || !price || !categoryId}
+              disabled={!name.trim() || !price || !categoryId || (isViewingAll && !targetRestaurantId)}
             >
               Save Food Item
             </Button>

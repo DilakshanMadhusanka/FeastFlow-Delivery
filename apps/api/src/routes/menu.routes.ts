@@ -33,6 +33,13 @@ router.get(
 // PROTECTED MERCHANT ROUTES (RESTAURANT OWNER & ADMIN)
 // ==========================================
 
+router.get(
+  '/admin/all',
+  requireAuth,
+  requireRole(UserRoleEnum.ADMIN),
+  menuController.getAllRestaurantsMenu.bind(menuController)
+);
+
 router.post(
   '/categories',
   requireAuth,

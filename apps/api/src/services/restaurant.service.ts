@@ -25,7 +25,7 @@ export class RestaurantService {
     return `${baseSlug}-${randomSuffix}`;
   }
 
-  async createRestaurant(ownerId: string, input: CreateRestaurantInput) {
+  async createRestaurant(ownerId: string, input: CreateRestaurantInput, userRoles: UserRoleEnum[] = []) {
     const slug = this.generateSlug(input.name);
 
     // Verify slug uniqueness
@@ -34,7 +34,13 @@ export class RestaurantService {
       throw new ConflictError('A restaurant with this name already exists. Please choose a slightly different name.');
     }
 
-    const restaurant = await restaurantRepository.create(ownerId, slug, input);
+    const isAdmin = userRoles.includes(UserRoleEnum.ADMIN);
+    const enrichedInput: CreateRestaurantInput = {
+      ...input,
+      isApproved: isAdmin ? (input.isApproved ?? true) : (input.isApproved ?? false),
+    };
+
+    const restaurant = await restaurantRepository.create(ownerId, slug, enrichedInput);
     return restaurantRepository.findById(restaurant.id);
   }
 

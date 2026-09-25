@@ -67,12 +67,39 @@ export class OrderController {
         },
         {
           page: page ? parseInt(page, 10) : 1,
-          limit: limit ? parseInt(limit, 10) : 10,
+          limit: limit ? parseInt(limit, 10) : 100,
           status,
         }
       );
 
       sendSuccess(res, result, 'Restaurant orders retrieved successfully');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getAllOrders(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      if (!req.user) throw new UnauthorizedError();
+      const { page, limit, status } = req.query as {
+        page?: string;
+        limit?: string;
+        status?: OrderStatusEnum;
+      };
+
+      const result = await orderService.getAllOrders(
+        {
+          userId: req.user.id,
+          roles: req.user.roles,
+        },
+        {
+          page: page ? parseInt(page, 10) : 1,
+          limit: limit ? parseInt(limit, 10) : 100,
+          status,
+        }
+      );
+
+      sendSuccess(res, result, 'All restaurant orders retrieved successfully');
     } catch (error) {
       next(error);
     }

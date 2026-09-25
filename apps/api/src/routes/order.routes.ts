@@ -29,6 +29,13 @@ router.get(
 );
 
 router.get(
+  '/admin/all',
+  requireRole(UserRoleEnum.ADMIN),
+  validateRequest({ query: orderQuerySchema }),
+  orderController.getAllOrders.bind(orderController)
+);
+
+router.get(
   '/restaurant/:restaurantId',
   requireRole(UserRoleEnum.RESTAURANT_OWNER, UserRoleEnum.ADMIN),
   validateRequest({ query: orderQuerySchema }),

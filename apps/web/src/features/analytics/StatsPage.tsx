@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   DollarSign,
@@ -8,6 +8,10 @@ import {
   Clock,
   ArrowUpRight,
   Utensils,
+  Store,
+  Building2,
+  Filter,
+  ChevronRight,
 } from 'lucide-react';
 import {
   AreaChart,
@@ -17,33 +21,59 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  BarChart,
-  Bar,
   PieChart,
   Pie,
   Cell,
 } from 'recharts';
 import { useAuthStore } from '../../store/authStore';
 import { orderService } from '../../services/order.service';
-import { OrderStatus, OrderSummary } from '@food-delivery/shared';
+import { OrderStatus, OrderSummary, UserRole } from '@food-delivery/shared';
 import { Navbar } from '../../components/layout/Navbar';
 
 const STATUS_COLORS: Record<string, string> = {
   DELIVERED: '#16A34A',
-  ON_THE_WAY: '#8B5CF6',
+  OUT_FOR_DELIVERY: '#8B5CF6',
+  READY_FOR_PICKUP: '#6366F1',
   PREPARING: '#3B82F6',
+  RESTAURANT_ACCEPTED: '#0EA5E9',
   PENDING: '#F59E0B',
   CANCELLED: '#EF4444',
   REJECTED: '#DC2626',
 };
 
 export const StatsPage: React.FC = () => {
-  const { restaurant } = useAuthStore();
+  const { restaurant, restaurants, setRestaurant, user } = useAuthStore();
+  const isAdmin = Boolean(
+    user?.roles?.includes(UserRole.ADMIN) || user?.roles?.includes('ADMIN' as any)
+  );
+
+  // System admin defaults to 'ALL' to display stats of all restaurants
+  const [selectedBranchId, setSelectedBranchId] = useState<string>(() =>
+    isAdmin ? 'ALL' : restaurant?.id || 'ALL'
+  );
+
+  useEffect(() => {
+    if (isAdmin) {
+      setSelectedBranchId('ALL');
+    } else if (restaurant?.id && selectedBranchId === 'ALL') {
+      setSelectedBranchId(restaurant.id);
+    }
+  }, [isAdmin, restaurant?.id]);
+
+  const isViewingAll = selectedBranchId === 'ALL';
+  const targetRestaurantId = isViewingAll ? 'all' : selectedBranchId;
+
+  const currentBranchName = isViewingAll
+    ? 'All Restaurants (Platform Wide)'
+    : restaurants.find((r) => r.id === selectedBranchId)?.name ||
+      restaurant?.name ||
+      'My Restaurant';
 
   const { data: ordersData, isLoading, refetch } = useQuery({
-    queryKey: ['restaurantOrdersStats', restaurant?.id],
-    queryFn: () => orderService.getRestaurantOrders(restaurant!.id, { limit: 100 }),
-    enabled: Boolean(restaurant?.id),
+    queryKey: ['restaurantOrdersStats', targetRestaurantId],
+    queryFn: () => orderService.getRestaurantOrders(targetRestaurantId, { limit: 100 }),
+    enabled: Boolean(targetRestaurantId),
+    staleTime: 30 * 1000,
   });
 
   const orders: OrderSummary[] = ordersData?.items || [];
@@ -60,19 +90,51 @@ export const StatsPage: React.FC = () => {
   const fulfillmentRate =
     totalOrders > 0 ? Math.round((completedOrders / totalOrders) * 100) : 100;
 
-  // Hourly volume distribution (simulated from order timestamps)
-  const hourlyData = [
-    { time: '11:00 AM', orders: 3, revenue: 84.5 },
-    { time: '12:00 PM', orders: 8, revenue: 245.0 },
-    { time: '01:00 PM', orders: 12, revenue: 390.2 },
-    { time: '02:00 PM', orders: 6, revenue: 168.0 },
-    { time: '03:00 PM', orders: 2, revenue: 55.0 },
-    { time: '04:00 PM', orders: 4, revenue: 110.5 },
-    { time: '05:00 PM', orders: 9, revenue: 275.0 },
-    { time: '06:00 PM', orders: 15, revenue: 480.0 },
-    { time: '07:00 PM', orders: 18, revenue: 590.0 },
-    { time: '08:00 PM', orders: 14, revenue: 420.0 },
+  // Real hourly volume & revenue trend
+  const operatingHours = [
+    '10:00 AM',
+    '11:00 AM',
+    '12:00 PM',
+    '01:00 PM',
+    '02:00 PM',
+    '03:00 PM',
+    '04:00 PM',
+    '05:00 PM',
+    '06:00 PM',
+    '07:00 PM',
+    '08:00 PM',
+    '09:00 PM',
+    '10:00 PM',
   ];
+
+  const hourlyMap: Record<string, { orders: number; revenue: number }> = {};
+  operatingHours.forEach((time) => {
+    hourlyMap[time] = { orders: 0, revenue: 0 };
+  });
+
+  orders.forEach((o) => {
+    if (!o.placedAt) return;
+    const d = new Date(o.placedAt);
+    if (isNaN(d.getTime())) return;
+    let hour = d.getHours();
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    let displayHour = hour % 12;
+    if (displayHour === 0) displayHour = 12;
+    const timeKey = `${displayHour < 10 ? '0' + displayHour : displayHour}:00 ${ampm}`;
+    if (hourlyMap[timeKey]) {
+      hourlyMap[timeKey].orders += 1;
+      if (o.status !== OrderStatus.CANCELLED && o.status !== OrderStatus.REJECTED) {
+        hourlyMap[timeKey].revenue += o.totalAmount;
+      }
+    }
+  });
+
+  const hasHourlyActivity = Object.values(hourlyMap).some((h) => h.orders > 0);
+  const hourlyData = operatingHours.map((time) => ({
+    time,
+    orders: hasHourlyActivity ? hourlyMap[time].orders : 0,
+    revenue: hasHourlyActivity ? Number(hourlyMap[time].revenue.toFixed(2)) : 0,
+  }));
 
   // Status breakdown
   const statusCounts: Record<string, number> = {};
@@ -86,32 +148,174 @@ export const StatsPage: React.FC = () => {
     color: STATUS_COLORS[status] || '#6B7280',
   }));
 
-  // Top items aggregated from orders
-  const itemMap: Record<string, { count: number; revenue: number }> = {};
+  // Top items aggregated from orders with restaurant attribution
+  const itemMap: Record<
+    string,
+    { name: string; restaurantName?: string; count: number; revenue: number }
+  > = {};
   orders.forEach((order) => {
     (order.items || []).forEach((item) => {
-      const existing = itemMap[item.nameSnapshot] || { count: 0, revenue: 0 };
-      existing.count += item.quantity;
-      existing.revenue += item.subtotal;
-      itemMap[item.nameSnapshot] = existing;
+      const key = `${item.nameSnapshot}__${order.restaurant?.name || ''}`;
+      if (!itemMap[key]) {
+        itemMap[key] = {
+          name: item.nameSnapshot,
+          restaurantName: order.restaurant?.name,
+          count: 0,
+          revenue: 0,
+        };
+      }
+      itemMap[key].count += item.quantity;
+      itemMap[key].revenue += item.subtotal;
     });
   });
 
-  const topItems = Object.entries(itemMap)
-    .map(([name, data]) => ({ name, ...data }))
+  const topItems = Object.values(itemMap)
     .sort((a, b) => b.count - a.count)
     .slice(0, 5);
 
+  // Platform-Wide Restaurant Breakdown (When viewing all restaurants)
+  const allKnownRestaurantsMap = new Map<
+    string,
+    { id: string; name: string; city: string; street?: string }
+  >();
+  restaurants.forEach((r) => {
+    allKnownRestaurantsMap.set(r.id, {
+      id: r.id,
+      name: r.name,
+      city: r.city,
+      street: r.street,
+    });
+  });
+  orders.forEach((o) => {
+    if (o.restaurant && !allKnownRestaurantsMap.has(o.restaurant.id)) {
+      allKnownRestaurantsMap.set(o.restaurant.id, {
+        id: o.restaurant.id,
+        name: o.restaurant.name,
+        city: o.restaurant.city || 'Platform',
+        street: o.restaurant.street || '',
+      });
+    }
+  });
+  const allKnownRestaurants = Array.from(allKnownRestaurantsMap.values());
+
+  const restaurantBreakdown = allKnownRestaurants.map((r) => {
+    const restOrders = orders.filter(
+      (o) => o.restaurantId === r.id || o.restaurant?.id === r.id
+    );
+    const restNonCancelled = restOrders.filter(
+      (o) => o.status !== OrderStatus.CANCELLED && o.status !== OrderStatus.REJECTED
+    );
+    const revenue = restNonCancelled.reduce((sum, o) => sum + o.totalAmount, 0);
+    const totalCount = restOrders.length;
+    const restAov = restNonCancelled.length > 0 ? revenue / restNonCancelled.length : 0;
+    const completed = restOrders.filter((o) => o.status === OrderStatus.DELIVERED).length;
+    const fulfillment = totalCount > 0 ? Math.round((completed / totalCount) * 100) : 100;
+    const activeOrders = restOrders.filter((o) =>
+      [
+        OrderStatus.PENDING,
+        OrderStatus.RESTAURANT_ACCEPTED,
+        OrderStatus.PREPARING,
+        OrderStatus.READY_FOR_PICKUP,
+        OrderStatus.DRIVER_ASSIGNED,
+        OrderStatus.PICKED_UP,
+        OrderStatus.ON_THE_WAY,
+      ].includes(o.status)
+    ).length;
+
+    return {
+      id: r.id,
+      name: r.name,
+      city: r.city,
+      street: r.street,
+      totalOrders: totalCount,
+      revenue,
+      aov: restAov,
+      completed,
+      fulfillment,
+      activeOrders,
+    };
+  });
+
   return (
     <div className="space-y-6">
-      <Navbar title="Daily Performance & Kitchen KPIs" onRefresh={refetch} isRefreshing={isLoading} />
+      <Navbar
+        title={`${currentBranchName} • Daily Stats & KPIs`}
+        onRefresh={refetch}
+        isRefreshing={isLoading}
+      />
+
+      {/* Quick Branch Filter Bar */}
+      {(restaurants.length > 1 || isAdmin) && (
+        <div className="bg-white p-3 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between gap-4 overflow-hidden">
+          <div className="flex items-center gap-2 overflow-x-auto py-1 scrollbar-none">
+            <div className="flex items-center gap-1.5 px-2.5 text-xs font-bold text-gray-400 uppercase tracking-wider shrink-0">
+              <Store className="w-3.5 h-3.5 text-brand-500" />
+              <span>Scope:</span>
+            </div>
+
+            {isAdmin && (
+              <button
+                onClick={() => setSelectedBranchId('ALL')}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
+                  isViewingAll
+                    ? 'bg-brand-500 text-white shadow-sm shadow-brand-500/20'
+                    : 'bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200/60'
+                }`}
+              >
+                <span>🌐 All Restaurants (Platform Wide)</span>
+                <span
+                  className={`text-[10px] px-1.5 py-0.5 rounded-md ${
+                    isViewingAll ? 'bg-white/20 text-white' : 'bg-gray-200 text-gray-600'
+                  }`}
+                >
+                  Platform
+                </span>
+              </button>
+            )}
+
+            {restaurants.map((r) => {
+              const isSelected = !isViewingAll && selectedBranchId === r.id;
+              return (
+                <button
+                  key={r.id}
+                  onClick={() => {
+                    setSelectedBranchId(r.id);
+                    setRestaurant(r);
+                  }}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
+                    isSelected
+                      ? 'bg-brand-500 text-white shadow-sm shadow-brand-500/20'
+                      : 'bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200/60'
+                  }`}
+                >
+                  <span>{r.name}</span>
+                  <span
+                    className={`text-[10px] px-1.5 py-0.5 rounded-md ${
+                      isSelected ? 'bg-white/20 text-white' : 'bg-gray-200 text-gray-600'
+                    }`}
+                  >
+                    {r.city}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {isViewingAll && (
+            <div className="hidden sm:flex items-center gap-2 text-xs font-semibold text-gray-500 shrink-0 pr-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Platform Aggregated Data</span>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Metric KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
-              Total Revenue
+              {isViewingAll ? 'Total Platform Revenue' : 'Total Revenue'}
             </span>
             <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
               <DollarSign className="w-5 h-5" />
@@ -122,7 +326,7 @@ export const StatsPage: React.FC = () => {
               ${totalRevenue.toFixed(2)}
             </span>
             <span className="text-[11px] font-bold text-emerald-600 flex items-center gap-0.5 mt-1">
-              <ArrowUpRight className="w-3.5 h-3.5" /> +14.2% vs yesterday
+              <ArrowUpRight className="w-3.5 h-3.5" /> Gross sales from valid orders
             </span>
           </div>
         </div>
@@ -130,7 +334,7 @@ export const StatsPage: React.FC = () => {
         <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
-              Total Orders
+              {isViewingAll ? 'Total Platform Orders' : 'Total Orders'}
             </span>
             <div className="w-9 h-9 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center">
               <ShoppingBag className="w-5 h-5" />
@@ -158,7 +362,7 @@ export const StatsPage: React.FC = () => {
               ${aov.toFixed(2)}
             </span>
             <span className="text-[11px] font-bold text-blue-600 block mt-1">
-              Healthy basket size
+              Average basket size
             </span>
           </div>
         </div>
@@ -177,11 +381,114 @@ export const StatsPage: React.FC = () => {
               {fulfillmentRate}%
             </span>
             <span className="text-[11px] font-bold text-emerald-600 block mt-1">
-              Optimal completion
+              Optimal order completion
             </span>
           </div>
         </div>
       </div>
+
+      {/* Platform-Wide Restaurant Performance Comparison (Admin View) */}
+      {isViewingAll && (
+        <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-5">
+            <div>
+              <div className="flex items-center gap-2">
+                <Building2 className="w-4 h-4 text-brand-500" />
+                <h3 className="font-extrabold text-sm text-gray-900 tracking-tight">
+                  Restaurant Performance Breakdown
+                </h3>
+              </div>
+              <p className="text-xs text-gray-500 mt-0.5">
+                Comparison of revenue, order volume, and fulfillment efficiency across all branches
+              </p>
+            </div>
+            <span className="text-xs font-bold text-gray-500 bg-gray-100 px-2.5 py-1 rounded-lg self-start sm:self-auto">
+              {allKnownRestaurants.length} Registered Restaurants
+            </span>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-gray-50/75 border-b border-gray-100 text-gray-400 font-extrabold uppercase tracking-wider">
+                <tr>
+                  <th className="py-3 px-4">Restaurant</th>
+                  <th className="py-3 px-4">City</th>
+                  <th className="py-3 px-4 text-center">Orders</th>
+                  <th className="py-3 px-4 text-center">Active</th>
+                  <th className="py-3 px-4">Gross Revenue</th>
+                  <th className="py-3 px-4">Avg Order Value</th>
+                  <th className="py-3 px-4">Fulfillment Rate</th>
+                  <th className="py-3 px-4 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {restaurantBreakdown.map((r) => (
+                  <tr key={r.id} className="hover:bg-gray-50/50 transition-colors">
+                    <td className="py-3.5 px-4 font-extrabold text-gray-900 text-sm">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-lg bg-brand-50 text-brand-600 flex items-center justify-center font-bold text-xs shrink-0">
+                          {r.name.slice(0, 1)}
+                        </div>
+                        <div>
+                          <p>{r.name}</p>
+                          <p className="text-[10px] text-gray-400 font-normal">{r.street}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-3.5 px-4 font-semibold text-gray-600">
+                      <span className="px-2 py-0.5 rounded-md bg-gray-100 text-gray-700 text-[11px] font-bold">
+                        {r.city}
+                      </span>
+                    </td>
+                    <td className="py-3.5 px-4 text-center font-extrabold text-sm text-gray-900">
+                      {r.totalOrders}
+                    </td>
+                    <td className="py-3.5 px-4 text-center">
+                      {r.activeOrders > 0 ? (
+                        <span className="px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 font-bold text-[11px]">
+                          {r.activeOrders} active
+                        </span>
+                      ) : (
+                        <span className="text-gray-400 text-[11px]">0 active</span>
+                      )}
+                    </td>
+                    <td className="py-3.5 px-4 font-black text-sm text-gray-900">
+                      ${r.revenue.toFixed(2)}
+                    </td>
+                    <td className="py-3.5 px-4 font-bold text-gray-700">
+                      ${r.aov.toFixed(2)}
+                    </td>
+                    <td className="py-3.5 px-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-16 bg-gray-100 rounded-full h-2 overflow-hidden">
+                          <div
+                            className="bg-emerald-500 h-2 rounded-full transition-all"
+                            style={{ width: `${r.fulfillment}%` }}
+                          />
+                        </div>
+                        <span className="font-bold text-xs text-gray-800">{r.fulfillment}%</span>
+                      </div>
+                    </td>
+                    <td className="py-3.5 px-4 text-right">
+                      <button
+                        onClick={() => {
+                          setSelectedBranchId(r.id);
+                          const found = restaurants.find((item) => item.id === r.id);
+                          if (found) setRestaurant(found);
+                        }}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-brand-600 hover:text-brand-700 hover:bg-brand-50 rounded-lg transition-colors"
+                      >
+                        <span>Filter Branch</span>
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -190,7 +497,9 @@ export const StatsPage: React.FC = () => {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="font-extrabold text-sm text-gray-900 tracking-tight">
-                Hourly Revenue & Volume Trend
+                {isViewingAll
+                  ? 'Platform-Wide Hourly Revenue & Volume Trend'
+                  : 'Hourly Revenue & Volume Trend'}
               </h3>
               <p className="text-xs text-gray-500">Live order influx throughout operating hours</p>
             </div>
@@ -278,7 +587,10 @@ export const StatsPage: React.FC = () => {
             {statusChartData.slice(0, 4).map((item) => (
               <div key={item.name} className="flex justify-between text-xs font-semibold">
                 <span className="flex items-center gap-1.5 text-gray-600">
-                  <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />
+                  <span
+                    className="w-2.5 h-2.5 rounded-full"
+                    style={{ backgroundColor: item.color }}
+                  />
                   {item.name}
                 </span>
                 <span className="text-gray-900">{item.value}</span>
@@ -293,19 +605,30 @@ export const StatsPage: React.FC = () => {
         <h3 className="font-extrabold text-sm text-gray-900 tracking-tight mb-1">
           Top Selling Dishes Today
         </h3>
-        <p className="text-xs text-gray-500 mb-4">Most ordered items based on real-time order logs</p>
+        <p className="text-xs text-gray-500 mb-4">
+          Most ordered items based on real-time order logs
+        </p>
 
         {topItems.length === 0 ? (
           <p className="text-xs text-gray-400 py-6 text-center">No sales logged today yet.</p>
         ) : (
           <div className="divide-y divide-gray-100">
             {topItems.map((item, idx) => (
-              <div key={item.name} className="py-3 flex items-center justify-between text-xs">
+              <div key={item.name + idx} className="py-3 flex items-center justify-between text-xs">
                 <div className="flex items-center gap-3">
                   <span className="w-5 h-5 rounded-md bg-gray-100 font-extrabold text-gray-600 flex items-center justify-center text-[10px]">
                     {idx + 1}
                   </span>
-                  <span className="font-bold text-gray-900 text-sm">{item.name}</span>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-gray-900 text-sm">{item.name}</span>
+                      {isViewingAll && item.restaurantName && (
+                        <span className="text-[10px] font-bold bg-orange-50 text-orange-700 border border-orange-200/80 px-2 py-0.5 rounded-md shrink-0">
+                          {item.restaurantName}
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </div>
                 <div className="flex items-center gap-6">
                   <span className="text-gray-600 font-medium">{item.count} orders</span>

@@ -10,8 +10,32 @@ export const orderService = {
       status?: OrderStatus;
     }
   ): Promise<PaginatedResult<OrderSummary>> {
+    const endpoint =
+      restaurantId === 'all'
+        ? '/orders/admin/all'
+        : `/orders/restaurant/${restaurantId}`;
     const response = await apiClient.get<ApiResponse<PaginatedResult<OrderSummary>>>(
-      `/orders/restaurant/${restaurantId}`,
+      endpoint,
+      { params }
+    );
+    return (
+      response.data.data || {
+        items: [],
+        total: 0,
+        page: 1,
+        limit: 10,
+        totalPages: 1,
+      }
+    );
+  },
+
+  async getAllOrders(params?: {
+    page?: number;
+    limit?: number;
+    status?: OrderStatus;
+  }): Promise<PaginatedResult<OrderSummary>> {
+    const response = await apiClient.get<ApiResponse<PaginatedResult<OrderSummary>>>(
+      '/orders/admin/all',
       { params }
     );
     return (

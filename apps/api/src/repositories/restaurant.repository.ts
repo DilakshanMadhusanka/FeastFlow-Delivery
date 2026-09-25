@@ -5,9 +5,12 @@ import { CreateRestaurantInput, UpdateRestaurantInput } from '../validators/rest
 export class RestaurantRepository {
   async create(ownerId: string, slug: string, input: CreateRestaurantInput): Promise<Restaurant> {
     return prisma.$transaction(async (tx) => {
+      const targetOwnerId = input.ownerId || ownerId;
+      const isApproved = input.isApproved !== undefined ? input.isApproved : true;
+
       const restaurant = await tx.restaurant.create({
         data: {
-          ownerId,
+          ownerId: targetOwnerId,
           slug,
           name: input.name,
           description: input.description,
@@ -22,7 +25,7 @@ export class RestaurantRepository {
           deliveryFeeBase: input.deliveryFeeBase,
           estimatedDeliveryMin: input.estimatedDeliveryMin,
           estimatedDeliveryMax: input.estimatedDeliveryMax,
-          isApproved: false, // Requires admin approval in production
+          isApproved,
           isActive: true,
         },
       });
@@ -97,6 +100,9 @@ export class RestaurantRepository {
     return prisma.restaurant.findMany({
       where: { ownerId, deletedAt: null },
       include: {
+        owner: {
+          select: { id: true, name: true, email: true, phone: true },
+        },
         operatingHours: true,
         categoryLinks: {
           include: { category: true },
@@ -110,12 +116,15 @@ export class RestaurantRepository {
     return prisma.restaurant.findMany({
       where: { deletedAt: null },
       include: {
+        owner: {
+          select: { id: true, name: true, email: true, phone: true },
+        },
         operatingHours: true,
         categoryLinks: {
           include: { category: true },
         },
       },
-      orderBy: { name: 'asc' },
+      orderBy: { createdAt: 'desc' },
     });
   }
 

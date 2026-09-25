@@ -14,8 +14,8 @@ export const createRestaurantSchema = z.object({
   email: z.string().trim().email().optional(),
   street: z.string().trim().min(3, 'Street address is required'),
   city: z.string().trim().min(2, 'City is required'),
-  latitude: z.number().min(-90).max(90),
-  longitude: z.number().min(-180).max(180),
+  latitude: z.number().min(-90).max(90).default(40.7128),
+  longitude: z.number().min(-180).max(180).default(-74.0060),
   deliveryRadiusKm: z.number().positive().max(50).default(10.0),
   minimumOrderAmount: z.number().nonnegative().default(0.0),
   deliveryFeeBase: z.number().nonnegative().default(2.5),
@@ -23,6 +23,8 @@ export const createRestaurantSchema = z.object({
   estimatedDeliveryMax: z.number().int().min(10).max(180).default(45),
   categoryIds: z.array(z.string().uuid()).optional(),
   operatingHours: z.array(operatingHourItemSchema).length(7).optional(),
+  ownerId: z.string().uuid().optional(),
+  isApproved: z.boolean().optional(),
 });
 
 export const updateRestaurantSchema = createRestaurantSchema.partial().extend({

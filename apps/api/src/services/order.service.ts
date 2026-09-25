@@ -191,13 +191,36 @@ export class OrderService {
   }
 
   /**
-   * Retrieves paginated orders for a restaurant owner.
+   * Retrieves all orders across all restaurants for platform admin.
+   */
+  async getAllOrders(
+    requestingUser: { userId: string; roles: UserRoleEnum[] },
+    query: { page?: number; limit?: number; status?: OrderStatusEnum }
+  ) {
+    const isAdmin = requestingUser.roles.includes(UserRoleEnum.ADMIN);
+    if (!isAdmin) {
+      throw new ForbiddenError('You do not have permission to view all restaurant orders');
+    }
+
+    return orderRepository.findAllOrders(
+      query.page || 1,
+      query.limit || 100,
+      query.status
+    );
+  }
+
+  /**
+   * Retrieves paginated orders for a restaurant owner or platform administrator.
    */
   async getRestaurantOrders(
     restaurantId: string,
     requestingUser: { userId: string; roles: UserRoleEnum[] },
     query: { page?: number; limit?: number; status?: OrderStatusEnum }
   ) {
+    if (restaurantId === 'all') {
+      return this.getAllOrders(requestingUser, query);
+    }
+
     const restaurant = await prisma.restaurant.findUnique({
       where: { id: restaurantId },
       select: { id: true, ownerId: true },
@@ -215,7 +238,7 @@ export class OrderService {
     return orderRepository.findRestaurantOrders(
       restaurantId,
       query.page || 1,
-      query.limit || 10,
+      query.limit || 100,
       query.status
     );
   }

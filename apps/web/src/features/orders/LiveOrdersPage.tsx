@@ -23,7 +23,7 @@ import {
 import { useAuthStore } from '../../store/authStore';
 import { orderService } from '../../services/order.service';
 import { socketService } from '../../services/socket.service';
-import { OrderStatus, OrderSummary } from '@food-delivery/shared';
+import { OrderStatus, OrderSummary, UserRole } from '@food-delivery/shared';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Modal } from '../../components/ui/Modal';
@@ -31,7 +31,27 @@ import { Navbar } from '../../components/layout/Navbar';
 
 export const LiveOrdersPage: React.FC = () => {
   const queryClient = useQueryClient();
-  const { restaurant, restaurants, setRestaurant } = useAuthStore();
+  const { restaurant, restaurants, setRestaurant, user } = useAuthStore();
+  const isAdmin = Boolean(
+    user?.roles?.includes(UserRole.ADMIN) || user?.roles?.includes('ADMIN' as any)
+  );
+
+  // System admin default view scope is 'ALL' to display order details of all restaurants
+  const [selectedBranchId, setSelectedBranchId] = useState<string>(() =>
+    isAdmin ? 'ALL' : restaurant?.id || 'ALL'
+  );
+
+  useEffect(() => {
+    if (isAdmin) {
+      setSelectedBranchId('ALL');
+    } else if (restaurant?.id && selectedBranchId === 'ALL') {
+      setSelectedBranchId(restaurant.id);
+    }
+  }, [isAdmin, restaurant?.id]);
+
+  const isViewingAll = selectedBranchId === 'ALL';
+  const queryRestaurantId = isViewingAll ? 'all' : selectedBranchId;
+
   const [selectedOrder, setSelectedOrder] = useState<OrderSummary | null>(null);
   const [declineReason, setDeclineReason] = useState('');
   const [showDeclineModal, setShowDeclineModal] = useState(false);
@@ -66,30 +86,37 @@ export const LiveOrdersPage: React.FC = () => {
 
   // Real-time socket event subscription for kitchen terminal
   useEffect(() => {
-    if (!restaurant?.id) return;
-
     const socket = socketService.connect();
     setIsSocketConnected(socket.connected);
 
     const onConnect = () => {
       setIsSocketConnected(true);
-      socketService.joinRestaurant(restaurant.id);
+      if (restaurant?.id && restaurant.id !== 'all') {
+        socketService.joinRestaurant(restaurant.id);
+      }
     };
     const onDisconnect = () => setIsSocketConnected(false);
 
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
 
-    socketService.joinRestaurant(restaurant.id);
+    if (restaurant?.id && restaurant.id !== 'all') {
+      socketService.joinRestaurant(restaurant.id);
+    }
 
     const unsubNewOrder = socketService.onNewOrder((newOrder) => {
-      console.log('⚡ Real-time new order received on KDS:', newOrder.orderNumber, 'for restaurant:', newOrder.restaurantId);
+      console.log(
+        '⚡ Real-time new order received on KDS:',
+        newOrder.orderNumber,
+        'for restaurant:',
+        newOrder.restaurantId
+      );
       playAlertChime();
       // Invalidate all restaurant orders to force fresh fetch
       queryClient.invalidateQueries({ queryKey: ['restaurantOrders'] });
 
-      // If the incoming order is for another branch owned/managed by the merchant/admin, notify with switcher
-      if (newOrder.restaurantId !== restaurant.id) {
+      // If user is currently filtered to a single restaurant that is NOT this order's restaurant, notify
+      if (!isViewingAll && newOrder.restaurantId !== selectedBranchId) {
         const targetRest = restaurants.find((r) => r.id === newOrder.restaurantId);
         setCrossBranchAlert({
           orderNumber: newOrder.orderNumber,
@@ -109,20 +136,22 @@ export const LiveOrdersPage: React.FC = () => {
       socket.off('disconnect', onDisconnect);
       unsubNewOrder();
       unsubStatus();
-      socketService.leaveRestaurant(restaurant.id);
+      if (restaurant?.id && restaurant.id !== 'all') {
+        socketService.leaveRestaurant(restaurant.id);
+      }
     };
-  }, [restaurant?.id, restaurants, queryClient]);
+  }, [restaurant?.id, isViewingAll, selectedBranchId, restaurants, queryClient]);
 
-  // Live kitchen orders query (real-time updates pushed via Socket.IO events above with continuous 3s polling backup)
+  // Live kitchen orders query (real-time updates pushed via Socket.IO with continuous 3s polling backup)
   const {
     data: ordersData,
     isLoading,
     isRefetching,
     refetch,
   } = useQuery({
-    queryKey: ['restaurantOrders', restaurant?.id],
-    queryFn: () => orderService.getRestaurantOrders(restaurant!.id, { limit: 100 }),
-    enabled: Boolean(restaurant?.id),
+    queryKey: ['restaurantOrders', queryRestaurantId],
+    queryFn: () => orderService.getRestaurantOrders(queryRestaurantId, { limit: 100 }),
+    enabled: Boolean(isViewingAll || selectedBranchId || restaurant?.id),
     staleTime: 2000,
     refetchInterval: 3000,
     refetchIntervalInBackground: true,
@@ -178,7 +207,11 @@ export const LiveOrdersPage: React.FC = () => {
     return `${Math.floor(elapsedMinutes / 60)}h ${elapsedMinutes % 60}m ago`;
   };
 
-  if (!restaurant) {
+  const currentBranchName = isViewingAll
+    ? 'All Restaurants (Platform Wide)'
+    : restaurants.find((r) => r.id === selectedBranchId)?.name || restaurant?.name || 'Kitchen';
+
+  if (!restaurant && !isAdmin) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8 bg-white rounded-3xl border border-gray-100 shadow-sm">
         <StoreUnavailable />
@@ -189,7 +222,7 @@ export const LiveOrdersPage: React.FC = () => {
   return (
     <div className="space-y-6">
       <Navbar
-        title={`${restaurant.name} • Kitchen Display System`}
+        title={`${currentBranchName} • Kitchen Display System`}
         onRefresh={refetch}
         isRefreshing={isRefetching}
       />
@@ -205,7 +238,7 @@ export const LiveOrdersPage: React.FC = () => {
                 <span className="underline font-black">{crossBranchAlert.restaurantName}</span>!
               </p>
               <p className="text-xs text-amber-100">
-                You are currently viewing {restaurant.name}. Switch stores to view and prepare this order.
+                You are currently viewing {currentBranchName}. Switch stores to view and prepare this order.
               </p>
             </div>
           </div>
@@ -216,6 +249,7 @@ export const LiveOrdersPage: React.FC = () => {
               onClick={() => {
                 const target = restaurants.find((r) => r.id === crossBranchAlert.restaurantId);
                 if (target) {
+                  setSelectedBranchId(target.id);
                   setRestaurant(target);
                   setCrossBranchAlert(null);
                 }
@@ -233,21 +267,43 @@ export const LiveOrdersPage: React.FC = () => {
         </div>
       )}
 
-      {/* Quick Branch Switcher Bar */}
-      {restaurants.length > 1 && (
+      {/* Quick Branch Filter Bar */}
+      {(isAdmin || restaurants.length > 1) && (
         <div className="flex items-center gap-3 bg-white p-3 rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
           <div className="flex items-center gap-1.5 text-xs font-bold text-gray-500 uppercase tracking-wider shrink-0">
             <Store className="w-4 h-4 text-brand-500" />
-            <span>Active Branch:</span>
+            <span>{isAdmin ? 'View Scope:' : 'Active Branch:'}</span>
           </div>
           <div className="flex gap-2">
+            {isAdmin && (
+              <button
+                onClick={() => setSelectedBranchId('ALL')}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
+                  isViewingAll
+                    ? 'bg-brand-500 text-white shadow-sm shadow-brand-500/20'
+                    : 'bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200/60'
+                }`}
+              >
+                <span>🌐 All Restaurants</span>
+                <span
+                  className={`text-[10px] px-1.5 py-0.5 rounded-md ${
+                    isViewingAll ? 'bg-white/20 text-white' : 'bg-gray-200 text-gray-600'
+                  }`}
+                >
+                  All ({orders.length})
+                </span>
+              </button>
+            )}
             {restaurants.map((r) => {
-              const isSelected = r.id === restaurant.id;
+              const isSelected = !isViewingAll && selectedBranchId === r.id;
               return (
                 <button
                   key={r.id}
-                  onClick={() => setRestaurant(r)}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+                  onClick={() => {
+                    setSelectedBranchId(r.id);
+                    setRestaurant(r);
+                  }}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
                     isSelected
                       ? 'bg-brand-500 text-white shadow-sm shadow-brand-500/20'
                       : 'bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200/60'
@@ -469,6 +525,30 @@ export const LiveOrdersPage: React.FC = () => {
           maxWidth="lg"
         >
           <div className="space-y-5">
+            {/* Target Restaurant identity */}
+            {selectedOrder.restaurant && (
+              <div className="bg-orange-50/80 border border-orange-200/80 p-3.5 rounded-xl flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-brand-500 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-sm shadow-brand-500/20">
+                    <Store className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-bold text-orange-800/80 uppercase tracking-wider block">
+                      Restaurant & Branch
+                    </span>
+                    <span className="text-sm font-extrabold text-gray-900">
+                      {selectedOrder.restaurant.name}
+                    </span>
+                  </div>
+                </div>
+                {selectedOrder.restaurant.city && (
+                  <span className="text-xs font-bold text-orange-700 bg-white/90 border border-orange-200 px-2.5 py-1 rounded-lg">
+                    {selectedOrder.restaurant.city} Branch
+                  </span>
+                )}
+              </div>
+            )}
+
             {/* Header info */}
             <div className="flex items-center justify-between bg-gray-50 p-4 rounded-xl border border-gray-100">
               <div>
@@ -703,6 +783,20 @@ const OrderCard: React.FC<OrderCardProps> = ({
           <Clock className="w-3 h-3" /> {elapsed}
         </span>
       </div>
+
+      {order.restaurant && (
+        <div className="flex items-center gap-1.5 mb-2 bg-orange-50/70 border border-orange-200/60 px-2 py-0.5 rounded-lg w-fit max-w-full">
+          <Store className="w-3 h-3 text-brand-600 shrink-0" />
+          <span className="text-[11px] font-bold text-orange-950 truncate max-w-[170px]">
+            {order.restaurant.name}
+          </span>
+          {order.restaurant.city && (
+            <span className="text-[10px] text-orange-600 font-semibold shrink-0">
+              • {order.restaurant.city}
+            </span>
+          )}
+        </div>
+      )}
 
       <div className="text-xs text-gray-600 mb-2 font-medium">
         <span className="font-bold text-gray-900">{itemsCount} items</span> • $

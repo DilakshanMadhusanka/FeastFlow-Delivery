@@ -14,9 +14,11 @@ export interface CreateFoodItemInput {
 
 export const menuService = {
   async getRestaurantMenu(restaurantId: string): Promise<FoodCategory[]> {
-    const response = await apiClient.get<ApiResponse<any>>(
-      `/menu/restaurant/${restaurantId}`
-    );
+    const endpoint =
+      restaurantId === 'all'
+        ? '/menu/admin/all'
+        : `/menu/restaurant/${restaurantId}`;
+    const response = await apiClient.get<ApiResponse<any>>(endpoint);
     const data = response.data.data;
     if (data && Array.isArray(data.categories)) {
       return data.categories;

@@ -350,7 +350,7 @@ export class OrderRepository {
   ) {
     const skip = (page - 1) * limit;
     const where: Prisma.OrderWhereInput = {
-      restaurantId,
+      ...(restaurantId && restaurantId !== 'all' ? { restaurantId } : {}),
       ...(status ? { status } : {}),
     };
 
@@ -361,6 +361,15 @@ export class OrderRepository {
         take: limit,
         orderBy: { placedAt: 'desc' },
         include: {
+          restaurant: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              city: true,
+              logoUrl: true,
+            },
+          },
           customer: {
             select: {
               id: true,
@@ -391,6 +400,17 @@ export class OrderRepository {
       limit,
       totalPages: Math.ceil(total / limit) || 1,
     };
+  }
+
+  /**
+   * Finds all orders across all restaurants for platform administration.
+   */
+  async findAllOrders(
+    page: number = 1,
+    limit: number = 100,
+    status?: OrderStatusEnum
+  ) {
+    return this.findRestaurantOrders('all', page, limit, status);
   }
 
   /**

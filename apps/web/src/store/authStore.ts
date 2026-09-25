@@ -34,10 +34,19 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   setRestaurants: (restaurants) => {
-    set((state) => ({
-      restaurants,
-      restaurant: state.restaurant || restaurants[0] || null,
-    }));
+    set((state) => {
+      const isAdmin = Boolean(
+        state.user?.roles?.includes(UserRole.ADMIN) || state.user?.roles?.includes('ADMIN' as any)
+      );
+      const defaultRest = isAdmin
+        ? ({ id: 'all', name: 'All Restaurants', city: 'Platform Wide' } as Restaurant)
+        : restaurants[0] || null;
+
+      return {
+        restaurants,
+        restaurant: state.restaurant || defaultRest,
+      };
+    });
   },
 
   logout: () => {

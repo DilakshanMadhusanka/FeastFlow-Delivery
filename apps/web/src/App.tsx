@@ -6,6 +6,7 @@ import { LoginPage } from './features/auth/LoginPage';
 import { LiveOrdersPage } from './features/orders/LiveOrdersPage';
 import { MenuManagerPage } from './features/menu/MenuManagerPage';
 import { StatsPage } from './features/analytics/StatsPage';
+import { RestaurantsPage } from './features/restaurants/RestaurantsPage';
 import { RestaurantSettingsPage } from './features/settings/RestaurantSettingsPage';
 
 export const App: React.FC = () => {
@@ -26,6 +27,7 @@ export const App: React.FC = () => {
         <Route path="/orders" element={<LiveOrdersPage />} />
         <Route path="/menu" element={<MenuManagerPage />} />
         <Route path="/analytics" element={<StatsPage />} />
+        <Route path="/restaurants" element={<RestaurantsPage />} />
         <Route path="/settings" element={<RestaurantSettingsPage />} />
       </Route>
 

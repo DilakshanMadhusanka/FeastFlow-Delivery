@@ -182,25 +182,33 @@ export class MenuRepository {
   }
 
   async findRestaurantMenu(restaurantId: string) {
-    // Fetch categories associated with this restaurant or containing food items from this restaurant
+    const isAll = restaurantId === 'all';
+    const foodItemWhere: Prisma.FoodItemWhereInput = {
+      ...(isAll ? {} : { restaurantId }),
+      deletedAt: null,
+    };
+
+    // Fetch categories associated with this restaurant or containing food items
     const categories = await prisma.foodCategory.findMany({
       where: {
         isActive: true,
         foodItems: {
-          some: {
-            restaurantId,
-            deletedAt: null,
-          },
+          some: foodItemWhere,
         },
       },
       include: {
         foodItems: {
-          where: {
-            restaurantId,
-            deletedAt: null,
-          },
+          where: foodItemWhere,
           orderBy: { name: 'asc' },
           include: {
+            restaurant: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+                city: true,
+              },
+            },
             options: {
               include: {
                 addons: true,
