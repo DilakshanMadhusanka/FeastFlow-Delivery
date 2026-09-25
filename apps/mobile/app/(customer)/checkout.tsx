@@ -28,7 +28,15 @@ import {
   Check,
   ShieldCheck,
   HeartHandshake,
+  Clock,
+  Calendar,
+  DoorClosed,
+  Key,
 } from 'lucide-react-native';
+import { OpenStreetMap } from '../../components/map/OpenStreetMap';
+
+type DropoffPreference = 'LEAVE_AT_DOOR' | 'HAND_DELIVER' | 'MEET_IN_LOBBY';
+type DeliveryTiming = 'ASAP' | 'SCHEDULED';
 
 export default function CheckoutScreen() {
   const router = useRouter();
@@ -41,6 +49,12 @@ export default function CheckoutScreen() {
   );
   const [tipAmount, setTipAmount] = useState<number>(2.0);
   const [showNewAddressForm, setShowNewAddressForm] = useState(false);
+
+  // Delivery Timing & Drop-off Preference State
+  const [deliveryTiming, setDeliveryTiming] = useState<DeliveryTiming>('ASAP');
+  const [scheduledSlot, setScheduledSlot] = useState('Today, 6:30 PM - 7:00 PM');
+  const [dropoffPref, setDropoffPref] = useState<DropoffPreference>('LEAVE_AT_DOOR');
+  const [buzzerCode, setBuzzerCode] = useState('');
 
   // New Address Form State
   const [newTitle, setNewTitle] = useState('Home');
@@ -115,12 +129,27 @@ export default function CheckoutScreen() {
     setIsSubmittingOrder(true);
 
     try {
+      // Format dropoff instructions & schedule
+      const dropoffLabel =
+        dropoffPref === 'LEAVE_AT_DOOR'
+          ? 'Leave at door (Contactless)'
+          : dropoffPref === 'HAND_DELIVER'
+          ? 'Hand to me directly'
+          : 'Meet in building lobby';
+
+      const timingLabel =
+        deliveryTiming === 'ASAP' ? 'Deliver ASAP' : `Scheduled: ${scheduledSlot}`;
+
+      const buzzerLabel = buzzerCode.trim() ? ` [Buzzer: ${buzzerCode.trim()}]` : '';
+      const formattedInstructions = `[${dropoffLabel}${buzzerLabel}] • ${timingLabel}`;
+
       // 1. Create Order via Order API (atomic order creation, pricing snapshot, payment record)
       const order = await orderService.createOrder({
         deliveryAddressId: selectedAddressId,
         paymentMethod: selectedPaymentMethod,
         tipAmount,
         couponCode: cart.pricing.couponCode || undefined,
+        specialInstructions: formattedInstructions,
       });
 
       // 2. Clear Cart store
@@ -154,6 +183,7 @@ export default function CheckoutScreen() {
     return <Loading fullScreen message="Loading checkout details..." />;
   }
 
+  const selectedAddress = addresses?.find((a) => a.id === selectedAddressId);
   const pricing = cart?.pricing;
   const items = cart?.items || [];
   const finalTotal = pricing ? Math.round((pricing.total + tipAmount) * 100) / 100 : 0;
@@ -288,9 +318,181 @@ export default function CheckoutScreen() {
           ) : (
             <Text style={styles.noAddressText}>No saved addresses. Please add an address above.</Text>
           )}
+
+          {/* Mini OpenStreetMap Destination Preview */}
+          {selectedAddress ? (
+            <View style={styles.checkoutMapWrapper}>
+              <OpenStreetMap
+                center={{
+                  latitude: selectedAddress.latitude || 40.7128,
+                  longitude: selectedAddress.longitude || -74.006,
+                }}
+                zoom={15}
+                markers={[
+                  {
+                    id: 'checkout_dest',
+                    type: 'CUSTOMER',
+                    title: selectedAddress.title,
+                    description: `${selectedAddress.street}, ${selectedAddress.city}`,
+                    latitude: selectedAddress.latitude || 40.7128,
+                    longitude: selectedAddress.longitude || -74.006,
+                    badgeText: selectedAddress.title,
+                  },
+                ]}
+                height={130}
+                interactive={false}
+                showControls={false}
+                headerTitle="Drop-off Spot on OpenStreetMap"
+                showExpandBtn={false}
+              />
+            </View>
+          ) : null}
         </View>
 
-        {/* 2. Payment Method Section */}
+        {/* 2. Delivery Timing Section */}
+        <View style={styles.sectionCard}>
+          <View style={styles.sectionHeader}>
+            <View style={styles.sectionTitleRow}>
+              <Clock size={20} color="#FF4B3A" />
+              <Text style={styles.sectionTitle}>Delivery Timing</Text>
+            </View>
+            <View style={styles.timingBadge}>
+              <Text style={styles.timingBadgeText}>
+                {deliveryTiming === 'ASAP' ? '25-35 min' : 'Scheduled'}
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.timingOptionRow}>
+            <TouchableOpacity
+              style={[
+                styles.timingOptionBtn,
+                deliveryTiming === 'ASAP' && styles.timingOptionBtnActive,
+              ]}
+              onPress={() => setDeliveryTiming('ASAP')}
+              activeOpacity={0.7}
+            >
+              <Clock size={16} color={deliveryTiming === 'ASAP' ? '#FF4B3A' : '#6B7280'} />
+              <Text
+                style={[
+                  styles.timingOptionText,
+                  deliveryTiming === 'ASAP' && styles.timingOptionTextActive,
+                ]}
+              >
+                Deliver ASAP
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.timingOptionBtn,
+                deliveryTiming === 'SCHEDULED' && styles.timingOptionBtnActive,
+              ]}
+              onPress={() => setDeliveryTiming('SCHEDULED')}
+              activeOpacity={0.7}
+            >
+              <Calendar size={16} color={deliveryTiming === 'SCHEDULED' ? '#FF4B3A' : '#6B7280'} />
+              <Text
+                style={[
+                  styles.timingOptionText,
+                  deliveryTiming === 'SCHEDULED' && styles.timingOptionTextActive,
+                ]}
+              >
+                Schedule for Later
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {deliveryTiming === 'SCHEDULED' ? (
+            <View style={styles.scheduleSlotContainer}>
+              <Text style={styles.slotPickerTitle}>Select Delivery Window:</Text>
+              <View style={styles.slotChipsWrap}>
+                {[
+                  'Today, 6:00 - 6:30 PM',
+                  'Today, 7:00 - 7:30 PM',
+                  'Today, 8:00 - 8:30 PM',
+                  'Tomorrow, 12:30 - 1:00 PM',
+                ].map((slot) => {
+                  const isSelected = scheduledSlot === slot;
+                  return (
+                    <TouchableOpacity
+                      key={slot}
+                      style={[styles.slotChip, isSelected && styles.slotChipActive]}
+                      onPress={() => setScheduledSlot(slot)}
+                    >
+                      <Text style={[styles.slotChipText, isSelected && styles.slotChipTextActive]}>
+                        {slot}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
+          ) : null}
+        </View>
+
+        {/* 3. Drop-off Preferences Section */}
+        <View style={styles.sectionCard}>
+          <View style={styles.sectionHeader}>
+            <View style={styles.sectionTitleRow}>
+              <DoorClosed size={20} color="#FF4B3A" />
+              <Text style={styles.sectionTitle}>Drop-off Preference</Text>
+            </View>
+          </View>
+
+          <View style={styles.dropoffList}>
+            {[
+              {
+                id: 'LEAVE_AT_DOOR' as DropoffPreference,
+                title: 'Leave at door',
+                desc: 'Contactless delivery, driver leaves food safely outside',
+              },
+              {
+                id: 'HAND_DELIVER' as DropoffPreference,
+                title: 'Hand it to me',
+                desc: 'Driver will ring bell and hand the package directly to you',
+              },
+              {
+                id: 'MEET_IN_LOBBY' as DropoffPreference,
+                title: 'Meet in building lobby',
+                desc: 'Driver will wait at reception or ground entrance',
+              },
+            ].map((pref) => {
+              const isSelected = dropoffPref === pref.id;
+              return (
+                <TouchableOpacity
+                  key={pref.id}
+                  style={[styles.dropoffItem, isSelected && styles.dropoffItemActive]}
+                  onPress={() => setDropoffPref(pref.id)}
+                  activeOpacity={0.7}
+                >
+                  <View style={styles.radioBox}>
+                    {isSelected ? <View style={styles.radioDot} /> : null}
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[styles.dropoffItemTitle, isSelected && styles.dropoffItemTitleActive]}>
+                      {pref.title}
+                    </Text>
+                    <Text style={styles.dropoffItemDesc}>{pref.desc}</Text>
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+
+          <View style={styles.buzzerRow}>
+            <Key size={16} color="#6B7280" />
+            <TextInput
+              style={styles.buzzerInput}
+              placeholder="Buzzer code / Gate access code (optional)"
+              placeholderTextColor="#9CA3AF"
+              value={buzzerCode}
+              onChangeText={setBuzzerCode}
+            />
+          </View>
+        </View>
+
+        {/* 4. Payment Method Section */}
         <View style={styles.sectionCard}>
           <View style={styles.sectionHeader}>
             <View style={styles.sectionTitleRow}>
@@ -845,4 +1047,138 @@ const styles = StyleSheet.create({
   placeOrderBtn: {
     flex: 1,
   },
+  timingBadge: {
+    backgroundColor: '#FEF2F2',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  timingBadgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#FF4B3A',
+  },
+  timingOptionRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  timingOptionBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: '#E5E7EB',
+    backgroundColor: '#F9FAFB',
+  },
+  timingOptionBtnActive: {
+    borderColor: '#FF4B3A',
+    backgroundColor: '#FFF1F2',
+  },
+  timingOptionText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#4B5563',
+  },
+  timingOptionTextActive: {
+    color: '#FF4B3A',
+    fontWeight: '700',
+  },
+  scheduleSlotContainer: {
+    marginTop: 14,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#F3F4F6',
+  },
+  slotPickerTitle: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#6B7280',
+    marginBottom: 8,
+  },
+  slotChipsWrap: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  slotChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 16,
+    backgroundColor: '#F3F4F6',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  slotChipActive: {
+    backgroundColor: '#FF4B3A',
+    borderColor: '#FF4B3A',
+  },
+  slotChipText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#4B5563',
+  },
+  slotChipTextActive: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+  },
+  dropoffList: {
+    gap: 10,
+    marginBottom: 12,
+  },
+  dropoffItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: '#F3F4F6',
+    backgroundColor: '#FAFAFA',
+  },
+  dropoffItemActive: {
+    borderColor: '#FF4B3A',
+    backgroundColor: '#FFF8F7',
+  },
+  dropoffItemTitle: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#374151',
+    marginBottom: 2,
+  },
+  dropoffItemTitleActive: {
+    color: '#111827',
+  },
+  dropoffItemDesc: {
+    fontSize: 11,
+    color: '#6B7280',
+    lineHeight: 15,
+  },
+  buzzerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#F9FAFB',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+  },
+  buzzerInput: {
+    flex: 1,
+    fontSize: 12,
+    color: '#111827',
+    paddingVertical: 6,
+  },
+  checkoutMapWrapper: {
+    marginTop: 14,
+    borderRadius: 14,
+    overflow: 'hidden',
+  },
 });
+
+

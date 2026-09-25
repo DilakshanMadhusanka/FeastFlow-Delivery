@@ -164,6 +164,27 @@ export class MenuController {
       next(error);
     }
   }
+
+  async snoozeFoodItem(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { id } = req.params;
+      const { duration } = req.body;
+      const result = await menuService.snoozeFoodItem(id, duration);
+      sendSuccess(res, result, 'Item snoozed (86ed) successfully');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async unsnoozeFoodItem(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { id } = req.params;
+      const result = await menuService.unsnoozeFoodItem(id);
+      sendSuccess(res, result, 'Item unsnoozed successfully');
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export const menuController = new MenuController();

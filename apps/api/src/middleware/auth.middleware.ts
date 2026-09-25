@@ -66,3 +66,19 @@ export async function optionalAuth(req: Request, _res: Response, next: NextFunct
     next(error);
   }
 }
+
+export function requireRole(allowedRoles: any[]) {
+  return (req: Request, _res: Response, next: NextFunction): void => {
+    if (!req.user) {
+      throw new UnauthorizedError('Authentication is required.');
+    }
+
+    const hasRole = req.user.roles.some((r) => allowedRoles.includes(r));
+    if (!hasRole) {
+      throw new UnauthorizedError('You do not have permission to access this resource.');
+    }
+
+    next();
+  };
+}
+

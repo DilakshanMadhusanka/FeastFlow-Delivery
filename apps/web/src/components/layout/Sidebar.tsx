@@ -9,6 +9,15 @@ import {
   LogOut,
   Store,
   ChevronDown,
+  Flame,
+  Tag,
+  DollarSign,
+  Star,
+  Radio,
+  MessageSquare,
+  Users,
+  Sparkles,
+  Crown,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { UserRole } from '@food-delivery/shared';
@@ -32,9 +41,54 @@ export const Sidebar: React.FC = () => {
       label: 'Live Orders Board',
     },
     {
+      to: '/kds',
+      icon: Flame,
+      label: 'Kitchen Display (KDS)',
+    },
+    {
+      to: '/dispatch',
+      icon: Radio,
+      label: 'Fleet GPS Dispatch',
+    },
+    {
+      to: '/messages',
+      icon: MessageSquare,
+      label: 'Live Chat Center',
+    },
+    {
       to: '/menu',
       icon: ChefHat,
       label: 'Menu Manager',
+    },
+    {
+      to: '/marketing',
+      icon: Sparkles,
+      label: 'Flash Deals Engine',
+    },
+    {
+      to: '/coupons',
+      icon: Tag,
+      label: 'Promos & Coupons',
+    },
+    {
+      to: '/customers',
+      icon: Crown,
+      label: 'Customer CRM & VIPs',
+    },
+    {
+      to: '/reviews',
+      icon: Star,
+      label: 'Customer Reviews',
+    },
+    {
+      to: '/finance',
+      icon: DollarSign,
+      label: 'Finance & Ledger',
+    },
+    {
+      to: '/staff',
+      icon: Users,
+      label: 'Team & Staff (PIN)',
     },
     {
       to: '/analytics',

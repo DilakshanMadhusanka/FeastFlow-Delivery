@@ -94,6 +94,21 @@ export const MenuManagerPage: React.FC = () => {
     },
   });
 
+  const snoozeMutation = useMutation({
+    mutationFn: ({ id, duration }: { id: string; duration: '2_HOURS' | 'REST_OF_DAY' | 'INDEFINITE' }) =>
+      menuService.snoozeFoodItem(id, duration),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['restaurantMenu'] });
+    },
+  });
+
+  const unsnoozeMutation = useMutation({
+    mutationFn: (id: string) => menuService.unsnoozeFoodItem(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['restaurantMenu'] });
+    },
+  });
+
   // Create new food item mutation
   const createItemMutation = useMutation({
     mutationFn: () => {
@@ -377,33 +392,66 @@ export const MenuManagerPage: React.FC = () => {
                       </span>
                     </td>
 
-                    {/* 1-Click Availability Toggle */}
+                    {/* 1-Click Availability & Snooze Controls */}
                     <td className="py-4 px-4">
-                      <button
-                        onClick={() =>
-                          toggleMutation.mutate({
-                            id: item.id,
-                            isAvailable: !item.isAvailable,
-                          })
-                        }
-                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full font-bold text-xs transition-colors ${
-                          item.isAvailable
-                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100'
-                            : 'bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100'
-                        }`}
-                      >
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <button
+                          onClick={() =>
+                            toggleMutation.mutate({
+                              id: item.id,
+                              isAvailable: !item.isAvailable,
+                            })
+                          }
+                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full font-bold text-xs transition-colors ${
+                            item.isAvailable
+                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100'
+                              : 'bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100'
+                          }`}
+                        >
+                          {item.isAvailable ? (
+                            <>
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                              <span>In Stock</span>
+                            </>
+                          ) : (
+                            <>
+                              <XCircle className="w-3.5 h-3.5 text-rose-600" />
+                              <span>Sold Out</span>
+                            </>
+                          )}
+                        </button>
+
                         {item.isAvailable ? (
-                          <>
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                            <span>In Stock</span>
-                          </>
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() =>
+                                snoozeMutation.mutate({ id: item.id, duration: '2_HOURS' })
+                              }
+                              title="Snooze for 2 Hours"
+                              className="px-2 py-0.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded text-[10px] font-bold transition-colors"
+                            >
+                              2h
+                            </button>
+                            <button
+                              onClick={() =>
+                                snoozeMutation.mutate({ id: item.id, duration: 'REST_OF_DAY' })
+                              }
+                              title="Snooze for Rest of Day"
+                              className="px-2 py-0.5 bg-orange-50 hover:bg-orange-100 text-orange-800 border border-orange-200 rounded text-[10px] font-bold transition-colors"
+                            >
+                              Day
+                            </button>
+                          </div>
                         ) : (
-                          <>
-                            <XCircle className="w-3.5 h-3.5 text-rose-600" />
-                            <span>Sold Out</span>
-                          </>
+                          <button
+                            onClick={() => unsnoozeMutation.mutate(item.id)}
+                            title="Restore to Available"
+                            className="px-2 py-0.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded text-[10px] font-bold transition-colors"
+                          >
+                            Restore
+                          </button>
                         )}
-                      </button>
+                      </div>
                     </td>
 
                     <td className="py-4 px-6 text-right">

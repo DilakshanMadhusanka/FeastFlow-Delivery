@@ -1,9 +1,10 @@
 import React from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
-import { Clock, Bike, MapPin } from 'lucide-react-native';
+import { Clock, Bike, MapPin, Heart } from 'lucide-react-native';
 import { Rating } from '../ui/Rating';
 import { Badge } from '../ui/Badge';
 import { RestaurantItem } from '../../services/restaurant.service';
+import { useFavoritesStore } from '../../store/favoritesStore';
 
 interface RestaurantCardProps {
   restaurant: RestaurantItem;
@@ -11,6 +12,8 @@ interface RestaurantCardProps {
 }
 
 export const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant, onPress }) => {
+  const { isRestaurantFavorite, toggleRestaurant } = useFavoritesStore();
+  const isFav = isRestaurantFavorite(restaurant.id);
   const defaultBanner =
     'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=600&q=80';
 
@@ -39,6 +42,20 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant, onPr
             <Badge label="Closed" variant="error" />
           )}
         </View>
+
+        {/* Favorite Heart Button */}
+        <TouchableOpacity
+          activeOpacity={0.8}
+          style={styles.favButton}
+          onPress={() => toggleRestaurant(restaurant.id)}
+          hitSlop={8}
+        >
+          <Heart
+            size={18}
+            color={isFav ? '#FF4B3A' : '#FFFFFF'}
+            fill={isFav ? '#FF4B3A' : 'rgba(0,0,0,0.3)'}
+          />
+        </TouchableOpacity>
       </View>
 
       {/* Content */}
@@ -117,6 +134,18 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 12,
     left: 12,
+  },
+  favButton: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: 'rgba(15, 23, 42, 0.45)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 2,
   },
   content: {
     padding: 14,

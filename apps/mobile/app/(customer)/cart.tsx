@@ -15,7 +15,7 @@ import { CartItemCard } from '../../components/cards/CartItemCard';
 import { Button } from '../../components/ui/Button';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { Loading } from '../../components/ui/Loading';
-import { ArrowLeft, Tag, ShoppingBag, Store, Trash2 } from 'lucide-react-native';
+import { ArrowLeft, Tag, ShoppingBag, Store, Trash2, Plus, Sparkles } from 'lucide-react-native';
 import { formatCurrency, toNumber } from '../../utils/formatters';
 
 export default function CartScreen() {
@@ -172,6 +172,24 @@ export default function CartScreen() {
             />
           </View>
 
+          {/* Quick Available Promo Chips */}
+          <View style={styles.quickChipsRow}>
+            <Text style={styles.quickChipsLabel}>Try code:</Text>
+            {['WELCOME15', 'FEAST20', 'FREESHIP'].map((promo) => (
+              <TouchableOpacity
+                key={promo}
+                style={styles.quickChip}
+                onPress={() => {
+                  setCouponInput(promo);
+                  setCouponError('');
+                }}
+              >
+                <Tag size={11} color="#FF4B3A" />
+                <Text style={styles.quickChipText}>{promo}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
           {couponError ? <Text style={styles.couponErrorText}>{couponError}</Text> : null}
 
           {pricing?.couponCode ? (
@@ -185,6 +203,36 @@ export default function CartScreen() {
             </View>
           ) : null}
         </View>
+
+        {/* Chef Recommendations & Upsells */}
+        <View style={styles.upsellSection}>
+          <View style={styles.upsellHeader}>
+            <Sparkles size={16} color="#FF4B3A" />
+            <Text style={styles.upsellTitle}>Frequently Ordered Together</Text>
+          </View>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.upsellScroll}>
+            {[
+              { id: 'side-1', name: 'Garlic Herb Bread', price: 4.99, tag: '🌱 Vegetarian' },
+              { id: 'side-2', name: 'Fresh Lemonade', price: 3.50, tag: '🌿 Vegan' },
+              { id: 'side-3', name: 'Choco Lava Cake', price: 5.99, tag: '⭐ Best Seller' },
+            ].map((side) => (
+              <View key={side.id} style={styles.upsellCard}>
+                <Text style={styles.upsellItemTag}>{side.tag}</Text>
+                <Text style={styles.upsellItemName} numberOfLines={1}>{side.name}</Text>
+                <View style={styles.upsellItemFooter}>
+                  <Text style={styles.upsellItemPrice}>${side.price.toFixed(2)}</Text>
+                  <TouchableOpacity
+                    style={styles.upsellAddBtn}
+                    onPress={() => Alert.alert('Added', `${side.name} added to your basket!`)}
+                  >
+                    <Plus size={14} color="#FF4B3A" strokeWidth={3} />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ))}
+          </ScrollView>
+        </View>
+
 
         {/* Order Summary Pricing Breakdown */}
         {pricing ? (
@@ -468,4 +516,95 @@ const styles = StyleSheet.create({
   checkoutBtn: {
     flex: 1,
   },
+  quickChipsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 6,
+    marginTop: 8,
+  },
+  quickChipsLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#6B7280',
+    marginRight: 2,
+  },
+  quickChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#FFF1F2',
+    borderWidth: 1,
+    borderColor: '#FECDD3',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  quickChipText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#E11D48',
+  },
+  upsellSection: {
+    marginTop: 16,
+    marginHorizontal: 16,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: '#F3F4F6',
+  },
+  upsellHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 10,
+  },
+  upsellTitle: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#111827',
+  },
+  upsellScroll: {
+    gap: 10,
+  },
+  upsellCard: {
+    width: 140,
+    backgroundColor: '#F9FAFB',
+    borderRadius: 12,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  upsellItemTag: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#059669',
+    marginBottom: 4,
+  },
+  upsellItemName: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#1F2937',
+    marginBottom: 8,
+  },
+  upsellItemFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  upsellItemPrice: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#111827',
+  },
+  upsellAddBtn: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#FEE2E2',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });
+

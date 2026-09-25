@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -7,11 +7,16 @@ import {
   TouchableOpacity,
   Image,
   RefreshControl,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { restaurantService } from '../../../services/restaurant.service';
 import { menuService } from '../../../services/menu.service';
+import { cartService } from '../../../services/cart.service';
+import { useCartStore } from '../../../store/cartStore';
+import { useFavoritesStore } from '../../../store/favoritesStore';
 import { RestaurantCard } from '../../../components/cards/RestaurantCard';
 import { FoodCard } from '../../../components/cards/FoodCard';
 import { CategoryPill } from '../../../components/cards/CategoryPill';
@@ -19,7 +24,7 @@ import { Loading } from '../../../components/ui/Loading';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { orderService } from '../../../services/order.service';
 import { useAuthStore } from '../../../store/authStore';
-import { OrderStatus } from '@food-delivery/shared';
+import { OrderStatus, OrderSummary } from '@food-delivery/shared';
 import {
   MapPin,
   Search as SearchIcon,
@@ -28,6 +33,8 @@ import {
   Bike,
   ChevronRight,
   Utensils,
+  Heart,
+  RotateCcw,
 } from 'lucide-react-native';
 
 const ACTIVE_STATUSES: OrderStatus[] = [
@@ -53,6 +60,36 @@ export default function HomeScreen() {
     staleTime: 15 * 1000,
   });
 
+  const [reorderingId, setReorderingId] = useState<string | null>(null);
+  const { isRestaurantFavorite, restaurantIds } = useFavoritesStore();
+
+  const pastOrders = useMemo(() => {
+    return (ordersData?.items || []).filter((o) => o.status === OrderStatus.DELIVERED);
+  }, [ordersData?.items]);
+
+  const handleReorderPastOrder = async (pastOrder: OrderSummary) => {
+    if (!pastOrder.items || pastOrder.items.length === 0) return;
+    setReorderingId(pastOrder.id);
+    try {
+      for (let i = 0; i < pastOrder.items.length; i++) {
+        const item = pastOrder.items[i];
+        await cartService.addItem({
+          foodItemId: item.foodItemId,
+          quantity: item.quantity,
+          addonIds: item.addons?.map((a) => a.addonId) || [],
+          specialInstructions: item.specialNotes || undefined,
+          clearExistingIfDifferentRestaurant: i === 0,
+        });
+      }
+      await useCartStore.getState().fetchCart();
+      router.push('/(customer)/cart');
+    } catch (err: any) {
+      Alert.alert('Reorder Failed', err?.message || 'Could not re-add items to basket.');
+    } finally {
+      setReorderingId(null);
+    }
+  };
+
   const activeOrder = ordersData?.items?.find((o) => ACTIVE_STATUSES.includes(o.status));
 
   // 1. Fetch Categories
@@ -70,11 +107,22 @@ export default function HomeScreen() {
     queryKey: ['restaurants', selectedCategory],
     queryFn: () =>
       restaurantService.search({
-        categoryId: selectedCategory || undefined,
+        categoryId:
+          selectedCategory === 'FAVORITES'
+            ? undefined
+            : selectedCategory || undefined,
         sortBy: 'rating',
         limit: 10,
       }),
   });
+
+  const restaurants = useMemo(() => {
+    const list = restaurantData?.items || [];
+    if (selectedCategory === 'FAVORITES') {
+      return list.filter((r) => isRestaurantFavorite(r.id));
+    }
+    return list;
+  }, [restaurantData?.items, selectedCategory, isRestaurantFavorite]);
 
   // 3. Fetch Featured Food Items
   const {
@@ -98,7 +146,6 @@ export default function HomeScreen() {
     setRefreshing(false);
   };
 
-  const restaurants = restaurantData?.items || [];
   const foodItems = (featuredFood?.items as any[]) || [];
 
   return (
@@ -193,6 +240,68 @@ export default function HomeScreen() {
           />
         </View>
 
+        {/* Order Again in 1 Tap Carousel */}
+        {pastOrders.length > 0 && (
+          <View style={styles.orderAgainSection}>
+            <View style={styles.sectionHeader}>
+              <View style={styles.orderAgainHeaderTitle}>
+                <RotateCcw size={16} color="#FF4B3A" />
+                <Text style={styles.sectionTitle}>Order Again in 1 Tap</Text>
+              </View>
+              <TouchableOpacity onPress={() => router.push('/(customer)/(tabs)/orders')}>
+                <Text style={styles.seeAllText}>Past Orders</Text>
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.orderAgainScroll}
+            >
+              {pastOrders.slice(0, 5).map((order) => (
+                <View key={order.id} style={styles.orderAgainCard}>
+                  <View style={styles.orderAgainCardTop}>
+                    <Text style={styles.orderAgainRestName} numberOfLines={1}>
+                      {order.restaurant?.name || 'Restaurant'}
+                    </Text>
+                    <Text style={styles.orderAgainDate}>
+                      {new Date(order.placedAt).toLocaleDateString([], {
+                        month: 'short',
+                        day: 'numeric',
+                      })}
+                    </Text>
+                  </View>
+
+                  <Text style={styles.orderAgainItems} numberOfLines={2}>
+                    {order.items?.map((i) => `${i.quantity}x ${i.nameSnapshot}`).join(', ')}
+                  </Text>
+
+                  <View style={styles.orderAgainCardBottom}>
+                    <Text style={styles.orderAgainPrice}>
+                      ${Number(order.totalAmount || 0).toFixed(2)}
+                    </Text>
+                    <TouchableOpacity
+                      style={styles.reorderPillBtn}
+                      activeOpacity={0.8}
+                      disabled={reorderingId === order.id}
+                      onPress={() => handleReorderPastOrder(order)}
+                    >
+                      {reorderingId === order.id ? (
+                        <ActivityIndicator color="#FFFFFF" size="small" />
+                      ) : (
+                        <>
+                          <RotateCcw size={12} color="#FFFFFF" />
+                          <Text style={styles.reorderPillText}>Re-Order</Text>
+                        </>
+                      )}
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              ))}
+            </ScrollView>
+          </View>
+        )}
+
         {/* Categories Section */}
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Food Categories</Text>
@@ -211,6 +320,32 @@ export default function HomeScreen() {
               isSelected={selectedCategory === null}
               onPress={() => setSelectedCategory(null)}
             />
+            {/* Favorites Filter Pill */}
+            <TouchableOpacity
+              activeOpacity={0.8}
+              style={[
+                styles.favPill,
+                selectedCategory === 'FAVORITES' ? styles.favPillActive : null,
+              ]}
+              onPress={() =>
+                setSelectedCategory(selectedCategory === 'FAVORITES' ? null : 'FAVORITES')
+              }
+            >
+              <Heart
+                size={13}
+                color={selectedCategory === 'FAVORITES' ? '#FFFFFF' : '#FF4B3A'}
+                fill={selectedCategory === 'FAVORITES' ? '#FFFFFF' : '#FF4B3A'}
+              />
+              <Text
+                style={[
+                  styles.favPillText,
+                  selectedCategory === 'FAVORITES' ? styles.favPillTextActive : null,
+                ]}
+              >
+                Favorites ({restaurantIds.length})
+              </Text>
+            </TouchableOpacity>
+
             {categories?.map((cat) => (
               <CategoryPill
                 key={cat.id}
@@ -441,5 +576,110 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
     color: '#FF4B3A',
+  },
+  orderAgainSection: {
+    marginBottom: 20,
+  },
+  orderAgainHeaderTitle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  seeAllText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#FF4B3A',
+  },
+  orderAgainScroll: {
+    paddingRight: 16,
+    gap: 12,
+  },
+  orderAgainCard: {
+    width: 220,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
+    justifyContent: 'space-between',
+  },
+  orderAgainCardTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  orderAgainRestName: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#0F172A',
+    flex: 1,
+  },
+  orderAgainDate: {
+    fontSize: 10,
+    color: '#94A3B8',
+    marginLeft: 6,
+  },
+  orderAgainItems: {
+    fontSize: 12,
+    color: '#64748B',
+    lineHeight: 16,
+    marginBottom: 10,
+  },
+  orderAgainCardBottom: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: '#F8FAFC',
+  },
+  orderAgainPrice: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#0F172A',
+  },
+  reorderPillBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#FF4B3A',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 12,
+  },
+  reorderPillText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#FFFFFF',
+  },
+  favPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#FCA5A5',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginRight: 8,
+  },
+  favPillActive: {
+    backgroundColor: '#FF4B3A',
+    borderColor: '#FF4B3A',
+  },
+  favPillText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#FF4B3A',
+  },
+  favPillTextActive: {
+    color: '#FFFFFF',
   },
 });

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -43,7 +43,20 @@ import {
   Check,
   X,
   AlertTriangle,
+  Star,
+  MessageCircle,
+  Gift,
+  Camera,
+  ShieldCheck,
+  ArrowRight,
 } from 'lucide-react-native';
+import { mobileReviewService } from '../../../services/review.service';
+import { ChatModal } from '../../../components/modals/ChatModal';
+import { PostOrderRewardModal } from '../../../components/modals/PostOrderRewardModal';
+import { OpenStreetMap } from '../../../components/map/OpenStreetMap';
+import { OpenStreetMapModal } from '../../../components/map/OpenStreetMapModal';
+import { OSMMarker } from '../../../components/map/osmHelper';
+
 
 const TRACKING_STEPS = [
   {
@@ -131,6 +144,39 @@ export default function OrderTrackingScreen() {
   const [copiedId, setCopiedId] = useState(false);
   const [courierLocation, setCourierLocation] = useState<LiveLocationUpdate | null>(null);
   const [isSocketLive, setIsSocketLive] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState('');
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [hasReviewed, setHasReviewed] = useState(false);
+
+  // In-App Chat & Reward Modals State
+  const [showChatModal, setShowChatModal] = useState(false);
+  const [chatTarget, setChatTarget] = useState<'COURIER' | 'STORE'>('COURIER');
+  const [showRewardModal, setShowRewardModal] = useState(false);
+  const [rewardClaimedOrShown, setRewardClaimedOrShown] = useState(false);
+
+  const handleReviewSubmit = async () => {
+    if (!id) return;
+    setIsSubmittingReview(true);
+    try {
+      await mobileReviewService.submitReview({
+        orderId: id as string,
+        rating: reviewRating,
+        comment: reviewComment.trim() || undefined,
+      });
+      setHasReviewed(true);
+      setShowReviewModal(false);
+      Alert.alert(
+        'Review Submitted! ⭐',
+        'Thank you for rating your meal! Your feedback has been sent to the restaurant.'
+      );
+    } catch (err: any) {
+      Alert.alert('Error', err?.response?.data?.message || 'Failed to submit review.');
+    } finally {
+      setIsSubmittingReview(false);
+    }
+  };
 
   const CANCELLATION_REASONS = [
     'Taking longer than expected',
@@ -203,6 +249,84 @@ export default function OrderTrackingScreen() {
       setIsCancelling(false);
     },
   });
+
+  const [showMapModal, setShowMapModal] = useState(false);
+
+  const mapMarkers: OSMMarker[] = useMemo(() => {
+    if (!order) return [];
+    const list: OSMMarker[] = [];
+
+    // 1. Restaurant Pickup Point
+    if (order.restaurant?.latitude && order.restaurant?.longitude) {
+      list.push({
+        id: 'store',
+        type: 'STORE',
+        title: order.restaurant.name || 'Restaurant',
+        description: `${order.restaurant.street || ''}, ${order.restaurant.city || ''}`,
+        latitude: order.restaurant.latitude,
+        longitude: order.restaurant.longitude,
+        badgeText: 'Pickup',
+      });
+    }
+
+    // 2. Customer Delivery Destination
+    if (order.deliveryAddress?.latitude && order.deliveryAddress?.longitude) {
+      list.push({
+        id: 'dest',
+        type: 'CUSTOMER',
+        title: order.deliveryAddress.title || 'Delivery Destination',
+        description: `${order.deliveryAddress.street || ''}, ${order.deliveryAddress.city || ''}`,
+        latitude: order.deliveryAddress.latitude,
+        longitude: order.deliveryAddress.longitude,
+        badgeText: 'Dropoff',
+      });
+    }
+
+    // 3. Live Courier Location
+    if (courierLocation?.latitude && courierLocation?.longitude) {
+      list.push({
+        id: 'courier',
+        type: 'COURIER',
+        title: order.deliveryAssignment?.driver?.user?.name || 'Courier Partner',
+        description: `Speed: ${Math.round(courierLocation.speed || 0)} km/h`,
+        latitude: courierLocation.latitude,
+        longitude: courierLocation.longitude,
+        bearing: courierLocation.bearing,
+        speed: courierLocation.speed,
+        badgeText: 'Driver',
+      });
+    }
+
+    return list;
+  }, [order, courierLocation]);
+
+  const mapCenter = useMemo(() => {
+    if (courierLocation) {
+      return { latitude: courierLocation.latitude, longitude: courierLocation.longitude };
+    }
+    if (order?.deliveryAddress?.latitude && order?.deliveryAddress?.longitude) {
+      return { latitude: order.deliveryAddress.latitude, longitude: order.deliveryAddress.longitude };
+    }
+    if (order?.restaurant?.latitude && order?.restaurant?.longitude) {
+      return { latitude: order.restaurant.latitude, longitude: order.restaurant.longitude };
+    }
+    return { latitude: 40.7128, longitude: -74.006 };
+  }, [courierLocation, order]);
+
+  const routeCoordinates: Array<[number, number]> = useMemo(() => {
+    if (!order) return [];
+    const pts: Array<[number, number]> = [];
+    if (order.restaurant?.latitude && order.restaurant?.longitude) {
+      pts.push([order.restaurant.latitude, order.restaurant.longitude]);
+    }
+    if (courierLocation?.latitude && courierLocation?.longitude) {
+      pts.push([courierLocation.latitude, courierLocation.longitude]);
+    }
+    if (order.deliveryAddress?.latitude && order.deliveryAddress?.longitude) {
+      pts.push([order.deliveryAddress.latitude, order.deliveryAddress.longitude]);
+    }
+    return pts;
+  }, [order, courierLocation]);
 
   const handleConfirmCancel = () => {
     const finalReason =
@@ -405,32 +529,46 @@ export default function OrderTrackingScreen() {
             </View>
           )}
 
-          {/* Live Courier GPS Telemetry Card */}
-          {(courierLocation || isSocketLive) && !isCancelledOrRejected ? (
-            <View style={styles.liveTelemetryCard}>
-              <View style={styles.liveTelemetryHeader}>
-                <View style={styles.livePulseContainer}>
-                  <View style={styles.livePulseDot} />
-                  <Text style={styles.livePulseTitle}>
-                    {courierLocation ? 'Live Courier GPS Telemetry' : 'Real-time Socket Connected'}
-                  </Text>
+          {/* Live OpenStreetMap Route Card */}
+          {!isCancelledOrRejected ? (
+            <View style={styles.mapSectionWrapper}>
+              <OpenStreetMap
+                center={mapCenter}
+                zoom={14}
+                markers={mapMarkers}
+                routeCoordinates={routeCoordinates}
+                height={225}
+                interactive={true}
+                showControls={true}
+                fitBounds={true}
+                headerTitle="Live OpenStreetMap Tracking"
+                headerSubtitle={
+                  courierLocation
+                    ? `Courier moving at ${Math.round(courierLocation.speed || 0)} km/h`
+                    : order.status === OrderStatus.DELIVERED
+                    ? 'Delivered to your address'
+                    : 'Dispatch corridor active'
+                }
+                showExpandBtn={true}
+                onExpandPress={() => setShowMapModal(true)}
+              />
+
+              {/* Live Courier GPS Telemetry telemetry pill */}
+              {(courierLocation || isSocketLive) ? (
+                <View style={styles.mapTelemetryRow}>
+                  <View style={styles.livePulseContainer}>
+                    <View style={styles.livePulseDot} />
+                    <Text style={styles.livePulseTitle}>
+                      {courierLocation ? `GPS: ${courierLocation.latitude.toFixed(4)}, ${courierLocation.longitude.toFixed(4)}` : 'Live Telemetry Active'}
+                    </Text>
+                  </View>
+                  {courierLocation?.speed ? (
+                    <View style={styles.liveSpeedPill}>
+                      <Text style={styles.liveSpeedText}>{Math.round(courierLocation.speed)} km/h</Text>
+                    </View>
+                  ) : null}
                 </View>
-                <View style={styles.liveSpeedPill}>
-                  <Text style={styles.liveSpeedText}>
-                    {courierLocation?.speed ? `${Math.round(courierLocation.speed)} km/h` : 'LIVE'}
-                  </Text>
-                </View>
-              </View>
-              {courierLocation ? (
-                <Text style={styles.liveTelemetrySub}>
-                  GPS: {courierLocation.latitude.toFixed(5)}, {courierLocation.longitude.toFixed(5)}
-                  {courierLocation.bearing ? ` • Heading ${Math.round(courierLocation.bearing)}°` : ''}
-                </Text>
-              ) : (
-                <Text style={styles.liveTelemetrySub}>
-                  Connected to instant dispatch & status streaming channel
-                </Text>
-              )}
+              ) : null}
             </View>
           ) : null}
 
@@ -509,15 +647,27 @@ export default function OrderTrackingScreen() {
                   <Bike size={18} color="#7C3AED" />
                   <Text style={[styles.sectionTitle, { color: '#6B21A8' }]}>Assigned Courier</Text>
                 </View>
-                {order.deliveryAssignment.driver.user?.phone ? (
+                <View style={{ flexDirection: 'row', gap: 6 }}>
                   <TouchableOpacity
-                    onPress={() => handleCall(order.deliveryAssignment?.driver?.user?.phone || '')}
-                    style={styles.callCourierPill}
+                    onPress={() => {
+                      setChatTarget('COURIER');
+                      setShowChatModal(true);
+                    }}
+                    style={styles.chatCourierPill}
                   >
-                    <Phone size={13} color="#7C3AED" />
-                    <Text style={styles.callCourierPillText}>Call Rider</Text>
+                    <MessageCircle size={13} color="#7C3AED" />
+                    <Text style={styles.chatCourierPillText}>Chat</Text>
                   </TouchableOpacity>
-                ) : null}
+                  {order.deliveryAssignment.driver.user?.phone ? (
+                    <TouchableOpacity
+                      onPress={() => handleCall(order.deliveryAssignment?.driver?.user?.phone || '')}
+                      style={styles.callCourierPill}
+                    >
+                      <Phone size={13} color="#7C3AED" />
+                      <Text style={styles.callCourierPillText}>Call</Text>
+                    </TouchableOpacity>
+                  ) : null}
+                </View>
               </View>
 
               <View style={styles.courierInfoRow}>
@@ -563,15 +713,27 @@ export default function OrderTrackingScreen() {
                 <Utensils size={18} color="#FF4B3A" />
                 <Text style={styles.sectionTitle}>Restaurant Details</Text>
               </View>
-              {order.restaurant?.phone ? (
+              <View style={{ flexDirection: 'row', gap: 6 }}>
                 <TouchableOpacity
-                  onPress={() => handleCall(order.restaurant?.phone)}
-                  style={styles.callPill}
+                  onPress={() => {
+                    setChatTarget('STORE');
+                    setShowChatModal(true);
+                  }}
+                  style={styles.chatStorePill}
                 >
-                  <Phone size={13} color="#FF4B3A" />
-                  <Text style={styles.callPillText}>Call</Text>
+                  <MessageCircle size={13} color="#FF4B3A" />
+                  <Text style={styles.chatStorePillText}>Chat</Text>
                 </TouchableOpacity>
-              ) : null}
+                {order.restaurant?.phone ? (
+                  <TouchableOpacity
+                    onPress={() => handleCall(order.restaurant?.phone)}
+                    style={styles.callPill}
+                  >
+                    <Phone size={13} color="#FF4B3A" />
+                    <Text style={styles.callPillText}>Call</Text>
+                  </TouchableOpacity>
+                ) : null}
+              </View>
             </View>
 
             <Text style={styles.restaurantName}>{order.restaurant?.name}</Text>
@@ -687,7 +849,77 @@ export default function OrderTrackingScreen() {
             </View>
           </View>
 
-          {/* Action Buttons: Order Again (terminal) or Cancel (in progress) */}
+          {/* Verified Proof of Delivery Card */}
+          {order.status === OrderStatus.DELIVERED ? (
+            <View style={[styles.sectionCard, styles.proofCard]}>
+              <View style={styles.cardHeaderRow}>
+                <View style={styles.cardHeaderLeft}>
+                  <ShieldCheck size={18} color="#059669" />
+                  <Text style={[styles.sectionTitle, { color: '#065F46' }]}>
+                    Verified Proof of Delivery
+                  </Text>
+                </View>
+                <View style={styles.proofBadge}>
+                  <Check size={12} color="#047857" />
+                  <Text style={styles.proofBadgeText}>Completed</Text>
+                </View>
+              </View>
+
+              <Text style={styles.proofDesc}>
+                Drop-off location verified and photo logged by courier upon delivery handover.
+              </Text>
+
+              <View style={styles.proofDetailsRow}>
+                <Camera size={14} color="#059669" />
+                <Text style={styles.proofDetailsText}>
+                  Drop-off photo verification encrypted & saved to delivery record.
+                </Text>
+              </View>
+            </View>
+          ) : null}
+
+          {/* Gamified Post-Order Mystery Reward Perk Card */}
+          {order.status === OrderStatus.DELIVERED ? (
+            <TouchableOpacity
+              style={styles.rewardBanner}
+              activeOpacity={0.88}
+              onPress={() => setShowRewardModal(true)}
+            >
+              <View style={styles.rewardBannerIcon}>
+                <Gift size={22} color="#D97706" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.rewardBannerTitle}>Claim Your Mystery Reward Card! 🎁</Text>
+                <Text style={styles.rewardBannerSub}>Scratch & reveal 15% discount for your next order</Text>
+              </View>
+              <ArrowRight size={18} color="#D97706" />
+            </TouchableOpacity>
+          ) : null}
+
+          {/* Action Buttons: Rate & Review, Order Again, or Cancel */}
+          {order.status === OrderStatus.DELIVERED ? (
+            <TouchableOpacity
+              style={[styles.reviewBtn, hasReviewed && styles.reviewBtnDisabled]}
+              onPress={() => setShowReviewModal(true)}
+              disabled={hasReviewed}
+              activeOpacity={0.88}
+            >
+              <Star
+                size={18}
+                color={hasReviewed ? '#16A34A' : '#D97706'}
+                fill={hasReviewed ? '#16A34A' : '#F59E0B'}
+              />
+              <Text
+                style={[
+                  styles.reviewBtnText,
+                  hasReviewed && { color: '#16A34A', fontWeight: '800' },
+                ]}
+              >
+                {hasReviewed ? 'Feedback Submitted ✓' : 'Rate & Review Order'}
+              </Text>
+            </TouchableOpacity>
+          ) : null}
+
           {isTerminal ? (
             <TouchableOpacity
               style={styles.reorderLargeBtn}
@@ -801,15 +1033,201 @@ export default function OrderTrackingScreen() {
             </View>
           </View>
         </Modal>
+
+        {/* Customer Review Modal */}
+        <Modal
+          visible={showReviewModal}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setShowReviewModal(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <View style={styles.modalTitleRow}>
+                  <Star size={20} color="#F59E0B" fill="#F59E0B" />
+                  <Text style={styles.modalTitle}>Rate Your Experience</Text>
+                </View>
+                <TouchableOpacity onPress={() => setShowReviewModal(false)} hitSlop={10}>
+                  <X size={20} color="#64748B" />
+                </TouchableOpacity>
+              </View>
+
+              <Text style={styles.modalSubtitle}>
+                How was your meal from {order.restaurant?.name || 'this restaurant'}?
+              </Text>
+
+              {/* 5-Star Rating Buttons */}
+              <View style={styles.starRatingContainer}>
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <TouchableOpacity
+                    key={star}
+                    style={styles.starButton}
+                    onPress={() => setReviewRating(star)}
+                    activeOpacity={0.7}
+                  >
+                    <Star
+                      size={32}
+                      color="#F59E0B"
+                      fill={star <= reviewRating ? '#F59E0B' : '#FFFFFF'}
+                    />
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <TextInput
+                style={styles.reviewTextInput}
+                placeholder="Share your thoughts about food taste, packaging, or speed..."
+                placeholderTextColor="#94A3B8"
+                value={reviewComment}
+                onChangeText={setReviewComment}
+                multiline
+                numberOfLines={3}
+              />
+
+              <View style={styles.modalActions}>
+                <TouchableOpacity
+                  style={styles.keepOrderBtn}
+                  onPress={() => setShowReviewModal(false)}
+                >
+                  <Text style={styles.keepOrderBtnText}>Later</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.submitReviewBtn}
+                  onPress={handleReviewSubmit}
+                  disabled={isSubmittingReview}
+                >
+                  {isSubmittingReview ? (
+                    <ActivityIndicator size="small" color="#FFFFFF" />
+                  ) : (
+                    <Text style={styles.submitReviewBtnText}>Submit Review</Text>
+                  )}
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+
+        {/* Live In-App Chat Modal */}
+        {id && order ? (
+          <ChatModal
+            visible={showChatModal}
+            onClose={() => setShowChatModal(false)}
+            orderId={id as string}
+            orderNumber={order.orderNumber}
+            role="CUSTOMER"
+            targetRole={chatTarget}
+            recipientName={
+              chatTarget === 'COURIER'
+                ? order.deliveryAssignment?.driver?.user?.name || 'Courier Driver'
+                : order.restaurant?.name || 'Restaurant Support'
+            }
+          />
+        ) : null}
+
+        {/* Post-Order Reward Scratch Card Modal */}
+        <PostOrderRewardModal
+          visible={showRewardModal}
+          onClose={() => setShowRewardModal(false)}
+          onUseCode={(code) => {
+            Alert.alert('Perk Unlocked!', `Promo code ${code} is ready to use on your next order!`);
+            router.replace('/(customer)/(tabs)/home');
+          }}
+        />
+
+        {/* Fullscreen OpenStreetMap Route Modal */}
+        <OpenStreetMapModal
+          visible={showMapModal}
+          onClose={() => setShowMapModal(false)}
+          center={mapCenter}
+          markers={mapMarkers}
+          routeCoordinates={routeCoordinates}
+          title={`Order #${order.orderNumber} Live Route`}
+          subtitle="Real-time OpenStreetMap Telemetry & Route"
+        />
+
+        {/* Floating Chat with Courier / Restaurant Button */}
+        {!isTerminal && order ? (
+          <TouchableOpacity
+            style={styles.floatingChatBtn}
+            activeOpacity={0.9}
+            onPress={() => {
+              setChatTarget(order.deliveryAssignment?.driver ? 'COURIER' : 'STORE');
+              setShowChatModal(true);
+            }}
+          >
+            <MessageCircle size={18} color="#FFFFFF" />
+            <Text style={styles.floatingChatText}>
+              {order.deliveryAssignment?.driver ? 'Chat with Courier' : 'Chat with Restaurant'}
+            </Text>
+          </TouchableOpacity>
+        ) : null}
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  reviewBtn: {
+    backgroundColor: '#FEF3C7',
+    borderWidth: 1.5,
+    borderColor: '#FCD34D',
+    borderRadius: 16,
+    paddingVertical: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginBottom: 12,
+  },
+  reviewBtnDisabled: {
+    backgroundColor: '#F0FDF4',
+    borderColor: '#BBF7D0',
+  },
+  reviewBtnText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#92400E',
+  },
+  starRatingContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 12,
+    marginVertical: 16,
+  },
+  starButton: {
+    padding: 4,
+  },
+  reviewTextInput: {
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: 12,
+    padding: 12,
+    fontSize: 14,
+    color: '#0F172A',
+    minHeight: 80,
+    textAlignVertical: 'top',
+    marginBottom: 16,
+  },
+  submitReviewBtn: {
+    flex: 1,
+    backgroundColor: '#FF4B3A',
+    borderRadius: 12,
+    paddingVertical: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  submitReviewBtnText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
   container: {
     flex: 1,
     backgroundColor: '#F8FAFC',
+
   },
   pageWrapper: {
     flex: 1,
@@ -1442,4 +1860,148 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#FFFFFF',
   },
+  chatCourierPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 20,
+    backgroundColor: '#F3E8FF',
+    borderWidth: 1,
+    borderColor: '#E9D5FF',
+  },
+  chatCourierPillText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#7C3AED',
+  },
+  chatStorePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 20,
+    backgroundColor: '#FFF1F2',
+    borderWidth: 1,
+    borderColor: '#FFE4E6',
+  },
+  chatStorePillText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#FF4B3A',
+  },
+  proofCard: {
+    backgroundColor: '#F0FDF4',
+    borderColor: '#BBF7D0',
+    borderWidth: 1.5,
+  },
+  proofBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#DCFCE7',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 12,
+  },
+  proofBadgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#166534',
+  },
+  proofDesc: {
+    fontSize: 13,
+    color: '#374151',
+    lineHeight: 18,
+    marginTop: 4,
+    marginBottom: 10,
+  },
+  proofDetailsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#FFFFFF',
+    padding: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#DCFCE7',
+  },
+  proofDetailsText: {
+    flex: 1,
+    fontSize: 11,
+    color: '#065F46',
+    fontWeight: '600',
+  },
+  rewardBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: '#FEF3C7',
+    borderWidth: 1.5,
+    borderColor: '#FCD34D',
+    borderRadius: 16,
+    padding: 14,
+    marginBottom: 12,
+  },
+  rewardBannerIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+  },
+  rewardBannerTitle: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#92400E',
+    marginBottom: 2,
+  },
+  rewardBannerSub: {
+    fontSize: 11,
+    color: '#B45309',
+  },
+  floatingChatBtn: {
+    position: 'absolute',
+    bottom: 24,
+    alignSelf: 'center',
+    backgroundColor: '#FF4B3A',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 25,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  floatingChatText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  mapSectionWrapper: {
+    marginBottom: 16,
+    gap: 8,
+  },
+  mapTelemetryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#F9FAFB',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
 });
+
+

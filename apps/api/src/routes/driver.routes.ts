@@ -48,4 +48,8 @@ router.post(
 
 router.get('/earnings', driverController.getEarnings.bind(driverController));
 
+// Management fleet overview & dispatch
+router.get('/fleet', driverController.getFleet.bind(driverController));
+router.post('/assign', driverController.dispatchAssign.bind(driverController));
+
 export default router;

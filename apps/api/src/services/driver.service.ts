@@ -303,6 +303,71 @@ export class DriverService {
 
     return driverRepository.getEarnings(driver.id);
   }
+
+  /**
+   * Retrieves driver fleet for management overview.
+   */
+  async getFleet() {
+    const drivers = await driverRepository.findAllDrivers();
+    return drivers.map((d) => ({
+      id: d.id,
+      userId: d.userId,
+      vehicleType: d.vehicleType,
+      licensePlate: d.licensePlate,
+      isOnline: d.isOnline,
+      isVerified: d.isVerified,
+      currentLatitude: d.currentLatitude,
+      currentLongitude: d.currentLongitude,
+      ratingAverage: Number(d.ratingAverage),
+      ratingCount: d.ratingCount,
+      totalDeliveries: d.totalDeliveries,
+      user: d.user
+        ? {
+            name: d.user.name,
+            email: d.user.email,
+            phone: d.user.phone,
+            avatarUrl: d.user.avatarUrl,
+          }
+        : null,
+      activeAssignment: d.assignments[0]
+        ? {
+            id: d.assignments[0].id,
+            status: d.assignments[0].status,
+            orderId: d.assignments[0].order.id,
+            orderNumber: d.assignments[0].order.orderNumber,
+            restaurantName: d.assignments[0].order.restaurant.name,
+          }
+        : null,
+    }));
+  }
+
+  /**
+   * Manually dispatches an order to a specific courier.
+   */
+  async dispatchAssignOrder(orderId: string, driverId: string, payout: number = 5.0) {
+    const assignment = await driverRepository.dispatchAssignOrder(orderId, driverId, payout);
+
+    emitJobAssigned(driverId, { orderId, assignmentId: assignment.id });
+    emitOrderStatusChanged(
+      orderId,
+      {
+        orderId,
+        orderNumber: assignment.order.orderNumber,
+        previousStatus: OrderStatus.READY_FOR_PICKUP,
+        newStatus: OrderStatus.DRIVER_ASSIGNED,
+        updatedAt: new Date().toISOString(),
+        notes: `Courier ${assignment.driver.user.name} assigned manually by manager`,
+      },
+      assignment.order.restaurantId
+    );
+
+    return {
+      assignmentId: assignment.id,
+      orderId: assignment.orderId,
+      status: assignment.status,
+      driverName: assignment.driver.user.name,
+    };
+  }
 }
 
 export const driverService = new DriverService();

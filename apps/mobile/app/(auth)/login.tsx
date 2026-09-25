@@ -124,23 +124,23 @@ export default function LoginScreen() {
           <View style={styles.demoGrid}>
             <TouchableOpacity
               style={styles.demoChip}
-              onPress={() => handleQuickFill('customer@feastflow.com')}
+              onPress={() => handleQuickFill('driver.mike@feastflow.com')}
             >
-              <Text style={styles.demoChipText}>👤 Customer (customer@feastflow.com)</Text>
+              <Text style={styles.demoChipText}>🛵 Delivery Courier (driver.mike@feastflow.com)</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.demoChip}
-              onPress={() => handleQuickFill('driver@feastflow.com')}
+              onPress={() => handleQuickFill('john.doe@gmail.com')}
             >
-              <Text style={styles.demoChipText}>🛵 Delivery Driver (driver@feastflow.com)</Text>
+              <Text style={styles.demoChipText}>👤 Customer (john.doe@gmail.com)</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.demoChip}
-              onPress={() => handleQuickFill('owner@feastflow.com')}
+              onPress={() => handleQuickFill('bistro.owner@feastflow.com')}
             >
-              <Text style={styles.demoChipText}>🍳 Restaurant Owner (owner@feastflow.com)</Text>
+              <Text style={styles.demoChipText}>🍳 Restaurant Owner (bistro.owner@feastflow.com)</Text>
             </TouchableOpacity>
           </View>
         </View>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -32,7 +32,12 @@ import {
   User,
   Power,
   Package,
+  Flame,
+  Zap,
 } from 'lucide-react-native';
+import { OpenStreetMap } from '../../components/map/OpenStreetMap';
+import { OpenStreetMapModal } from '../../components/map/OpenStreetMapModal';
+import { OSMMarker } from '../../components/map/osmHelper';
 
 export default function DriverDashboardScreen() {
   const router = useRouter();
@@ -130,6 +135,42 @@ export default function DriverDashboardScreen() {
       refetchJobs();
     },
   });
+
+  const [radarViewMode, setRadarViewMode] = useState<'LIST' | 'MAP'>('MAP');
+  const [showRadarMapModal, setShowRadarMapModal] = useState(false);
+  const [selectedRadarJobId, setSelectedRadarJobId] = useState<string | null>(null);
+
+  const radarMapMarkers: OSMMarker[] = useMemo(() => {
+    const list: OSMMarker[] = [];
+
+    // 1. Driver Position Pin
+    list.push({
+      id: 'driver_me',
+      type: 'COURIER',
+      title: 'Your Radar Terminal',
+      description: 'Listening for dispatch within 25 km',
+      latitude: 40.7128,
+      longitude: -74.006,
+      badgeText: 'You',
+    });
+
+    // 2. Available Job Pickup Pins
+    (jobs || []).forEach((j: DeliveryJobRequestDto) => {
+      if (j.restaurant?.latitude && j.restaurant?.longitude) {
+        list.push({
+          id: j.orderId,
+          type: 'PICKUP',
+          title: j.restaurant.name,
+          description: `${(j.distanceToRestaurantKm + j.distanceToCustomerKm).toFixed(1)} km total • ${j.itemsCount} items`,
+          latitude: j.restaurant.latitude,
+          longitude: j.restaurant.longitude,
+          price: `$${formatCurrency(j.estimatedEarnings)}`,
+        });
+      }
+    });
+
+    return list;
+  }, [jobs]);
 
   if (loadingProfile) {
     return <Loading fullScreen message="Loading courier terminal..." />;
@@ -255,16 +296,132 @@ export default function DriverDashboardScreen() {
           </View>
         </TouchableOpacity>
 
+        {/* Surge Bonus & High-Demand District Radar Card */}
+        <View style={styles.surgeCard}>
+          <View style={styles.surgeHeader}>
+            <View style={styles.surgeTitleRow}>
+              <Flame size={18} color="#EA580C" />
+              <Text style={styles.surgeTitle}>Surge Demand Radar</Text>
+            </View>
+            <View style={styles.surgeBoostBadge}>
+              <Zap size={12} color="#D97706" />
+              <Text style={styles.surgeBoostBadgeText}>Up to +$2.50 / trip</Text>
+            </View>
+          </View>
+
+          <Text style={styles.surgeDesc}>
+            High order density detected in these clusters. Relocate nearby for priority dispatch and bonus multipliers.
+          </Text>
+
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.surgeZonesScroll}
+          >
+            {[
+              {
+                district: 'Downtown / Wall St',
+                boost: '+$2.50',
+                multiplier: '2.2x demand',
+                wait: '< 3m wait',
+                level: 'HIGH',
+              },
+              {
+                district: 'Midtown West',
+                boost: '+$1.75',
+                multiplier: '1.7x demand',
+                wait: '~ 6m wait',
+                level: 'MED',
+              },
+              {
+                district: 'Brooklyn Heights',
+                boost: '+$1.25',
+                multiplier: '1.4x demand',
+                wait: '~ 8m wait',
+                level: 'MED',
+              },
+            ].map((zone) => (
+              <View key={zone.district} style={styles.zoneCard}>
+                <View style={styles.zoneTopRow}>
+                  <Text style={styles.zoneDistrict} numberOfLines={1}>
+                    {zone.district}
+                  </Text>
+                  <View
+                    style={
+                      zone.level === 'HIGH' ? styles.levelBadgeHigh : styles.levelBadgeMed
+                    }
+                  >
+                    <Text
+                      style={
+                        zone.level === 'HIGH' ? styles.levelTextHigh : styles.levelTextMed
+                      }
+                    >
+                      {zone.level === 'HIGH' ? '🔥 Heavy' : '⚡ Busy'}
+                    </Text>
+                  </View>
+                </View>
+                <Text style={styles.zoneBoost}>
+                  {zone.boost} <Text style={styles.zoneBoostSub}>per order</Text>
+                </Text>
+                <View style={styles.zoneBottomRow}>
+                  <Text style={styles.zoneMeta}>{zone.multiplier}</Text>
+                  <Text style={styles.zoneMeta}>•</Text>
+                  <Text style={styles.zoneMeta}>{zone.wait}</Text>
+                </View>
+              </View>
+            ))}
+          </ScrollView>
+        </View>
+
         {/* Job Radar Section */}
         <View style={styles.radarHeader}>
           <View style={styles.radarTitleRow}>
             <Navigation size={18} color="#FF4B3A" />
-            <Text style={styles.sectionTitle}>Job Radar (Available Deliveries)</Text>
+            <Text style={styles.sectionTitle}>Job Radar</Text>
           </View>
+
           {isOnline ? (
-            <View style={styles.liveTag}>
-              <View style={styles.liveDot} />
-              <Text style={styles.liveTagText}>Live 25km</Text>
+            <View style={styles.radarHeaderRight}>
+              {/* Map / List View Mode Toggle */}
+              <View style={styles.togglePillGroup}>
+                <TouchableOpacity
+                  style={[
+                    styles.togglePill,
+                    radarViewMode === 'MAP' && styles.togglePillActive,
+                  ]}
+                  onPress={() => setRadarViewMode('MAP')}
+                >
+                  <Text
+                    style={[
+                      styles.togglePillText,
+                      radarViewMode === 'MAP' && styles.togglePillTextActive,
+                    ]}
+                  >
+                    🗺️ Map
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.togglePill,
+                    radarViewMode === 'LIST' && styles.togglePillActive,
+                  ]}
+                  onPress={() => setRadarViewMode('LIST')}
+                >
+                  <Text
+                    style={[
+                      styles.togglePillText,
+                      radarViewMode === 'LIST' && styles.togglePillTextActive,
+                    ]}
+                  >
+                    📋 List ({jobs.length})
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.liveTag}>
+                <View style={styles.liveDot} />
+                <Text style={styles.liveTagText}>25km</Text>
+              </View>
             </View>
           ) : null}
         </View>
@@ -291,6 +448,59 @@ export default function DriverDashboardScreen() {
             <Text style={styles.emptyRadarText}>
               New kitchen requests within 25 km will pop up automatically. Keep your phone nearby!
             </Text>
+          </View>
+        ) : radarViewMode === 'MAP' ? (
+          /* OpenStreetMap Radar View */
+          <View style={styles.radarMapSection}>
+            <OpenStreetMap
+              center={{ latitude: 40.7128, longitude: -74.006 }}
+              zoom={13}
+              markers={radarMapMarkers}
+              height={260}
+              interactive={true}
+              showControls={true}
+              fitBounds={radarMapMarkers.length > 1}
+              headerTitle={`OpenStreetMap Dispatch Radar (${jobs.length} Available)`}
+              headerSubtitle="Live OpenStreetMap slippy cartography • Tap pins to view"
+              showExpandBtn={true}
+              onExpandPress={() => setShowRadarMapModal(true)}
+            />
+
+            {/* Quick Trip Carousel under the Map */}
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.radarJobsScroll}
+            >
+              {jobs.map((job: DeliveryJobRequestDto) => (
+                <View key={job.orderId} style={styles.radarMiniJobCard}>
+                  <View style={styles.miniJobTop}>
+                    <Text style={styles.miniJobEarnings}>
+                      ${formatCurrency(job.estimatedEarnings)}
+                    </Text>
+                    <View style={styles.miniJobDistancePill}>
+                      <Text style={styles.miniJobDistanceText}>
+                        {(job.distanceToRestaurantKm + job.distanceToCustomerKm).toFixed(1)} km
+                      </Text>
+                    </View>
+                  </View>
+                  <Text style={styles.miniJobName} numberOfLines={1}>
+                    {job.restaurant.name}
+                  </Text>
+                  <Text style={styles.miniJobDrop} numberOfLines={1}>
+                    Drop: {job.deliveryAddress.street}
+                  </Text>
+                  <Button
+                    title="Accept Job"
+                    size="sm"
+                    variant="primary"
+                    isLoading={acceptJobMutation.isPending}
+                    onPress={() => acceptJobMutation.mutate(job.orderId)}
+                    style={{ marginTop: 8 }}
+                  />
+                </View>
+              ))}
+            </ScrollView>
           </View>
         ) : (
           <View style={styles.jobsList}>
@@ -359,6 +569,16 @@ export default function DriverDashboardScreen() {
           </View>
         )}
       </ScrollView>
+
+      {/* Fullscreen OpenStreetMap Radar Modal */}
+      <OpenStreetMapModal
+        visible={showRadarMapModal}
+        onClose={() => setShowRadarMapModal(false)}
+        center={{ latitude: 40.7128, longitude: -74.006 }}
+        markers={radarMapMarkers}
+        title="Live Job Radar (OpenStreetMap)"
+        subtitle="Real-time 25km Dispatch Radar & Pickup Pins"
+      />
     </View>
   );
 }
@@ -725,4 +945,210 @@ const styles = StyleSheet.create({
     color: '#6B7280',
     fontWeight: '600',
   },
+  surgeCard: {
+    backgroundColor: '#FFF7ED',
+    borderRadius: 18,
+    padding: 16,
+    borderWidth: 1.5,
+    borderColor: '#FED7AA',
+    marginBottom: 6,
+  },
+  surgeHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  surgeTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  surgeTitle: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#9A3412',
+  },
+  surgeBoostBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#FEF3C7',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+  },
+  surgeBoostBadgeText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#B45309',
+  },
+  surgeDesc: {
+    fontSize: 12,
+    color: '#7C2D12',
+    lineHeight: 16,
+    marginBottom: 12,
+  },
+  surgeZonesScroll: {
+    gap: 10,
+    paddingRight: 8,
+  },
+  zoneCard: {
+    width: 175,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#FFEDD5',
+    shadowColor: '#EA580C',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  zoneTopRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  zoneDistrict: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#1F2937',
+    flex: 1,
+    marginRight: 4,
+  },
+  levelBadgeHigh: {
+    backgroundColor: '#FEE2E2',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  levelBadgeMed: {
+    backgroundColor: '#FEF3C7',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  levelTextHigh: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: '#DC2626',
+  },
+  levelTextMed: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: '#D97706',
+  },
+  zoneBoost: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: '#EA580C',
+    marginBottom: 4,
+  },
+  zoneBoostSub: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#9CA3AF',
+  },
+  zoneBottomRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  zoneMeta: {
+    fontSize: 10,
+    color: '#6B7280',
+    fontWeight: '600',
+  },
+  radarHeaderRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  togglePillGroup: {
+    flexDirection: 'row',
+    backgroundColor: '#F3F4F6',
+    borderRadius: 14,
+    padding: 2,
+  },
+  togglePill: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  togglePillActive: {
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  togglePillText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#6B7280',
+  },
+  togglePillTextActive: {
+    color: '#111827',
+    fontWeight: '800',
+  },
+  radarMapSection: {
+    gap: 12,
+  },
+  radarJobsScroll: {
+    gap: 10,
+    paddingVertical: 2,
+  },
+  radarMiniJobCard: {
+    width: 200,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  miniJobTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  miniJobEarnings: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: '#16A34A',
+  },
+  miniJobDistancePill: {
+    backgroundColor: '#F3F4F6',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  miniJobDistanceText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#4B5563',
+  },
+  miniJobName: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#111827',
+    marginBottom: 2,
+  },
+  miniJobDrop: {
+    fontSize: 11,
+    color: '#6B7280',
+  },
 });
+
+

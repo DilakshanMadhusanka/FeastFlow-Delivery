@@ -102,4 +102,17 @@ router.post(
   menuController.uploadFoodImage.bind(menuController)
 );
 
+// Item 86 & Quick Snooze controls
+router.post(
+  '/items/:id/snooze',
+  requireAuth,
+  menuController.snoozeFoodItem.bind(menuController)
+);
+
+router.post(
+  '/items/:id/unsnooze',
+  requireAuth,
+  menuController.unsnoozeFoodItem.bind(menuController)
+);
+
 export default router;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -29,12 +29,22 @@ import {
   CreditCard,
   ChevronRight,
   ShieldCheck,
+  MessageCircle,
+  Camera,
 } from 'lucide-react-native';
+import { ChatModal } from '../../components/modals/ChatModal';
+import { ProofOfDeliveryModal } from '../../components/modals/ProofOfDeliveryModal';
+import { OpenStreetMap } from '../../components/map/OpenStreetMap';
+import { OpenStreetMapModal } from '../../components/map/OpenStreetMapModal';
+import { OSMMarker } from '../../components/map/osmHelper';
 
 export default function ActiveDeliveryScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
+  const [showChatModal, setShowChatModal] = useState(false);
+  const [chatTarget, setChatTarget] = useState<'CUSTOMER' | 'STORE'>('CUSTOMER');
+  const [showProofModal, setShowProofModal] = useState(false);
 
   const { data: delivery, isLoading, refetch } = useQuery({
     queryKey: ['activeDelivery'],
@@ -147,6 +157,89 @@ export default function ActiveDeliveryScreen() {
   const step = delivery.currentStep;
   const isCod = delivery.paymentMethod === 'COD';
 
+  const [showMapModal, setShowMapModal] = useState(false);
+
+  const driverMapMarkers: OSMMarker[] = useMemo(() => {
+    if (!delivery) return [];
+    const list: OSMMarker[] = [];
+
+    // 1. Restaurant
+    if (delivery.restaurant?.latitude && delivery.restaurant?.longitude) {
+      list.push({
+        id: 'store',
+        type: 'STORE',
+        title: delivery.restaurant.name,
+        description: `${delivery.restaurant.street}, ${delivery.restaurant.city}`,
+        latitude: delivery.restaurant.latitude,
+        longitude: delivery.restaurant.longitude,
+        badgeText: 'Pickup Point',
+      });
+    }
+
+    // 2. Customer
+    if (delivery.deliveryAddress?.latitude && delivery.deliveryAddress?.longitude) {
+      list.push({
+        id: 'customer',
+        type: 'CUSTOMER',
+        title: delivery.customer.name,
+        description: `${delivery.deliveryAddress.street}, ${delivery.deliveryAddress.city}`,
+        latitude: delivery.deliveryAddress.latitude,
+        longitude: delivery.deliveryAddress.longitude,
+        badgeText: 'Dropoff Point',
+      });
+    }
+
+    // 3. Driver current vehicle position
+    const isEnRouteCustomer =
+      delivery.currentStep === 'HEADING_TO_CUSTOMER' ||
+      delivery.currentStep === 'ARRIVED_AT_CUSTOMER';
+    const driverLat = isEnRouteCustomer
+      ? delivery.deliveryAddress.latitude - 0.003
+      : delivery.restaurant.latitude - 0.002;
+    const driverLng = isEnRouteCustomer
+      ? delivery.deliveryAddress.longitude - 0.002
+      : delivery.restaurant.longitude - 0.002;
+
+    list.push({
+      id: 'driver',
+      type: 'COURIER',
+      title: 'Your Location (Courier)',
+      description: 'Active GPS Navigation',
+      latitude: driverLat,
+      longitude: driverLng,
+      speed: 32,
+      bearing: 45,
+      badgeText: 'You',
+    });
+
+    return list;
+  }, [delivery]);
+
+  const driverMapCenter = useMemo(() => {
+    if (!delivery) return { latitude: 40.7128, longitude: -74.006 };
+    if (
+      delivery.currentStep === 'HEADING_TO_CUSTOMER' ||
+      delivery.currentStep === 'ARRIVED_AT_CUSTOMER'
+    ) {
+      return {
+        latitude: delivery.deliveryAddress.latitude,
+        longitude: delivery.deliveryAddress.longitude,
+      };
+    }
+    return {
+      latitude: delivery.restaurant.latitude,
+      longitude: delivery.restaurant.longitude,
+    };
+  }, [delivery]);
+
+  const driverRouteCoordinates: Array<[number, number]> = useMemo(() => {
+    if (!delivery) return [];
+    return [
+      [delivery.restaurant.latitude, delivery.restaurant.longitude],
+      [delivery.deliveryAddress.latitude, delivery.deliveryAddress.longitude],
+    ];
+  }, [delivery]);
+
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -207,6 +300,30 @@ export default function ActiveDeliveryScreen() {
           })}
         </View>
 
+        {/* OpenStreetMap Live Turn-by-Turn Navigation Map */}
+        <View style={styles.mapSectionCard}>
+          <OpenStreetMap
+            center={driverMapCenter}
+            zoom={15}
+            markers={driverMapMarkers}
+            routeCoordinates={driverRouteCoordinates}
+            height={220}
+            interactive={true}
+            showControls={true}
+            fitBounds={true}
+            headerTitle="OpenStreetMap Navigation Corridor"
+            headerSubtitle={
+              step === 'HEADING_TO_RESTAURANT'
+                ? `Route to Store: ${delivery.restaurant.name}`
+                : step === 'HEADING_TO_CUSTOMER'
+                ? `Route to Customer: ${delivery.customer.name}`
+                : 'Turn-by-turn guidance active'
+            }
+            showExpandBtn={true}
+            onExpandPress={() => setShowMapModal(true)}
+          />
+        </View>
+
         {/* COD Alert Banner */}
         {isCod && (step === 'HEADING_TO_CUSTOMER' || step === 'ARRIVED_AT_CUSTOMER') ? (
           <View style={styles.codAlert}>
@@ -229,13 +346,25 @@ export default function ActiveDeliveryScreen() {
                 <Utensils size={14} color="#2563EB" />
                 <Text style={styles.cardBadgeText}>Step 1: Pickup Location</Text>
               </View>
-              <TouchableOpacity
-                onPress={() => handleCall(delivery.restaurant.phone)}
-                style={styles.callPill}
-              >
-                <Phone size={14} color="#FF4B3A" />
-                <Text style={styles.callPillText}>Call Restaurant</Text>
-              </TouchableOpacity>
+              <View style={{ flexDirection: 'row', gap: 6 }}>
+                <TouchableOpacity
+                  onPress={() => {
+                    setChatTarget('STORE');
+                    setShowChatModal(true);
+                  }}
+                  style={styles.chatActionBtn}
+                >
+                  <MessageCircle size={13} color="#2563EB" />
+                  <Text style={[styles.chatActionBtnText, { color: '#2563EB' }]}>Chat</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => handleCall(delivery.restaurant.phone)}
+                  style={styles.callPill}
+                >
+                  <Phone size={14} color="#FF4B3A" />
+                  <Text style={styles.callPillText}>Call</Text>
+                </TouchableOpacity>
+              </View>
             </View>
 
             <Text style={styles.locationTitle}>{delivery.restaurant.name}</Text>
@@ -311,15 +440,27 @@ export default function ActiveDeliveryScreen() {
                 <MapPin size={14} color="#DC2626" />
                 <Text style={styles.cardBadgeRedText}>Step 2: Customer Dropoff</Text>
               </View>
-              {delivery.customer.phone ? (
+              <View style={{ flexDirection: 'row', gap: 6 }}>
                 <TouchableOpacity
-                  onPress={() => handleCall(delivery.customer.phone)}
-                  style={styles.callPill}
+                  onPress={() => {
+                    setChatTarget('CUSTOMER');
+                    setShowChatModal(true);
+                  }}
+                  style={styles.chatActionBtn}
                 >
-                  <Phone size={14} color="#FF4B3A" />
-                  <Text style={styles.callPillText}>Call Customer</Text>
+                  <MessageCircle size={13} color="#DC2626" />
+                  <Text style={[styles.chatActionBtnText, { color: '#DC2626' }]}>Chat</Text>
                 </TouchableOpacity>
-              ) : null}
+                {delivery.customer.phone ? (
+                  <TouchableOpacity
+                    onPress={() => handleCall(delivery.customer.phone)}
+                    style={styles.callPill}
+                  >
+                    <Phone size={14} color="#FF4B3A" />
+                    <Text style={styles.callPillText}>Call</Text>
+                  </TouchableOpacity>
+                ) : null}
+              </View>
             </View>
 
             <Text style={styles.locationTitle}>{delivery.customer.name}</Text>
@@ -360,11 +501,11 @@ export default function ActiveDeliveryScreen() {
               />
             ) : (
               <Button
-                title="Complete Delivery (Handed to Customer)"
+                title="Complete Delivery & Snap Proof 📸"
                 size="lg"
                 variant="primary"
                 isLoading={advanceStepMutation.isPending}
-                onPress={() => advanceStepMutation.mutate('DELIVERED')}
+                onPress={() => setShowProofModal(true)}
                 style={{ marginTop: 16 }}
               />
             )}
@@ -390,6 +531,50 @@ export default function ActiveDeliveryScreen() {
           </View>
         </View>
       </ScrollView>
+
+      {/* Proof of Delivery Modal */}
+      {delivery ? (
+        <ProofOfDeliveryModal
+          visible={showProofModal}
+          onClose={() => setShowProofModal(false)}
+          orderNumber={delivery.orderNumber}
+          customerName={delivery.customer.name}
+          dropoffAddress={`${delivery.deliveryAddress.street}, ${delivery.deliveryAddress.city}`}
+          isLoading={advanceStepMutation.isPending}
+          onConfirm={(proofNotes, photoTaken) => {
+            setShowProofModal(false);
+            advanceStepMutation.mutate('DELIVERED');
+          }}
+        />
+      ) : null}
+
+      {/* In-App Order Chat Modal */}
+      {delivery ? (
+        <ChatModal
+          isOpen={showChatModal}
+          onClose={() => setShowChatModal(false)}
+          orderId={delivery.orderId}
+          orderNumber={delivery.orderNumber}
+          role="COURIER"
+          targetRole={chatTarget}
+          recipientName={
+            chatTarget === 'CUSTOMER' ? delivery.customer.name : delivery.restaurant.name
+          }
+        />
+      ) : null}
+
+      {/* Fullscreen OpenStreetMap Navigation Modal */}
+      {delivery ? (
+        <OpenStreetMapModal
+          visible={showMapModal}
+          onClose={() => setShowMapModal(false)}
+          center={driverMapCenter}
+          markers={driverMapMarkers}
+          routeCoordinates={driverRouteCoordinates}
+          title={`Order #${delivery.orderNumber} Route`}
+          subtitle="OpenStreetMap Live Courier Navigation"
+        />
+      ) : null}
     </View>
   );
 }
@@ -697,4 +882,24 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     color: '#16A34A',
   },
+  chatActionBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#F3F4F6',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 14,
+  },
+  chatActionBtnText: {
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  mapSectionCard: {
+    marginVertical: 4,
+  },
 });
+
+

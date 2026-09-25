@@ -582,6 +582,99 @@ export class DriverRepository {
       recentDeliveries: recentDeliveries.slice(0, 20),
     };
   }
+
+  /**
+   * Retrieves all drivers across the platform with live telemetry and current assignments.
+   */
+  async findAllDrivers() {
+    return prisma.deliveryDriver.findMany({
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+            avatarUrl: true,
+          },
+        },
+        assignments: {
+          where: {
+            status: {
+              in: [
+                AssignmentStatusEnum.ASSIGNED,
+                AssignmentStatusEnum.ACCEPTED,
+                AssignmentStatusEnum.PICKED_UP,
+              ],
+            },
+          },
+          include: {
+            order: {
+              select: {
+                id: true,
+                orderNumber: true,
+                status: true,
+                restaurant: { select: { name: true } },
+              },
+            },
+          },
+        },
+      },
+      orderBy: { updatedAt: 'desc' },
+    });
+  }
+
+  /**
+   * Manually dispatches an order to a courier by an admin or restaurant manager.
+   */
+  async dispatchAssignOrder(orderId: string, driverId: string, payout: number = 5.0) {
+    return prisma.$transaction(async (tx) => {
+      const order = await tx.order.findUnique({
+        where: { id: orderId },
+        include: { restaurant: true },
+      });
+      if (!order) throw new Error('Order not found');
+
+      const driver = await tx.deliveryDriver.findUnique({
+        where: { id: driverId },
+        include: { user: true },
+      });
+      if (!driver) throw new Error('Driver not found');
+
+      const assignment = await tx.deliveryAssignment.upsert({
+        where: { orderId },
+        create: {
+          orderId,
+          driverId,
+          status: AssignmentStatusEnum.ASSIGNED,
+          assignedAt: new Date(),
+          driverPayout: new Prisma.Decimal(payout.toFixed(2)),
+        },
+        update: {
+          driverId,
+          status: AssignmentStatusEnum.ASSIGNED,
+          assignedAt: new Date(),
+          driverPayout: new Prisma.Decimal(payout.toFixed(2)),
+        },
+        include: { order: true, driver: { include: { user: true } } },
+      });
+
+      await tx.order.update({
+        where: { id: orderId },
+        data: { status: OrderStatusEnum.DRIVER_ASSIGNED },
+      });
+
+      await tx.orderStatusHistory.create({
+        data: {
+          orderId,
+          status: OrderStatusEnum.DRIVER_ASSIGNED,
+          notes: `Courier ${driver.user.name} dispatched to restaurant`,
+        },
+      });
+
+      return assignment;
+    });
+  }
 }
 
 export const driverRepository = new DriverRepository();

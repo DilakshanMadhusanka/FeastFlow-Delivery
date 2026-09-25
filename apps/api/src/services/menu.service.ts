@@ -261,6 +261,53 @@ export class MenuService {
     const imageUrl = await storageService.uploadImage(fileBuffer, 'foods', originalFilename);
     return menuRepository.updateFoodImage(foodItemId, imageUrl);
   }
+
+  async snoozeFoodItem(
+    foodItemId: string,
+    duration: '2_HOURS' | 'REST_OF_DAY' | 'INDEFINITE' = 'REST_OF_DAY'
+  ) {
+    const item = await menuRepository.findFoodItemById(foodItemId);
+    if (!item) {
+      throw new NotFoundError('Food item not found.', ErrorCode.FOOD_ITEM_NOT_FOUND);
+    }
+
+    let snoozedUntil: string | null = null;
+    const now = new Date();
+    if (duration === '2_HOURS') {
+      snoozedUntil = new Date(now.getTime() + 2 * 60 * 60 * 1000).toISOString();
+    } else if (duration === 'REST_OF_DAY') {
+      const eod = new Date(now);
+      eod.setHours(23, 59, 59, 999);
+      snoozedUntil = eod.toISOString();
+    }
+
+    const updated = await menuRepository.toggleAvailability(foodItemId, false);
+
+    return {
+      id: updated.id,
+      name: updated.name,
+      isAvailable: false,
+      snoozedUntil,
+      message: `Item '${updated.name}' marked out of stock (86'd) for ${duration.replace('_', ' ').toLowerCase()}`,
+    };
+  }
+
+  async unsnoozeFoodItem(foodItemId: string) {
+    const item = await menuRepository.findFoodItemById(foodItemId);
+    if (!item) {
+      throw new NotFoundError('Food item not found.', ErrorCode.FOOD_ITEM_NOT_FOUND);
+    }
+
+    const updated = await menuRepository.toggleAvailability(foodItemId, true);
+
+    return {
+      id: updated.id,
+      name: updated.name,
+      isAvailable: true,
+      snoozedUntil: null,
+      message: `Item '${updated.name}' restored to active stock`,
+    };
+  }
 }
 
 export const menuService = new MenuService();

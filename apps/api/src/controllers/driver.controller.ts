@@ -101,6 +101,29 @@ export class DriverController {
       next(error);
     }
   }
+
+  async getFleet(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const fleet = await driverService.getFleet();
+      sendSuccess(res, fleet, 'Driver fleet retrieved successfully');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async dispatchAssign(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { orderId, driverId, payout } = req.body;
+      const result = await driverService.dispatchAssignOrder(
+        orderId,
+        driverId,
+        payout ? parseFloat(payout) : 5.0
+      );
+      sendSuccess(res, result, 'Order dispatched to courier successfully');
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export const driverController = new DriverController();

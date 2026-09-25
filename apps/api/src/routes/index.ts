@@ -9,6 +9,14 @@ import paymentRoutes from './payment.routes';
 import orderRoutes from './order.routes';
 import driverRoutes from './driver.routes';
 import { notificationRouter } from './notification.routes';
+import couponRoutes from './coupon.routes';
+import reviewRoutes from './review.routes';
+import financeRoutes from './finance.routes';
+import chatRoutes from './chat.routes';
+import staffRoutes from './staff.routes';
+import marketingRoutes from './marketing.routes';
+import customerCrmRoutes from './customer-crm.routes';
+import aiCopilotRoutes from './ai-copilot.routes';
 
 const router = Router();
 
@@ -22,6 +30,14 @@ router.use('/payments', paymentRoutes);
 router.use('/orders', orderRoutes);
 router.use('/drivers', driverRoutes);
 router.use('/notifications', notificationRouter);
+router.use('/coupons', couponRoutes);
+router.use('/reviews', reviewRoutes);
+router.use('/finance', financeRoutes);
+router.use('/chat', chatRoutes);
+router.use('/staff', staffRoutes);
+router.use('/marketing', marketingRoutes);
+router.use('/customers', customerCrmRoutes);
+router.use('/ai', aiCopilotRoutes);
 
 export default router;
 

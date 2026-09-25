@@ -72,4 +72,20 @@ export const menuService = {
   async deleteFoodItem(id: string): Promise<void> {
     await apiClient.delete<ApiResponse<null>>(`/menu/items/${id}`);
   },
+
+  async snoozeFoodItem(
+    id: string,
+    duration: '2_HOURS' | 'REST_OF_DAY' | 'INDEFINITE'
+  ): Promise<FoodItem> {
+    const response = await apiClient.post<ApiResponse<FoodItem>>(`/menu/items/${id}/snooze`, {
+      duration,
+    });
+    return response.data.data!;
+  },
+
+  async unsnoozeFoodItem(id: string): Promise<FoodItem> {
+    const response = await apiClient.post<ApiResponse<FoodItem>>(`/menu/items/${id}/unsnooze`);
+    return response.data.data!;
+  },
 };
+
