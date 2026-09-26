@@ -1,7 +1,6 @@
 // Prisma Schema for Food Delivery Platform ("FeastFlow")
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["driverAdapters"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
