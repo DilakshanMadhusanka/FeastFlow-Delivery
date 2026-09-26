@@ -16,6 +16,7 @@ import {
   Radio,
   MessageSquare,
   Users,
+  UserPlus,
   Sparkles,
   Crown,
 } from 'lucide-react';
@@ -74,6 +75,11 @@ export const Sidebar: React.FC = () => {
       to: '/customers',
       icon: Crown,
       label: 'Customer CRM & VIPs',
+    },
+    {
+      to: '/users',
+      icon: UserPlus,
+      label: 'Mobile App Users',
     },
     {
       to: '/reviews',

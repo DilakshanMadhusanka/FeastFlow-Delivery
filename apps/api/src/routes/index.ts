@@ -17,11 +17,13 @@ import staffRoutes from './staff.routes';
 import marketingRoutes from './marketing.routes';
 import customerCrmRoutes from './customer-crm.routes';
 import aiCopilotRoutes from './ai-copilot.routes';
+import adminUserRoutes from './admin-user.routes';
 
 const router = Router();
 
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
+router.use('/admin/users', adminUserRoutes);
 router.use('/restaurants', restaurantRoutes);
 router.use('/menu', menuRoutes);
 router.use('/cart', cartRoutes);

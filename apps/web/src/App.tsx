@@ -17,6 +17,7 @@ import { StaffManagementPage } from './features/staff/StaffManagementPage';
 import { StatsPage } from './features/analytics/StatsPage';
 import { RestaurantsPage } from './features/restaurants/RestaurantsPage';
 import { RestaurantSettingsPage } from './features/settings/RestaurantSettingsPage';
+import { UserManagementPage } from './features/users/UserManagementPage';
 import { AICopilotDrawer } from './components/ai/AICopilotDrawer';
 
 export const App: React.FC = () => {
@@ -43,6 +44,7 @@ export const App: React.FC = () => {
           <Route path="/marketing" element={<MarketingPage />} />
           <Route path="/coupons" element={<CouponsPage />} />
           <Route path="/customers" element={<CustomerCrmPage />} />
+          <Route path="/users" element={<UserManagementPage />} />
           <Route path="/reviews" element={<ReviewsPage />} />
           <Route path="/finance" element={<FinancePage />} />
           <Route path="/staff" element={<StaffManagementPage />} />
