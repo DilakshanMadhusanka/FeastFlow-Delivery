@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Button } from './Button';
+import { useTheme } from '../../theme/useTheme';
 
 interface EmptyStateProps {
   icon?: React.ReactNode;
@@ -17,11 +18,13 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   actionTitle,
   onAction,
 }) => {
+  const { colors } = useTheme();
+
   return (
     <View style={styles.container}>
       {icon ? <View style={styles.iconWrapper}>{icon}</View> : null}
-      <Text style={styles.title}>{title}</Text>
-      <Text style={styles.message}>{message}</Text>
+      <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
+      <Text style={[styles.message, { color: colors.textSecondary }]}>{message}</Text>
       {actionTitle && onAction ? (
         <Button title={actionTitle} onPress={onAction} size="sm" style={styles.button} />
       ) : null}

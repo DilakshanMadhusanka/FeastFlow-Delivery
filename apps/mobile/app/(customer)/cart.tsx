@@ -17,10 +17,12 @@ import { EmptyState } from '../../components/ui/EmptyState';
 import { Loading } from '../../components/ui/Loading';
 import { ArrowLeft, Tag, ShoppingBag, Store, Trash2, Plus, Sparkles } from 'lucide-react-native';
 import { formatCurrency, toNumber } from '../../utils/formatters';
+import { useTheme } from '../../theme/useTheme';
 
 export default function CartScreen() {
   const router = useRouter();
   const { isAuthenticated } = useAuthStore();
+  const { colors, isDark } = useTheme();
   const {
     cart,
     isLoading,
@@ -66,7 +68,7 @@ export default function CartScreen() {
 
   if (!isAuthenticated) {
     return (
-      <View style={styles.centerContainer}>
+      <View style={[styles.centerContainer, { backgroundColor: colors.background }]}>
         <EmptyState
           icon={<ShoppingBag size={48} color="#FF4B3A" />}
           title="Sign in to view your cart"
@@ -87,18 +89,18 @@ export default function CartScreen() {
 
   if (items.length === 0) {
     return (
-      <View style={styles.container}>
-        <View style={styles.header}>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-            <ArrowLeft size={22} color="#111827" />
+            <ArrowLeft size={22} color={colors.text} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Your Basket</Text>
+          <Text style={[styles.headerTitle, { color: colors.text }]}>Your Basket</Text>
           <View style={{ width: 22 }} />
         </View>
 
         <View style={styles.emptyContent}>
           <EmptyState
-            icon={<ShoppingBag size={56} color="#9CA3AF" />}
+            icon={<ShoppingBag size={56} color={colors.textMuted} />}
             title="Your Basket is Empty"
             message="Looks like you haven't added anything to your basket yet. Explore tasty meals nearby!"
             actionTitle="Browse Restaurants"
@@ -110,13 +112,13 @@ export default function CartScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Top Navigation */}
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <ArrowLeft size={22} color="#111827" />
+          <ArrowLeft size={22} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Your Basket</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Your Basket</Text>
         <TouchableOpacity onPress={handleClearCart}>
           <Trash2 size={20} color="#EF4444" />
         </TouchableOpacity>
@@ -125,18 +127,18 @@ export default function CartScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Restaurant Header */}
         {cart?.restaurant ? (
-          <View style={styles.restaurantCard}>
+          <View style={[styles.restaurantCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <Store size={20} color="#FF4B3A" />
             <View style={styles.restaurantInfo}>
               <Text style={styles.orderingFrom}>ORDERING FROM</Text>
-              <Text style={styles.restaurantName}>{cart.restaurant.name}</Text>
+              <Text style={[styles.restaurantName, { color: colors.text }]}>{cart.restaurant.name}</Text>
             </View>
           </View>
         ) : null}
 
         {/* Cart Items List */}
         <View style={styles.itemsSection}>
-          <Text style={styles.sectionHeading}>Items ({items.length})</Text>
+          <Text style={[styles.sectionHeading, { color: colors.text }]}>Items ({items.length})</Text>
           {items.map((item) => (
             <CartItemCard
               key={item.id}
@@ -149,15 +151,15 @@ export default function CartScreen() {
         </View>
 
         {/* Coupon Code Section */}
-        <View style={styles.couponSection}>
-          <Text style={styles.sectionHeading}>Promotions & Coupons</Text>
+        <View style={[styles.couponSection, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <Text style={[styles.sectionHeading, { color: colors.text }]}>Promotions & Coupons</Text>
           <View style={styles.couponInputRow}>
-            <View style={styles.couponInputWrapper}>
-              <Tag size={18} color="#9CA3AF" />
+            <View style={[styles.couponInputWrapper, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}>
+              <Tag size={18} color={colors.textMuted} />
               <TextInput
                 placeholder="Enter coupon code (e.g. WELCOME20)"
-                placeholderTextColor="#9CA3AF"
-                style={styles.couponInput}
+                placeholderTextColor={colors.textMuted}
+                style={[styles.couponInput, { color: colors.text }]}
                 value={couponInput}
                 onChangeText={setCouponInput}
                 autoCapitalize="characters"
@@ -174,18 +176,18 @@ export default function CartScreen() {
 
           {/* Quick Available Promo Chips */}
           <View style={styles.quickChipsRow}>
-            <Text style={styles.quickChipsLabel}>Try code:</Text>
+            <Text style={[styles.quickChipsLabel, { color: colors.textMuted }]}>Try code:</Text>
             {['WELCOME15', 'FEAST20', 'FREESHIP'].map((promo) => (
               <TouchableOpacity
                 key={promo}
-                style={styles.quickChip}
+                style={[styles.quickChip, { backgroundColor: colors.cardAlt, borderColor: colors.border }]}
                 onPress={() => {
                   setCouponInput(promo);
                   setCouponError('');
                 }}
               >
                 <Tag size={11} color="#FF4B3A" />
-                <Text style={styles.quickChipText}>{promo}</Text>
+                <Text style={[styles.quickChipText, { color: colors.text }]}>{promo}</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -208,7 +210,7 @@ export default function CartScreen() {
         <View style={styles.upsellSection}>
           <View style={styles.upsellHeader}>
             <Sparkles size={16} color="#FF4B3A" />
-            <Text style={styles.upsellTitle}>Frequently Ordered Together</Text>
+            <Text style={[styles.upsellTitle, { color: colors.text }]}>Frequently Ordered Together</Text>
           </View>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.upsellScroll}>
             {[
@@ -216,9 +218,9 @@ export default function CartScreen() {
               { id: 'side-2', name: 'Fresh Lemonade', price: 3.50, tag: '🌿 Vegan' },
               { id: 'side-3', name: 'Choco Lava Cake', price: 5.99, tag: '⭐ Best Seller' },
             ].map((side) => (
-              <View key={side.id} style={styles.upsellCard}>
+              <View key={side.id} style={[styles.upsellCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
                 <Text style={styles.upsellItemTag}>{side.tag}</Text>
-                <Text style={styles.upsellItemName} numberOfLines={1}>{side.name}</Text>
+                <Text style={[styles.upsellItemName, { color: colors.text }]} numberOfLines={1}>{side.name}</Text>
                 <View style={styles.upsellItemFooter}>
                   <Text style={styles.upsellItemPrice}>${side.price.toFixed(2)}</Text>
                   <TouchableOpacity
@@ -236,22 +238,22 @@ export default function CartScreen() {
 
         {/* Order Summary Pricing Breakdown */}
         {pricing ? (
-          <View style={styles.summaryCard}>
-            <Text style={styles.summaryTitle}>Bill Details</Text>
+          <View style={[styles.summaryCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <Text style={[styles.summaryTitle, { color: colors.text }]}>Bill Details</Text>
 
             <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Item Subtotal</Text>
-              <Text style={styles.summaryValue}>${formatCurrency(pricing.subtotal)}</Text>
+              <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Item Subtotal</Text>
+              <Text style={[styles.summaryValue, { color: colors.text }]}>${formatCurrency(pricing.subtotal)}</Text>
             </View>
 
             <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Delivery Fee</Text>
-              <Text style={styles.summaryValue}>${formatCurrency(pricing.deliveryFee)}</Text>
+              <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Delivery Fee</Text>
+              <Text style={[styles.summaryValue, { color: colors.text }]}>${formatCurrency(pricing.deliveryFee)}</Text>
             </View>
 
             <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Service Fee</Text>
-              <Text style={styles.summaryValue}>${formatCurrency(pricing.serviceFee)}</Text>
+              <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Service Fee</Text>
+              <Text style={[styles.summaryValue, { color: colors.text }]}>${formatCurrency(pricing.serviceFee)}</Text>
             </View>
 
             {toNumber(pricing.discount) > 0 ? (
@@ -262,12 +264,12 @@ export default function CartScreen() {
             ) : null}
 
             <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Estimated Taxes</Text>
-              <Text style={styles.summaryValue}>${formatCurrency(pricing.tax)}</Text>
+              <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Estimated Taxes</Text>
+              <Text style={[styles.summaryValue, { color: colors.text }]}>${formatCurrency(pricing.tax)}</Text>
             </View>
 
             <View style={styles.totalRow}>
-              <Text style={styles.totalLabel}>To Pay</Text>
+              <Text style={[styles.totalLabel, { color: colors.text }]}>To Pay</Text>
               <Text style={styles.totalValue}>${formatCurrency(pricing.total)}</Text>
             </View>
           </View>
@@ -276,10 +278,10 @@ export default function CartScreen() {
 
       {/* Floating Checkout Button */}
       {pricing && toNumber(pricing.total) > 0 ? (
-        <View style={styles.bottomBar}>
+        <View style={[styles.bottomBar, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
           <View style={styles.totalSummary}>
-            <Text style={styles.bottomTotalLabel}>Total Amount</Text>
-            <Text style={styles.bottomTotalValue}>${formatCurrency(pricing.total)}</Text>
+            <Text style={[styles.bottomTotalLabel, { color: colors.textMuted }]}>Total Amount</Text>
+            <Text style={[styles.bottomTotalValue, { color: colors.text }]}>${formatCurrency(pricing.total)}</Text>
           </View>
           <Button
             title="Proceed to Checkout"

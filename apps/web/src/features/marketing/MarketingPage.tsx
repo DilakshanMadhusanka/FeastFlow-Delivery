@@ -156,30 +156,30 @@ export const MarketingPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Top Banner */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-600 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center">
             <Flame className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-black text-gray-900 tracking-tight">
+              <h1 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">
                 Flash Deals & Promotions Engine
               </h1>
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
                 {activeCount} Active Deals
               </span>
             </div>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-slate-400">
               Run automated Happy Hours, Buy-One-Get-One specials, and delivery threshold promotions.
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="px-4 py-2 bg-rose-50 border border-rose-200/80 rounded-xl text-center">
-            <span className="text-xs font-semibold text-rose-600 block">Total Redemptions</span>
-            <span className="text-lg font-black text-rose-700">{totalRedemptions}</span>
+          <div className="px-4 py-2 bg-rose-50 dark:bg-rose-950/40 border border-rose-200/80 dark:border-rose-900/60 rounded-xl text-center">
+            <span className="text-xs font-semibold text-rose-600 dark:text-rose-400 block">Total Redemptions</span>
+            <span className="text-lg font-black text-rose-700 dark:text-rose-300">{totalRedemptions}</span>
           </div>
           <Button
             onClick={() => {
@@ -195,14 +195,14 @@ export const MarketingPage: React.FC = () => {
       </div>
 
       {/* Quick Launch Templates Strip */}
-      <div className="bg-gradient-to-r from-orange-500/5 via-amber-500/5 to-rose-500/5 border border-amber-200/60 rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-3">
+      <div className="bg-gradient-to-r from-orange-500/5 via-amber-500/5 to-rose-500/5 dark:from-orange-950/20 dark:via-amber-950/20 dark:to-rose-950/20 border border-amber-200/60 dark:border-amber-900/40 rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <Sparkles className="w-5 h-5 text-amber-500 shrink-0" />
           <div>
-            <p className="text-xs font-bold text-gray-900">
+            <p className="text-xs font-bold text-gray-900 dark:text-white">
               1-Click High-Converting Campaign Templates:
             </p>
-            <p className="text-[11px] text-gray-500">
+            <p className="text-[11px] text-gray-500 dark:text-slate-400">
               Launch proven restaurant discount workflows instantly.
             </p>
           </div>
@@ -214,9 +214,9 @@ export const MarketingPage: React.FC = () => {
               applyTemplate('HAPPY_HOUR');
               setShowCreateModal(true);
             }}
-            className="px-3 py-1.5 bg-white hover:bg-amber-50 border border-amber-200 text-amber-900 text-xs font-bold rounded-xl shadow-xs transition-colors flex items-center gap-1"
+            className="px-3 py-1.5 bg-white dark:bg-slate-800 hover:bg-amber-50 dark:hover:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 text-amber-900 dark:text-amber-200 text-xs font-bold rounded-xl shadow-xs transition-colors flex items-center gap-1"
           >
-            <Clock className="w-3.5 h-3.5 text-amber-600" />
+            <Clock className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
             20% Afternoon Happy Hour
           </button>
           <button
@@ -224,9 +224,9 @@ export const MarketingPage: React.FC = () => {
               applyTemplate('FREE_DELIVERY');
               setShowCreateModal(true);
             }}
-            className="px-3 py-1.5 bg-white hover:bg-blue-50 border border-blue-200 text-blue-900 text-xs font-bold rounded-xl shadow-xs transition-colors flex items-center gap-1"
+            className="px-3 py-1.5 bg-white dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-950/40 border border-blue-200 dark:border-blue-900/60 text-blue-900 dark:text-blue-200 text-xs font-bold rounded-xl shadow-xs transition-colors flex items-center gap-1"
           >
-            <Truck className="w-3.5 h-3.5 text-blue-600" />
+            <Truck className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
             Free Delivery $30+
           </button>
           <button
@@ -234,16 +234,16 @@ export const MarketingPage: React.FC = () => {
               applyTemplate('BOGO');
               setShowCreateModal(true);
             }}
-            className="px-3 py-1.5 bg-white hover:bg-rose-50 border border-rose-200 text-rose-900 text-xs font-bold rounded-xl shadow-xs transition-colors flex items-center gap-1"
+            className="px-3 py-1.5 bg-white dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-rose-900 dark:text-rose-200 text-xs font-bold rounded-xl shadow-xs transition-colors flex items-center gap-1"
           >
-            <Gift className="w-3.5 h-3.5 text-rose-600" />
+            <Gift className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
             BOGO Special
           </button>
         </div>
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex items-center gap-2 border-b border-gray-200 pb-3">
+      <div className="flex items-center gap-2 border-b border-gray-200 dark:border-slate-800 pb-3">
         {['ALL', 'HAPPY_HOUR', 'BOGO', 'FREE_DELIVERY'].map((f) => (
           <button
             key={f}
@@ -251,7 +251,7 @@ export const MarketingPage: React.FC = () => {
             className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
               filterType === f
                 ? 'bg-brand-500 text-white shadow-sm'
-                : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
+                : 'bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800'
             }`}
           >
             {f === 'ALL'
@@ -267,14 +267,14 @@ export const MarketingPage: React.FC = () => {
 
       {/* Campaigns Grid */}
       {isLoading ? (
-        <div className="text-center py-16 text-gray-400 font-semibold text-xs">
+        <div className="text-center py-16 text-gray-400 dark:text-slate-500 font-semibold text-xs">
           Loading campaigns...
         </div>
       ) : filteredCampaigns.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-gray-200 p-8">
-          <Tag className="w-10 h-10 text-gray-300 mx-auto mb-2" />
-          <p className="font-bold text-gray-700 text-sm">No campaigns in this category</p>
-          <p className="text-xs text-gray-400 mt-1">
+        <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-2xl border border-dashed border-gray-200 dark:border-slate-800 p-8">
+          <Tag className="w-10 h-10 text-gray-300 dark:text-slate-600 mx-auto mb-2" />
+          <p className="font-bold text-gray-700 dark:text-slate-300 text-sm">No campaigns in this category</p>
+          <p className="text-xs text-gray-400 dark:text-slate-500 mt-1">
             Create a campaign or click one of the quick templates above to boost order volume.
           </p>
         </div>
@@ -288,17 +288,17 @@ export const MarketingPage: React.FC = () => {
             return (
               <div
                 key={c.id}
-                className="bg-white rounded-2xl border border-gray-100 p-5 shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
+                className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 p-5 shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-start justify-between gap-3 mb-3">
                     <span
                       className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider flex items-center gap-1 ${
                         isHappyHour
-                          ? 'bg-amber-100 text-amber-800'
+                          ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300'
                           : isBogo
-                          ? 'bg-rose-100 text-rose-800'
-                          : 'bg-blue-100 text-blue-800'
+                          ? 'bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300'
+                          : 'bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300'
                       }`}
                     >
                       {isHappyHour && <Clock className="w-3 h-3" />}
@@ -311,7 +311,7 @@ export const MarketingPage: React.FC = () => {
                     <button
                       onClick={() => toggleMutation.mutate(c.id)}
                       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                        c.isActive ? 'bg-emerald-500' : 'bg-gray-300'
+                        c.isActive ? 'bg-emerald-500' : 'bg-gray-300 dark:bg-slate-700'
                       }`}
                     >
                       <span
@@ -322,14 +322,14 @@ export const MarketingPage: React.FC = () => {
                     </button>
                   </div>
 
-                  <h3 className="font-black text-base text-gray-900 leading-snug mb-1">
+                  <h3 className="font-black text-base text-gray-900 dark:text-white leading-snug mb-1">
                     {c.name}
                   </h3>
 
-                  <div className="space-y-1.5 text-xs text-gray-600 mt-3 bg-gray-50 p-3 rounded-xl border border-gray-100">
+                  <div className="space-y-1.5 text-xs text-gray-600 dark:text-slate-300 mt-3 bg-gray-50 dark:bg-slate-800/80 p-3 rounded-xl border border-gray-100 dark:border-slate-700">
                     <div className="flex justify-between items-center">
-                      <span className="text-gray-400 font-semibold">Benefit:</span>
-                      <span className="font-extrabold text-brand-600">
+                      <span className="text-gray-400 dark:text-slate-400 font-semibold">Benefit:</span>
+                      <span className="font-extrabold text-brand-600 dark:text-brand-400">
                         {isFreeDelivery
                           ? '100% Free Delivery'
                           : isBogo
@@ -339,16 +339,16 @@ export const MarketingPage: React.FC = () => {
                     </div>
 
                     <div className="flex justify-between items-center">
-                      <span className="text-gray-400 font-semibold">Min. Order:</span>
-                      <span className="font-bold text-gray-800">
+                      <span className="text-gray-400 dark:text-slate-400 font-semibold">Min. Order:</span>
+                      <span className="font-bold text-gray-800 dark:text-slate-200">
                         ${c.minOrderAmount.toFixed(2)}
                       </span>
                     </div>
 
                     {isHappyHour && c.startTime && c.endTime && (
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-400 font-semibold">Time Window:</span>
-                        <span className="font-bold text-amber-700">
+                        <span className="text-gray-400 dark:text-slate-400 font-semibold">Time Window:</span>
+                        <span className="font-bold text-amber-700 dark:text-amber-400">
                           {c.startTime} – {c.endTime}
                         </span>
                       </div>
@@ -356,8 +356,8 @@ export const MarketingPage: React.FC = () => {
 
                     {c.applicableDays && c.applicableDays.length > 0 && (
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-400 font-semibold">Active Days:</span>
-                        <span className="font-semibold text-gray-700">
+                        <span className="text-gray-400 dark:text-slate-400 font-semibold">Active Days:</span>
+                        <span className="font-semibold text-gray-700 dark:text-slate-300">
                           {c.applicableDays.map((d) => dayNames[d]).join(', ')}
                         </span>
                       </div>
@@ -366,9 +366,9 @@ export const MarketingPage: React.FC = () => {
                 </div>
 
                 {/* Bottom stats and delete */}
-                <div className="pt-4 mt-4 border-t border-gray-100 flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-1.5 font-bold text-gray-500">
-                    <ShoppingBag className="w-4 h-4 text-emerald-600" />
+                <div className="pt-4 mt-4 border-t border-gray-100 dark:border-slate-800 flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-1.5 font-bold text-gray-500 dark:text-slate-400">
+                    <ShoppingBag className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                     <span>{c.redemptionCount} times redeemed</span>
                   </div>
 
@@ -378,7 +378,7 @@ export const MarketingPage: React.FC = () => {
                         deleteMutation.mutate(c.id);
                       }
                     }}
-                    className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    className="p-1.5 text-gray-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-lg transition-colors"
                     title="Delete Campaign"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -399,13 +399,13 @@ export const MarketingPage: React.FC = () => {
         >
           <form onSubmit={handleCreateSubmit} className="space-y-4">
             {formError && (
-              <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-xs font-semibold">
+              <div className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 rounded-xl text-xs font-semibold">
                 {formError}
               </div>
             )}
 
             <div>
-              <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-bold text-gray-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                 Campaign Name *
               </label>
               <input
@@ -414,19 +414,19 @@ export const MarketingPage: React.FC = () => {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. 20% Afternoon Happy Hour"
-                className="w-full text-xs font-medium bg-white border border-gray-300 rounded-xl p-2.5 text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                className="w-full text-xs font-medium bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl p-2.5 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-bold text-gray-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                   Campaign Type
                 </label>
                 <select
                   value={type}
                   onChange={(e: any) => setType(e.target.value)}
-                  className="w-full text-xs font-semibold bg-white border border-gray-300 rounded-xl p-2.5 text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  className="w-full text-xs font-semibold bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl p-2.5 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
                 >
                   <option value="HAPPY_HOUR">Happy Hour (Timed)</option>
                   <option value="FREE_DELIVERY">Free Delivery Threshold</option>
@@ -436,7 +436,7 @@ export const MarketingPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-bold text-gray-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                   Min. Order Amount ($)
                 </label>
                 <input
@@ -445,33 +445,33 @@ export const MarketingPage: React.FC = () => {
                   value={minOrderAmount}
                   onChange={(e) => setMinOrderAmount(e.target.value)}
                   placeholder="20"
-                  className="w-full text-xs font-semibold bg-white border border-gray-300 rounded-xl p-2.5 text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  className="w-full text-xs font-semibold bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl p-2.5 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
                 />
               </div>
             </div>
 
             {type === 'HAPPY_HOUR' && (
-              <div className="grid grid-cols-2 gap-3 p-3 bg-amber-50/50 rounded-xl border border-amber-200/60">
+              <div className="grid grid-cols-2 gap-3 p-3 bg-amber-50/50 dark:bg-amber-950/30 rounded-xl border border-amber-200/60 dark:border-amber-900/50">
                 <div>
-                  <label className="block text-[11px] font-bold text-amber-800 uppercase tracking-wider mb-1">
+                  <label className="block text-[11px] font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider mb-1">
                     Start Time
                   </label>
                   <input
                     type="time"
                     value={startTime}
                     onChange={(e) => setStartTime(e.target.value)}
-                    className="w-full text-xs font-semibold bg-white border border-amber-300 rounded-lg p-2 text-gray-800"
+                    className="w-full text-xs font-semibold bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-800/60 rounded-lg p-2 text-gray-800 dark:text-white"
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-bold text-amber-800 uppercase tracking-wider mb-1">
+                  <label className="block text-[11px] font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider mb-1">
                     End Time
                   </label>
                   <input
                     type="time"
                     value={endTime}
                     onChange={(e) => setEndTime(e.target.value)}
-                    className="w-full text-xs font-semibold bg-white border border-amber-300 rounded-lg p-2 text-gray-800"
+                    className="w-full text-xs font-semibold bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-800/60 rounded-lg p-2 text-gray-800 dark:text-white"
                   />
                 </div>
               </div>
@@ -479,7 +479,7 @@ export const MarketingPage: React.FC = () => {
 
             {type === 'BOGO' && (
               <div>
-                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-bold text-gray-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                   Target Food Item Name
                 </label>
                 <input
@@ -487,14 +487,14 @@ export const MarketingPage: React.FC = () => {
                   value={targetItemName}
                   onChange={(e) => setTargetItemName(e.target.value)}
                   placeholder="e.g. Margherita Pizza or Double Burger"
-                  className="w-full text-xs font-medium bg-white border border-gray-300 rounded-xl p-2.5 text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  className="w-full text-xs font-medium bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl p-2.5 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
                 />
               </div>
             )}
 
             {/* Applicable Days Selector */}
             <div>
-              <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-gray-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Applicable Days of Week
               </label>
               <div className="flex items-center gap-1.5 flex-wrap">
@@ -512,7 +512,7 @@ export const MarketingPage: React.FC = () => {
                       className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                         isSelected
                           ? 'bg-brand-500 text-white shadow-xs'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          : 'bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-700'
                       }`}
                     >
                       {name}
@@ -522,7 +522,7 @@ export const MarketingPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex justify-end gap-2 pt-3 border-t border-gray-100">
+            <div className="flex justify-end gap-2 pt-3 border-t border-gray-100 dark:border-slate-800">
               <Button variant="outline" type="button" onClick={() => setShowCreateModal(false)}>
                 Cancel
               </Button>

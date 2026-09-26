@@ -95,21 +95,21 @@ export const CustomerCrmPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Top Banner */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
             <Crown className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-black text-gray-900 tracking-tight">
+              <h1 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">
                 Customer CRM & VIP Guest Profiles
               </h1>
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200">
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
                 {vipCount} VIP Guests
               </span>
             </div>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-slate-400">
               Track guest lifetime value, order frequency, favorite dishes, and issue instant courtesy credits.
             </p>
           </div>
@@ -129,57 +129,57 @@ export const CustomerCrmPage: React.FC = () => {
 
       {/* KPI Stats Strip */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-xs">
-          <div className="flex items-center justify-between text-gray-400 mb-2">
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-xs">
+          <div className="flex items-center justify-between text-gray-400 dark:text-slate-500 mb-2">
             <span className="text-xs font-bold uppercase tracking-wider">Total Guests</span>
             <Users className="w-4 h-4 text-blue-500" />
           </div>
-          <p className="text-2xl font-black text-gray-900">{totalGuests}</p>
-          <p className="text-[11px] text-gray-500 mt-1">Unique diners with order history</p>
+          <p className="text-2xl font-black text-gray-900 dark:text-white">{totalGuests}</p>
+          <p className="text-[11px] text-gray-500 dark:text-slate-400 mt-1">Unique diners with order history</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-xs">
-          <div className="flex items-center justify-between text-gray-400 mb-2">
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-xs">
+          <div className="flex items-center justify-between text-gray-400 dark:text-slate-500 mb-2">
             <span className="text-xs font-bold uppercase tracking-wider">VIP Loyalty Guests</span>
             <Crown className="w-4 h-4 text-amber-500" />
           </div>
-          <p className="text-2xl font-black text-amber-700">{vipCount}</p>
-          <p className="text-[11px] text-gray-500 mt-1">Spend &gt;$100 or 5+ orders</p>
+          <p className="text-2xl font-black text-amber-700 dark:text-amber-400">{vipCount}</p>
+          <p className="text-[11px] text-gray-500 dark:text-slate-400 mt-1">Spend &gt;$100 or 5+ orders</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-xs">
-          <div className="flex items-center justify-between text-gray-400 mb-2">
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-xs">
+          <div className="flex items-center justify-between text-gray-400 dark:text-slate-500 mb-2">
             <span className="text-xs font-bold uppercase tracking-wider">Average Order Value</span>
             <TrendingUp className="w-4 h-4 text-emerald-500" />
           </div>
-          <p className="text-2xl font-black text-emerald-700">${averageAov.toFixed(2)}</p>
-          <p className="text-[11px] text-gray-500 mt-1">Platform-wide average basket</p>
+          <p className="text-2xl font-black text-emerald-700 dark:text-emerald-400">${averageAov.toFixed(2)}</p>
+          <p className="text-[11px] text-gray-500 dark:text-slate-400 mt-1">Platform-wide average basket</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-xs">
-          <div className="flex items-center justify-between text-gray-400 mb-2">
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-xs">
+          <div className="flex items-center justify-between text-gray-400 dark:text-slate-500 mb-2">
             <span className="text-xs font-bold uppercase tracking-wider">Lifetime Volume</span>
             <DollarSign className="w-4 h-4 text-purple-500" />
           </div>
-          <p className="text-2xl font-black text-purple-700">${totalLifetimeSpend.toFixed(2)}</p>
-          <p className="text-[11px] text-gray-500 mt-1">Cumulative guest spend</p>
+          <p className="text-2xl font-black text-purple-700 dark:text-purple-400">${totalLifetimeSpend.toFixed(2)}</p>
+          <p className="text-[11px] text-gray-500 dark:text-slate-400 mt-1">Cumulative guest spend</p>
         </div>
       </div>
 
       {/* Search and Tier Filter Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="relative flex-1 max-w-md">
-          <Search className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
+          <Search className="w-4 h-4 absolute left-3 top-3 text-gray-400 dark:text-slate-500" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search guest by name, email, or phone..."
-            className="w-full pl-9 pr-4 py-2.5 text-xs bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 shadow-xs"
+            className="w-full pl-9 pr-4 py-2.5 text-xs bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500 shadow-xs"
           />
         </div>
 
-        <div className="flex items-center gap-1.5 bg-white p-1 rounded-xl border border-gray-200 shadow-xs">
+        <div className="flex items-center gap-1.5 bg-white dark:bg-slate-900 p-1 rounded-xl border border-gray-200 dark:border-slate-800 shadow-xs">
           {(['ALL', 'VIP', 'REGULAR', 'NEW'] as const).map((tier) => (
             <button
               key={tier}
@@ -187,7 +187,7 @@ export const CustomerCrmPage: React.FC = () => {
               className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
                 tierFilter === tier
                   ? 'bg-brand-500 text-white shadow-xs'
-                  : 'text-gray-600 hover:bg-gray-100'
+                  : 'text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800'
               }`}
             >
               {tier === 'ALL'
@@ -203,16 +203,16 @@ export const CustomerCrmPage: React.FC = () => {
       </div>
 
       {/* Customer Profiles Table */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm overflow-hidden">
         {isLoading ? (
-          <div className="text-center py-20 text-gray-400 text-xs font-semibold">
+          <div className="text-center py-20 text-gray-400 dark:text-slate-500 text-xs font-semibold">
             Loading guest profiles...
           </div>
         ) : filteredCustomers.length === 0 ? (
-          <div className="text-center py-20 px-4 text-gray-400">
-            <Users className="w-12 h-12 mx-auto mb-2 text-gray-300" />
-            <p className="font-bold text-gray-700 text-sm">No customer records found</p>
-            <p className="text-xs text-gray-400 mt-1">
+          <div className="text-center py-20 px-4 text-gray-400 dark:text-slate-500">
+            <Users className="w-12 h-12 mx-auto mb-2 text-gray-300 dark:text-slate-600" />
+            <p className="font-bold text-gray-700 dark:text-slate-300 text-sm">No customer records found</p>
+            <p className="text-xs text-gray-400 dark:text-slate-500 mt-1">
               Guest profiles are automatically synthesized as new orders come in.
             </p>
           </div>
@@ -220,7 +220,7 @@ export const CustomerCrmPage: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-gray-50/80 border-b border-gray-100 text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                <tr className="bg-gray-50/80 dark:bg-slate-800/60 border-b border-gray-100 dark:border-slate-800 text-[11px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider">
                   <th className="py-3.5 px-6">Customer Guest</th>
                   <th className="py-3.5 px-6">Loyalty Tier</th>
                   <th className="py-3.5 px-6 text-center">Orders</th>
@@ -231,24 +231,24 @@ export const CustomerCrmPage: React.FC = () => {
                   <th className="py-3.5 px-6 text-center">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100 text-xs">
+              <tbody className="divide-y divide-gray-100 dark:divide-slate-800 text-xs">
                 {filteredCustomers.map((cust) => {
                   const isVip = cust.loyaltyTier === 'VIP';
                   const isRegular = cust.loyaltyTier === 'REGULAR';
 
                   return (
-                    <tr key={cust.id} className="hover:bg-gray-50/70 transition-colors">
+                    <tr key={cust.id} className="hover:bg-gray-50/70 dark:hover:bg-slate-800/50 transition-colors">
                       {/* Customer info */}
                       <td className="py-4 px-6">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center font-black text-xs text-gray-800 shrink-0">
+                          <div className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 flex items-center justify-center font-black text-xs text-gray-800 dark:text-slate-200 shrink-0">
                             {cust.name.slice(0, 2).toUpperCase()}
                           </div>
                           <div>
-                            <p className="font-black text-gray-900">{cust.name}</p>
-                            <p className="text-[11px] text-gray-500">{cust.email}</p>
+                            <p className="font-black text-gray-900 dark:text-white">{cust.name}</p>
+                            <p className="text-[11px] text-gray-500 dark:text-slate-400">{cust.email}</p>
                             {cust.phone && (
-                              <p className="text-[10px] text-gray-400 mt-0.5">{cust.phone}</p>
+                              <p className="text-[10px] text-gray-400 dark:text-slate-500 mt-0.5">{cust.phone}</p>
                             )}
                           </div>
                         </div>
@@ -259,30 +259,30 @@ export const CustomerCrmPage: React.FC = () => {
                         <span
                           className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider ${
                             isVip
-                              ? 'bg-amber-100 text-amber-900 border border-amber-200'
+                              ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-900 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60'
                               : isRegular
-                              ? 'bg-purple-100 text-purple-900 border border-purple-200'
-                              : 'bg-gray-100 text-gray-700 border border-gray-200'
+                              ? 'bg-purple-100 dark:bg-purple-950/60 text-purple-900 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60'
+                              : 'bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 border border-gray-200 dark:border-slate-700'
                           }`}
                         >
-                          {isVip && <Crown className="w-3 h-3 text-amber-600" />}
-                          {isRegular && <Heart className="w-3 h-3 text-purple-600" />}
+                          {isVip && <Crown className="w-3 h-3 text-amber-600 dark:text-amber-400" />}
+                          {isRegular && <Heart className="w-3 h-3 text-purple-600 dark:text-purple-400" />}
                           {cust.loyaltyTier}
                         </span>
                       </td>
 
                       {/* Orders */}
-                      <td className="py-4 px-6 text-center font-bold text-gray-800">
+                      <td className="py-4 px-6 text-center font-bold text-gray-800 dark:text-slate-200">
                         {cust.totalOrders}
                       </td>
 
                       {/* Lifetime Spend */}
-                      <td className="py-4 px-6 text-right font-black text-gray-900">
+                      <td className="py-4 px-6 text-right font-black text-gray-900 dark:text-white">
                         ${cust.lifetimeSpend.toFixed(2)}
                       </td>
 
                       {/* AOV */}
-                      <td className="py-4 px-6 text-right font-semibold text-emerald-700">
+                      <td className="py-4 px-6 text-right font-semibold text-emerald-700 dark:text-emerald-400">
                         ${cust.averageOrderValue.toFixed(2)}
                       </td>
 
@@ -293,19 +293,19 @@ export const CustomerCrmPage: React.FC = () => {
                             {cust.favoriteItems.map((dish, i) => (
                               <span
                                 key={i}
-                                className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-[10px] font-medium"
+                                className="px-2 py-0.5 bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 border border-gray-200 dark:border-slate-700 rounded text-[10px] font-medium"
                               >
                                 {dish}
                               </span>
                             ))}
                           </div>
                         ) : (
-                          <span className="text-gray-400 text-[11px]">—</span>
+                          <span className="text-gray-400 dark:text-slate-500 text-[11px]">—</span>
                         )}
                       </td>
 
                       {/* Last Active */}
-                      <td className="py-4 px-6 text-gray-500 text-[11px] whitespace-nowrap">
+                      <td className="py-4 px-6 text-gray-500 dark:text-slate-400 text-[11px] whitespace-nowrap">
                         {new Date(cust.lastOrderAt).toLocaleDateString([], {
                           month: 'short',
                           day: 'numeric',
@@ -329,9 +329,9 @@ export const CustomerCrmPage: React.FC = () => {
                             setCreditResult(null);
                             setIssueError('');
                           }}
-                          className="text-xs font-bold flex items-center gap-1 text-amber-700 border-amber-200 hover:bg-amber-50"
+                          className="text-xs font-bold flex items-center gap-1 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800/60 hover:bg-amber-50 dark:hover:bg-amber-950/30"
                         >
-                          <Gift className="w-3.5 h-3.5 text-amber-500" />
+                          <Gift className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
                           Issue Credit
                         </Button>
                       </td>
@@ -352,43 +352,43 @@ export const CustomerCrmPage: React.FC = () => {
           title={`Issue Courtesy Credit: ${selectedCustomer.name}`}
         >
           <div className="space-y-4">
-            <div className="bg-amber-50/70 border border-amber-200/80 p-3.5 rounded-xl text-xs space-y-1">
-              <p className="font-bold text-amber-900">
+            <div className="bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-800/50 p-3.5 rounded-xl text-xs space-y-1">
+              <p className="font-bold text-amber-900 dark:text-amber-200">
                 Granting instant wallet credit to {selectedCustomer.name} ({selectedCustomer.email})
               </p>
-              <p className="text-amber-700 text-[11px]">
+              <p className="text-amber-700 dark:text-amber-400 text-[11px]">
                 This will generate a personalized 1-time coupon code and dispatch a push notification to their FeastFlow mobile app!
               </p>
             </div>
 
             {issueError && (
-              <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-xs font-semibold">
+              <div className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 rounded-xl text-xs font-semibold">
                 {issueError}
               </div>
             )}
 
             {creditResult ? (
               <div className="space-y-3 text-center py-3">
-                <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
+                <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto">
                   <CheckCircle2 className="w-6 h-6" />
                 </div>
                 <div>
-                  <h4 className="font-extrabold text-base text-gray-900">
+                  <h4 className="font-extrabold text-base text-gray-900 dark:text-white">
                     Courtesy Credit Dispatched!
                   </h4>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
                     Push notification sent to {creditResult.customerName}.
                   </p>
                 </div>
 
-                <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl inline-block">
-                  <span className="text-[11px] font-bold text-gray-400 block mb-1 uppercase tracking-wider">
+                <div className="p-4 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl inline-block">
+                  <span className="text-[11px] font-bold text-gray-400 dark:text-slate-400 block mb-1 uppercase tracking-wider">
                     Assigned Promo Code
                   </span>
-                  <span className="font-mono font-black text-xl text-brand-600 tracking-wider">
+                  <span className="font-mono font-black text-xl text-brand-600 dark:text-brand-400 tracking-wider">
                     {creditResult.promoCode}
                   </span>
-                  <span className="text-xs text-gray-500 block mt-1">
+                  <span className="text-xs text-gray-500 dark:text-slate-400 block mt-1">
                     Value: ${creditResult.amount.toFixed(2)} (Valid for 60 days)
                   </span>
                 </div>
@@ -405,7 +405,7 @@ export const CustomerCrmPage: React.FC = () => {
             ) : (
               <>
                 <div>
-                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-gray-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                     Credit Amount ($)
                   </label>
                   <div className="grid grid-cols-4 gap-2 mb-2">
@@ -417,7 +417,7 @@ export const CustomerCrmPage: React.FC = () => {
                         className={`py-2 text-xs font-bold rounded-lg border transition-all ${
                           creditAmount === amt
                             ? 'bg-brand-500 text-white border-brand-500'
-                            : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                            : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-200 border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700'
                         }`}
                       >
                         ${amt}
@@ -428,19 +428,19 @@ export const CustomerCrmPage: React.FC = () => {
                     type="number"
                     value={creditAmount}
                     onChange={(e) => setCreditAmount(e.target.value)}
-                    className="w-full text-xs font-semibold bg-white border border-gray-300 rounded-xl p-2.5 text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                    className="w-full text-xs font-semibold bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl p-2.5 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
                     placeholder="Custom amount"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-gray-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                     Reason / Personal Note
                   </label>
                   <select
                     value={creditReason}
                     onChange={(e) => setCreditReason(e.target.value)}
-                    className="w-full text-xs font-semibold bg-white border border-gray-300 rounded-xl p-2.5 text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500 mb-2"
+                    className="w-full text-xs font-semibold bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl p-2.5 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500 mb-2"
                   >
                     <option value="VIP loyalty appreciation reward">
                       VIP loyalty appreciation reward
@@ -457,7 +457,7 @@ export const CustomerCrmPage: React.FC = () => {
                   </select>
                 </div>
 
-                <div className="flex justify-end gap-2 pt-3 border-t border-gray-100">
+                <div className="flex justify-end gap-2 pt-3 border-t border-gray-100 dark:border-slate-800">
                   <Button variant="outline" onClick={() => setSelectedCustomer(null)}>
                     Cancel
                   </Button>

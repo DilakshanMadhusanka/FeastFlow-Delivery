@@ -19,13 +19,16 @@ import { RestaurantsPage } from './features/restaurants/RestaurantsPage';
 import { RestaurantSettingsPage } from './features/settings/RestaurantSettingsPage';
 import { UserManagementPage } from './features/users/UserManagementPage';
 import { AICopilotDrawer } from './components/ai/AICopilotDrawer';
+import { useThemeStore } from './store/themeStore';
 
 export const App: React.FC = () => {
   const { initAuth, isAuthenticated } = useAuthStore();
+  const initTheme = useThemeStore((state) => state.initTheme);
 
   useEffect(() => {
     initAuth();
-  }, [initAuth]);
+    initTheme();
+  }, [initAuth, initTheme]);
 
   return (
     <>

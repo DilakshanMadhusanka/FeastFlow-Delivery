@@ -37,6 +37,7 @@ import {
   X,
   Package,
 } from 'lucide-react-native';
+import { useTheme } from '../../../theme/useTheme';
 
 const ACTIVE_STATUSES: OrderStatus[] = [
   OrderStatus.PENDING,
@@ -54,6 +55,7 @@ export default function OrdersScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { isAuthenticated } = useAuthStore();
+  const { colors, isDark } = useTheme();
   const [selectedFilter, setSelectedFilter] = useState<FilterTab>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [isReorderingId, setIsReorderingId] = useState<string | null>(null);
@@ -305,12 +307,12 @@ export default function OrdersScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.pageWrapper}>
         {/* Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
           <View style={styles.titleRow}>
-            <Text style={styles.title}>My Orders</Text>
+            <Text style={[styles.title, { color: colors.text }]}>My Orders</Text>
             {activeCount > 0 ? (
               <View style={styles.activePulseBadge}>
                 <View style={styles.activeDot} />
@@ -320,12 +322,12 @@ export default function OrdersScreen() {
           </View>
 
           {/* Search Bar */}
-          <View style={styles.searchContainer}>
-            <Search size={18} color="#94A3B8" />
+          <View style={[styles.searchContainer, { backgroundColor: colors.surfaceSecondary }]}>
+            <Search size={18} color={colors.textMuted} />
             <TextInput
-              style={styles.searchInput}
+              style={[styles.searchInput, { color: colors.text }]}
               placeholder="Search by restaurant, item, or order #..."
-              placeholderTextColor="#94A3B8"
+              placeholderTextColor={colors.textMuted}
               value={searchQuery}
               onChangeText={setSearchQuery}
               autoCapitalize="none"
@@ -333,7 +335,7 @@ export default function OrdersScreen() {
             />
             {searchQuery ? (
               <TouchableOpacity onPress={() => setSearchQuery('')} hitSlop={10} style={styles.clearBtn}>
-                <X size={16} color="#64748B" />
+                <X size={16} color={colors.textMuted} />
               </TouchableOpacity>
             ) : null}
           </View>
@@ -345,23 +347,36 @@ export default function OrdersScreen() {
             contentContainerStyle={styles.filterScroll}
           >
             <TouchableOpacity
-              style={[styles.filterChip, selectedFilter === 'ALL' && styles.filterChipActive]}
+              style={[
+                styles.filterChip,
+                { backgroundColor: colors.surfaceSecondary, borderColor: colors.border },
+                selectedFilter === 'ALL' && styles.filterChipActive,
+              ]}
               onPress={() => setSelectedFilter('ALL')}
             >
               <Text
-                style={[styles.filterChipText, selectedFilter === 'ALL' && styles.filterChipTextActive]}
+                style={[
+                  styles.filterChipText,
+                  { color: colors.textSecondary },
+                  selectedFilter === 'ALL' && styles.filterChipTextActive,
+                ]}
               >
                 All ({allOrders.length})
               </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.filterChip, selectedFilter === 'ACTIVE' && styles.filterChipActive]}
+              style={[
+                styles.filterChip,
+                { backgroundColor: colors.surfaceSecondary, borderColor: colors.border },
+                selectedFilter === 'ACTIVE' && styles.filterChipActive,
+              ]}
               onPress={() => setSelectedFilter('ACTIVE')}
             >
               <Text
                 style={[
                   styles.filterChipText,
+                  { color: colors.textSecondary },
                   selectedFilter === 'ACTIVE' && styles.filterChipTextActive,
                 ]}
               >
@@ -370,12 +385,17 @@ export default function OrdersScreen() {
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.filterChip, selectedFilter === 'DELIVERED' && styles.filterChipActive]}
+              style={[
+                styles.filterChip,
+                { backgroundColor: colors.surfaceSecondary, borderColor: colors.border },
+                selectedFilter === 'DELIVERED' && styles.filterChipActive,
+              ]}
               onPress={() => setSelectedFilter('DELIVERED')}
             >
               <Text
                 style={[
                   styles.filterChipText,
+                  { color: colors.textSecondary },
                   selectedFilter === 'DELIVERED' && styles.filterChipTextActive,
                 ]}
               >
@@ -384,12 +404,17 @@ export default function OrdersScreen() {
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.filterChip, selectedFilter === 'CANCELLED' && styles.filterChipActive]}
+              style={[
+                styles.filterChip,
+                { backgroundColor: colors.surfaceSecondary, borderColor: colors.border },
+                selectedFilter === 'CANCELLED' && styles.filterChipActive,
+              ]}
               onPress={() => setSelectedFilter('CANCELLED')}
             >
               <Text
                 style={[
                   styles.filterChipText,
+                  { color: colors.textSecondary },
                   selectedFilter === 'CANCELLED' && styles.filterChipTextActive,
                 ]}
               >
@@ -410,7 +435,7 @@ export default function OrdersScreen() {
             }
           >
             <EmptyState
-              icon={<ShoppingBag size={48} color="#94A3B8" />}
+              icon={<ShoppingBag size={48} color={colors.textMuted} />}
               title={searchQuery ? 'No matching orders' : 'No Orders Found'}
               message={
                 searchQuery
@@ -448,7 +473,11 @@ export default function OrdersScreen() {
               return (
                 <TouchableOpacity
                   key={order.id}
-                  style={[styles.orderCard, isActive && styles.orderCardActiveBorder]}
+                  style={[
+                    styles.orderCard,
+                    { backgroundColor: colors.card, borderColor: colors.border },
+                    isActive && styles.orderCardActiveBorder,
+                  ]}
                   activeOpacity={0.9}
                   onPress={() => router.push(`/(customer)/order-tracking/${order.id}` as any)}
                 >
@@ -466,10 +495,10 @@ export default function OrdersScreen() {
                         </View>
                       )}
                       <View style={styles.restaurantInfo}>
-                        <Text style={styles.restaurantName} numberOfLines={1}>
+                        <Text style={[styles.restaurantName, { color: colors.text }]} numberOfLines={1}>
                           {order.restaurant?.name || 'Restaurant'}
                         </Text>
-                        <Text style={styles.orderMeta}>
+                        <Text style={[styles.orderMeta, { color: colors.textMuted }]}>
                           #{order.orderNumber} • {formatDate(order.placedAt)}
                         </Text>
                       </View>
@@ -495,24 +524,24 @@ export default function OrdersScreen() {
                   ) : null}
 
                   {/* Items Summary */}
-                  <Text style={styles.itemsText} numberOfLines={2}>
+                  <Text style={[styles.itemsText, { color: colors.textSecondary }]} numberOfLines={2}>
                     {itemsSummary || 'Delicious meal order'}
                   </Text>
 
-                  <View style={styles.cardDivider} />
+                  <View style={[styles.cardDivider, { backgroundColor: colors.border }]} />
 
                   {/* Footer: Price + Quick Actions */}
                   <View style={styles.cardFooter}>
                     <View>
-                      <Text style={styles.totalLabel}>TOTAL</Text>
-                      <Text style={styles.totalAmount}>${formatCurrency(order.totalAmount)}</Text>
+                      <Text style={[styles.totalLabel, { color: colors.textMuted }]}>TOTAL</Text>
+                      <Text style={[styles.totalAmount, { color: colors.text }]}>${formatCurrency(order.totalAmount)}</Text>
                     </View>
 
                     <View style={styles.actionButtonsGroup}>
                       {/* Quick Cancel for pending orders */}
                       {canCancel ? (
                         <TouchableOpacity
-                          style={styles.quickCancelBtn}
+                          style={[styles.quickCancelBtn, { backgroundColor: colors.dangerLight, borderColor: colors.danger }]}
                           onPress={() => handleQuickCancel(order)}
                           disabled={isCancelling}
                         >

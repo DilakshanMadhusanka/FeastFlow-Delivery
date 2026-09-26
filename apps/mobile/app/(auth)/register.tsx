@@ -14,10 +14,12 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { UserRole } from '@food-delivery/shared';
 import { Mail, Lock, User, Phone, ArrowLeft } from 'lucide-react-native';
+import { useTheme } from '../../theme/useTheme';
 
 export default function RegisterScreen() {
   const router = useRouter();
   const { register } = useAuthStore();
+  const { colors, isDark } = useTheme();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -57,19 +59,19 @@ export default function RegisterScreen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.keyboardContainer}
+      style={[styles.keyboardContainer, { backgroundColor: colors.background }]}
     >
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
         {/* Top Back Nav */}
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <ArrowLeft size={20} color="#374151" />
-          <Text style={styles.backText}>Back to Sign In</Text>
+          <ArrowLeft size={20} color={colors.text} />
+          <Text style={[styles.backText, { color: colors.textSecondary }]}>Back to Sign In</Text>
         </TouchableOpacity>
 
         {/* Title */}
         <View style={styles.header}>
-          <Text style={styles.title}>Create Account</Text>
-          <Text style={styles.subtitle}>Join FeastFlow and order from top local restaurants</Text>
+          <Text style={[styles.title, { color: colors.text }]}>Create Account</Text>
+          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Join FeastFlow and order from top local restaurants</Text>
         </View>
 
         {/* Error Alert */}
@@ -80,16 +82,21 @@ export default function RegisterScreen() {
         ) : null}
 
         {/* Role Selector */}
-        <Text style={styles.roleLabel}>I want to join as a:</Text>
+        <Text style={[styles.roleLabel, { color: colors.text }]}>I want to join as a:</Text>
         <View style={styles.roleGrid}>
           <TouchableOpacity
-            style={[styles.roleCard, selectedRole === UserRole.CUSTOMER ? styles.roleCardActive : null]}
+            style={[
+              styles.roleCard,
+              { backgroundColor: colors.card, borderColor: colors.border },
+              selectedRole === UserRole.CUSTOMER ? (isDark ? { borderColor: colors.brand, backgroundColor: colors.brandLight } : styles.roleCardActive) : null,
+            ]}
             onPress={() => setSelectedRole(UserRole.CUSTOMER)}
           >
             <Text style={styles.roleEmoji}>🍔</Text>
             <Text
               style={[
                 styles.roleText,
+                { color: colors.textSecondary },
                 selectedRole === UserRole.CUSTOMER ? styles.roleTextActive : null,
               ]}
             >
@@ -100,7 +107,8 @@ export default function RegisterScreen() {
           <TouchableOpacity
             style={[
               styles.roleCard,
-              selectedRole === UserRole.RESTAURANT_OWNER ? styles.roleCardActive : null,
+              { backgroundColor: colors.card, borderColor: colors.border },
+              selectedRole === UserRole.RESTAURANT_OWNER ? (isDark ? { borderColor: colors.brand, backgroundColor: colors.brandLight } : styles.roleCardActive) : null,
             ]}
             onPress={() => setSelectedRole(UserRole.RESTAURANT_OWNER)}
           >
@@ -108,6 +116,7 @@ export default function RegisterScreen() {
             <Text
               style={[
                 styles.roleText,
+                { color: colors.textSecondary },
                 selectedRole === UserRole.RESTAURANT_OWNER ? styles.roleTextActive : null,
               ]}
             >
@@ -118,7 +127,8 @@ export default function RegisterScreen() {
           <TouchableOpacity
             style={[
               styles.roleCard,
-              selectedRole === UserRole.DELIVERY_DRIVER ? styles.roleCardActive : null,
+              { backgroundColor: colors.card, borderColor: colors.border },
+              selectedRole === UserRole.DELIVERY_DRIVER ? (isDark ? { borderColor: colors.brand, backgroundColor: colors.brandLight } : styles.roleCardActive) : null,
             ]}
             onPress={() => setSelectedRole(UserRole.DELIVERY_DRIVER)}
           >
@@ -126,6 +136,7 @@ export default function RegisterScreen() {
             <Text
               style={[
                 styles.roleText,
+                { color: colors.textSecondary },
                 selectedRole === UserRole.DELIVERY_DRIVER ? styles.roleTextActive : null,
               ]}
             >
@@ -180,7 +191,7 @@ export default function RegisterScreen() {
 
         {/* Footer */}
         <View style={styles.footerRow}>
-          <Text style={styles.footerText}>Already have an account? </Text>
+          <Text style={[styles.footerText, { color: colors.textSecondary }]}>Already have an account? </Text>
           <TouchableOpacity onPress={() => router.push('/(auth)/login')}>
             <Text style={styles.loginLink}>Sign In</Text>
           </TouchableOpacity>

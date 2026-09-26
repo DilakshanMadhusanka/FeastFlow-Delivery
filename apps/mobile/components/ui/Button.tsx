@@ -8,6 +8,7 @@ import {
   ViewStyle,
   TextStyle,
 } from 'react-native';
+import { useTheme } from '../../theme/useTheme';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
 export type ButtonSize = 'sm' | 'md' | 'lg';
@@ -32,6 +33,8 @@ export const Button: React.FC<ButtonProps> = ({
   style,
   ...props
 }) => {
+  const { colors } = useTheme();
+
   const getContainerStyle = (): ViewStyle[] => {
     const list: ViewStyle[] = [styles.base];
 
@@ -39,9 +42,12 @@ export const Button: React.FC<ButtonProps> = ({
     else if (size === 'lg') list.push(styles.sizeLg);
     else list.push(styles.sizeMd);
 
-    if (variant === 'primary') list.push(styles.primary);
-    else if (variant === 'secondary') list.push(styles.secondary);
-    else if (variant === 'outline') list.push(styles.outline);
+    if (variant === 'primary') list.push({ backgroundColor: colors.brand });
+    else if (variant === 'secondary') list.push({ backgroundColor: colors.surfaceSecondary });
+    else if (variant === 'outline') {
+      list.push(styles.outline);
+      list.push({ borderColor: colors.brand });
+    }
     else if (variant === 'ghost') list.push(styles.ghost);
     else if (variant === 'danger') list.push(styles.danger);
 
@@ -59,11 +65,12 @@ export const Button: React.FC<ButtonProps> = ({
     else list.push(styles.textMd);
 
     if (variant === 'primary' || variant === 'danger') list.push(styles.textWhite);
-    else if (variant === 'secondary') list.push(styles.textDark);
-    else if (variant === 'outline' || variant === 'ghost') list.push(styles.textPrimaryColor);
+    else if (variant === 'secondary') list.push({ color: colors.text });
+    else if (variant === 'outline' || variant === 'ghost') list.push({ color: colors.brand });
 
     return list;
   };
+
 
   return (
     <TouchableOpacity

@@ -205,8 +205,8 @@ export const MenuManagerPage: React.FC = () => {
 
       {/* Quick Branch Filter Bar */}
       {(isAdmin || restaurants.length > 1) && (
-        <div className="flex items-center gap-3 bg-white p-3 rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-gray-500 uppercase tracking-wider shrink-0">
+        <div className="flex items-center gap-3 bg-white dark:bg-slate-900 p-3 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm overflow-x-auto">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wider shrink-0">
             <Store className="w-4 h-4 text-brand-500" />
             <span>{isAdmin ? 'View Scope:' : 'Active Branch:'}</span>
           </div>
@@ -217,13 +217,13 @@ export const MenuManagerPage: React.FC = () => {
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
                   isViewingAll
                     ? 'bg-brand-500 text-white shadow-sm shadow-brand-500/20'
-                    : 'bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200/60'
+                    : 'bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-200 border border-gray-200/60 dark:border-slate-700'
                 }`}
               >
                 <span>🌐 All Restaurants</span>
                 <span
                   className={`text-[10px] px-1.5 py-0.5 rounded-md ${
-                    isViewingAll ? 'bg-white/20 text-white' : 'bg-gray-200 text-gray-600'
+                    isViewingAll ? 'bg-white/20 text-white' : 'bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-slate-300'
                   }`}
                 >
                   All ({allItems.length})
@@ -242,13 +242,13 @@ export const MenuManagerPage: React.FC = () => {
                   className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
                     isSelected
                       ? 'bg-brand-500 text-white shadow-sm shadow-brand-500/20'
-                      : 'bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200/60'
+                      : 'bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-200 border border-gray-200/60 dark:border-slate-700'
                   }`}
                 >
                   <span>{r.name}</span>
                   <span
                     className={`text-[10px] px-1.5 py-0.5 rounded-md ${
-                      isSelected ? 'bg-white/20 text-white' : 'bg-gray-200 text-gray-600'
+                      isSelected ? 'bg-white/20 text-white' : 'bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-slate-300'
                     }`}
                   >
                     {r.city}
@@ -261,16 +261,16 @@ export const MenuManagerPage: React.FC = () => {
       )}
 
       {/* Action Bar */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm">
         {/* Search */}
         <div className="relative w-full sm:w-80">
-          <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-gray-400 dark:text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search menu items..."
-            className="w-full pl-10 pr-4 py-2 text-xs font-medium rounded-xl border border-gray-200 focus:outline-none focus:ring-1 focus:ring-brand-500"
+            className="w-full pl-10 pr-4 py-2 text-xs font-medium rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
           />
         </div>
 
@@ -302,7 +302,7 @@ export const MenuManagerPage: React.FC = () => {
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
             selectedCategory === 'ALL'
               ? 'bg-brand-500 text-white shadow-sm shadow-brand-500/20'
-              : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+              : 'bg-white dark:bg-slate-900 text-gray-600 dark:text-slate-300 border border-gray-200 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800'
           }`}
         >
           All Items ({allItems.length})
@@ -314,7 +314,7 @@ export const MenuManagerPage: React.FC = () => {
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
               selectedCategory === cat.id
                 ? 'bg-brand-500 text-white shadow-sm shadow-brand-500/20'
-                : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                : 'bg-white dark:bg-slate-900 text-gray-600 dark:text-slate-300 border border-gray-200 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800'
             }`}
           >
             {cat.name} ({(cat.foodItems || []).length})
@@ -323,10 +323,10 @@ export const MenuManagerPage: React.FC = () => {
       </div>
 
       {/* Food Items Table */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-gray-50/75 border-b border-gray-100 text-gray-400 font-extrabold uppercase tracking-wider">
+            <thead className="bg-gray-50/75 dark:bg-slate-800/80 border-b border-gray-100 dark:border-slate-800 text-gray-400 dark:text-slate-400 font-extrabold uppercase tracking-wider">
               <tr>
                 <th className="py-3.5 px-6">
                   {isAdmin || isViewingAll ? 'Item Name & Restaurant' : 'Item Name'}
@@ -338,7 +338,7 @@ export const MenuManagerPage: React.FC = () => {
                 <th className="py-3.5 px-6 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-gray-100 dark:divide-slate-800">
               {filteredItems.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="py-12 text-center text-gray-400 font-semibold">
@@ -347,50 +347,51 @@ export const MenuManagerPage: React.FC = () => {
                 </tr>
               ) : (
                 filteredItems.map((item) => (
-                  <tr key={item.id} className="hover:bg-gray-50/50 transition-colors">
+                  <tr key={item.id} className="hover:bg-gray-50/50 dark:hover:bg-slate-800/50 transition-colors">
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-3">
                         {item.imageUrl ? (
                           <img
                             src={item.imageUrl}
                             alt={item.name}
-                            className="w-10 h-10 rounded-xl object-cover bg-gray-100 shrink-0"
+                            className="w-10 h-10 rounded-xl object-cover bg-gray-100 dark:bg-slate-800 shrink-0"
                           />
                         ) : (
-                          <div className="w-10 h-10 rounded-xl bg-gray-100 text-gray-400 flex items-center justify-center shrink-0">
+                          <div className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-slate-800 text-gray-400 flex items-center justify-center shrink-0">
                             <Utensils className="w-5 h-5" />
                           </div>
                         )}
                         <div>
                           <div className="flex items-center gap-2">
-                            <p className="font-extrabold text-sm text-gray-900">{item.name}</p>
+                            <p className="font-extrabold text-sm text-gray-900 dark:text-white">{item.name}</p>
                             {item.restaurant && (
-                              <span className="text-[10px] font-bold bg-orange-50 text-orange-700 border border-orange-200/80 px-2 py-0.5 rounded-md shrink-0">
+                              <span className="text-[10px] font-bold bg-orange-50 dark:bg-orange-950/40 text-orange-700 dark:text-orange-300 border border-orange-200/80 dark:border-orange-800/50 px-2 py-0.5 rounded-md shrink-0">
                                 {item.restaurant.name}
                               </span>
                             )}
                           </div>
-                          <p className="text-gray-500 line-clamp-1 text-[11px] max-w-xs mt-0.5">
+                          <p className="text-gray-500 dark:text-slate-400 line-clamp-1 text-[11px] max-w-xs mt-0.5">
                             {item.description || 'No description provided'}
                           </p>
                         </div>
                       </div>
                     </td>
 
-                    <td className="py-4 px-4 font-bold text-gray-700">
+                    <td className="py-4 px-4 font-bold text-gray-700 dark:text-slate-200">
                       {item.category?.name || 'Unassigned'}
                     </td>
 
-                    <td className="py-4 px-4 font-extrabold text-sm text-gray-900">
+                    <td className="py-4 px-4 font-extrabold text-sm text-gray-900 dark:text-white">
                       ${Number(item.price).toFixed(2)}
                     </td>
 
-                    <td className="py-4 px-4 font-semibold text-gray-600">
+                    <td className="py-4 px-4 font-semibold text-gray-600 dark:text-slate-300">
                       <span className="flex items-center gap-1">
                         <Clock className="w-3.5 h-3.5 text-gray-400" />
                         {item.preparationTimeMin} mins
                       </span>
                     </td>
+
 
                     {/* 1-Click Availability & Snooze Controls */}
                     <td className="py-4 px-4">

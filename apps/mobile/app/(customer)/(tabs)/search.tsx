@@ -17,8 +17,11 @@ import { Loading } from '../../../components/ui/Loading';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { Search as SearchIcon, X, SlidersHorizontal } from 'lucide-react-native';
 
+import { useTheme } from '../../../theme/useTheme';
+
 export default function SearchScreen() {
   const router = useRouter();
+  const { colors, isDark } = useTheme();
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState<'restaurants' | 'dishes'>('restaurants');
   const [isOpenOnly, setIsOpenOnly] = useState(false);
@@ -52,44 +55,60 @@ export default function SearchScreen() {
   const foodItems = (foodResults?.items as any[]) || [];
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header & Search Bar */}
-      <View style={styles.header}>
-        <View style={styles.searchBox}>
-          <SearchIcon size={20} color="#9CA3AF" />
+      <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
+        <View style={[styles.searchBox, { backgroundColor: colors.surfaceSecondary }]}>
+          <SearchIcon size={20} color={colors.textMuted} />
           <TextInput
             placeholder="Search restaurants or dishes..."
-            placeholderTextColor="#9CA3AF"
-            style={styles.searchInput}
+            placeholderTextColor={colors.textMuted}
+            style={[styles.searchInput, { color: colors.text }]}
             value={searchTerm}
             onChangeText={setSearchTerm}
             autoCorrect={false}
           />
           {searchTerm.length > 0 ? (
             <TouchableOpacity onPress={() => setSearchTerm('')}>
-              <X size={18} color="#9CA3AF" />
+              <X size={18} color={colors.textMuted} />
             </TouchableOpacity>
           ) : null}
         </View>
 
         {/* Tab Selector: Restaurants vs Dishes */}
-        <View style={styles.tabsRow}>
+        <View style={[styles.tabsRow, { backgroundColor: colors.surfaceSecondary }]}>
           <TouchableOpacity
-            style={[styles.tab, activeTab === 'restaurants' ? styles.tabActive : null]}
+            style={[
+              styles.tab,
+              activeTab === 'restaurants' && [styles.tabActive, { backgroundColor: colors.card }],
+            ]}
             onPress={() => setActiveTab('restaurants')}
           >
             <Text
-              style={[styles.tabText, activeTab === 'restaurants' ? styles.tabTextActive : null]}
+              style={[
+                styles.tabText,
+                { color: colors.textSecondary },
+                activeTab === 'restaurants' && [styles.tabTextActive, { color: colors.text }],
+              ]}
             >
               Restaurants
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.tab, activeTab === 'dishes' ? styles.tabActive : null]}
+            style={[
+              styles.tab,
+              activeTab === 'dishes' && [styles.tabActive, { backgroundColor: colors.card }],
+            ]}
             onPress={() => setActiveTab('dishes')}
           >
-            <Text style={[styles.tabText, activeTab === 'dishes' ? styles.tabTextActive : null]}>
+            <Text
+              style={[
+                styles.tabText,
+                { color: colors.textSecondary },
+                activeTab === 'dishes' && [styles.tabTextActive, { color: colors.text }],
+              ]}
+            >
               Dishes & Food
             </Text>
           </TouchableOpacity>
@@ -99,13 +118,18 @@ export default function SearchScreen() {
         {activeTab === 'restaurants' ? (
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterBar}>
             <TouchableOpacity
-              style={[styles.filterChip, isOpenOnly ? styles.filterChipActive : null]}
+              style={[
+                styles.filterChip,
+                { backgroundColor: colors.cardAlt, borderColor: colors.border },
+                isOpenOnly && styles.filterChipActive,
+              ]}
               onPress={() => setIsOpenOnly(!isOpenOnly)}
             >
               <Text
                 style={[
                   styles.filterChipText,
-                  isOpenOnly ? styles.filterChipTextActive : null,
+                  { color: colors.textSecondary },
+                  isOpenOnly && styles.filterChipTextActive,
                 ]}
               >
                 ● Open Now
@@ -113,13 +137,18 @@ export default function SearchScreen() {
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.filterChip, sortBy === 'rating' ? styles.filterChipActive : null]}
+              style={[
+                styles.filterChip,
+                { backgroundColor: colors.cardAlt, borderColor: colors.border },
+                sortBy === 'rating' && styles.filterChipActive,
+              ]}
               onPress={() => setSortBy('rating')}
             >
               <Text
                 style={[
                   styles.filterChipText,
-                  sortBy === 'rating' ? styles.filterChipTextActive : null,
+                  { color: colors.textSecondary },
+                  sortBy === 'rating' && styles.filterChipTextActive,
                 ]}
               >
                 ⭐ Top Rated
@@ -129,14 +158,16 @@ export default function SearchScreen() {
             <TouchableOpacity
               style={[
                 styles.filterChip,
-                sortBy === 'deliveryTime' ? styles.filterChipActive : null,
+                { backgroundColor: colors.cardAlt, borderColor: colors.border },
+                sortBy === 'deliveryTime' && styles.filterChipActive,
               ]}
               onPress={() => setSortBy('deliveryTime')}
             >
               <Text
                 style={[
                   styles.filterChipText,
-                  sortBy === 'deliveryTime' ? styles.filterChipTextActive : null,
+                  { color: colors.textSecondary },
+                  sortBy === 'deliveryTime' && styles.filterChipTextActive,
                 ]}
               >
                 ⚡ Fastest
@@ -146,14 +177,16 @@ export default function SearchScreen() {
             <TouchableOpacity
               style={[
                 styles.filterChip,
-                sortBy === 'deliveryFee' ? styles.filterChipActive : null,
+                { backgroundColor: colors.cardAlt, borderColor: colors.border },
+                sortBy === 'deliveryFee' && styles.filterChipActive,
               ]}
               onPress={() => setSortBy('deliveryFee')}
             >
               <Text
                 style={[
                   styles.filterChipText,
-                  sortBy === 'deliveryFee' ? styles.filterChipTextActive : null,
+                  { color: colors.textSecondary },
+                  sortBy === 'deliveryFee' && styles.filterChipTextActive,
                 ]}
               >
                 🛵 Low Delivery Fee

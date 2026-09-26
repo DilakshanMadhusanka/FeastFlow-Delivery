@@ -3,10 +3,12 @@ import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuthStore } from '../store/authStore';
 import { Utensils } from 'lucide-react-native';
+import { useTheme } from '../theme/useTheme';
 
 export default function IndexScreen() {
   const router = useRouter();
   const { isAuthenticated, isLoading } = useAuthStore();
+  const { colors } = useTheme();
 
   useEffect(() => {
     if (!isLoading) {
@@ -19,12 +21,12 @@ export default function IndexScreen() {
   }, [isAuthenticated, isLoading, router]);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.iconCircle}>
         <Utensils size={48} color="#FFFFFF" strokeWidth={2.5} />
       </View>
-      <Text style={styles.title}>FeastFlow</Text>
-      <Text style={styles.subtitle}>Delicious food delivered to your door</Text>
+      <Text style={[styles.title, { color: colors.text }]}>FeastFlow</Text>
+      <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Delicious food delivered to your door</Text>
       <ActivityIndicator size="small" color="#FF4B3A" style={styles.spinner} />
     </View>
   );

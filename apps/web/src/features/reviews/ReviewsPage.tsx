@@ -94,8 +94,8 @@ export const ReviewsPage: React.FC = () => {
 
       {/* Scope Switcher */}
       {(isAdmin || restaurants.length > 1) && (
-        <div className="flex items-center gap-3 bg-white p-3 rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-gray-500 uppercase tracking-wider shrink-0">
+        <div className="flex items-center gap-3 bg-white dark:bg-slate-900 p-3 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm overflow-x-auto">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wider shrink-0">
             <Store className="w-4 h-4 text-brand-500" />
             <span>Store Scope:</span>
           </div>
@@ -106,7 +106,7 @@ export const ReviewsPage: React.FC = () => {
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
                   isViewingAll
                     ? 'bg-brand-500 text-white shadow-sm shadow-brand-500/20'
-                    : 'bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200/60'
+                    : 'bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-200 border border-gray-200/60 dark:border-slate-700'
                 }`}
               >
                 <span>🌐 All Restaurants</span>
@@ -124,13 +124,13 @@ export const ReviewsPage: React.FC = () => {
                   className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
                     isSelected
                       ? 'bg-brand-500 text-white shadow-sm shadow-brand-500/20'
-                      : 'bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200/60'
+                      : 'bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-200 border border-gray-200/60 dark:border-slate-700'
                   }`}
                 >
                   <span>{r.name}</span>
                   <span
                     className={`text-[10px] px-1.5 py-0.5 rounded-md ${
-                      isSelected ? 'bg-white/20 text-white' : 'bg-gray-200 text-gray-600'
+                      isSelected ? 'bg-white/20 text-white' : 'bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-slate-300'
                     }`}
                   >
                     {r.city}
@@ -145,13 +145,13 @@ export const ReviewsPage: React.FC = () => {
       {/* Score and Star Breakdown Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Rating Score Hero Card */}
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between">
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col justify-between">
           <div>
-            <h3 className="text-xs font-extrabold text-gray-400 uppercase tracking-wider">
+            <h3 className="text-xs font-extrabold text-gray-400 dark:text-slate-500 uppercase tracking-wider">
               Customer Satisfaction Score
             </h3>
             <div className="flex items-baseline gap-3 mt-3">
-              <span className="text-5xl font-black text-gray-900">{avgRating}</span>
+              <span className="text-5xl font-black text-gray-900 dark:text-white">{avgRating}</span>
               <div className="flex items-center text-amber-400">
                 {[1, 2, 3, 4, 5].map((s) => (
                   <Star
@@ -161,43 +161,43 @@ export const ReviewsPage: React.FC = () => {
                 ))}
               </div>
             </div>
-            <p className="text-xs text-gray-500 mt-2 font-medium">
+            <p className="text-xs text-gray-500 dark:text-slate-400 mt-2 font-medium">
               Based on {totalReviews} verified customer reviews
             </p>
           </div>
 
-          <div className="pt-4 border-t border-gray-100 flex items-center justify-between text-xs font-bold text-emerald-600">
+          <div className="pt-4 border-t border-gray-100 dark:border-slate-800 flex items-center justify-between text-xs font-bold text-emerald-600 dark:text-emerald-400">
             <span className="flex items-center gap-1.5">
               <ThumbsUp className="w-4 h-4" /> 98% Positive Feedback
             </span>
-            <span className="text-gray-400 font-normal">All-time</span>
+            <span className="text-gray-400 dark:text-slate-500 font-normal">All-time</span>
           </div>
         </div>
 
         {/* Star Distribution Bars */}
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm md:col-span-2 space-y-2.5 flex flex-col justify-center">
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm md:col-span-2 space-y-2.5 flex flex-col justify-center">
           {starCounts.map((sc) => (
             <div key={sc.stars} className="flex items-center gap-3 text-xs">
-              <div className="flex items-center gap-1 w-12 font-bold text-gray-700 shrink-0">
+              <div className="flex items-center gap-1 w-12 font-bold text-gray-700 dark:text-slate-300 shrink-0">
                 <span>{sc.stars}</span>
                 <Star className="w-3.5 h-3.5 fill-amber-400 stroke-amber-400" />
               </div>
-              <div className="flex-1 h-3 bg-gray-100 rounded-full overflow-hidden">
+              <div className="flex-1 h-3 bg-gray-100 dark:bg-slate-800 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-amber-400 rounded-full transition-all duration-300"
                   style={{ width: `${sc.percentage}%` }}
                 />
               </div>
-              <span className="w-10 text-right text-gray-500 font-semibold">{sc.count}</span>
+              <span className="w-10 text-right text-gray-500 dark:text-slate-400 font-semibold">{sc.count}</span>
             </div>
           ))}
         </div>
       </div>
 
       {/* Reviews List */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <div className="p-5 border-b border-gray-100 flex items-center justify-between">
-          <h3 className="text-sm font-extrabold text-gray-900 uppercase tracking-wide">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div className="p-5 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between">
+          <h3 className="text-sm font-extrabold text-gray-900 dark:text-white uppercase tracking-wide">
             Feedback & Reviews ({totalReviews})
           </h3>
         </div>
@@ -207,34 +207,34 @@ export const ReviewsPage: React.FC = () => {
         ) : reviews.length === 0 ? (
           <div className="p-16 text-center">
             <MessageSquare className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <h3 className="text-base font-bold text-gray-900">No customer reviews yet</h3>
-            <p className="text-xs text-gray-500 mt-1 max-w-sm mx-auto">
+            <h3 className="text-base font-bold text-gray-900 dark:text-white">No customer reviews yet</h3>
+            <p className="text-xs text-gray-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
               Reviews will appear here as customers rate their completed deliveries in the mobile app.
             </p>
           </div>
         ) : (
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-gray-100 dark:divide-slate-800">
             {reviews.map((review) => (
-              <div key={review.id} className="p-6 space-y-4 hover:bg-gray-50/50 transition-colors">
+              <div key={review.id} className="p-6 space-y-4 hover:bg-gray-50/50 dark:hover:bg-slate-800/40 transition-colors">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-brand-100 text-brand-700 font-bold flex items-center justify-center text-sm">
+                    <div className="w-10 h-10 rounded-full bg-brand-100 dark:bg-brand-900/40 text-brand-700 dark:text-brand-300 font-bold flex items-center justify-center text-sm">
                       {review.user?.name ? review.user.name.charAt(0).toUpperCase() : 'C'}
                     </div>
                     <div>
-                      <span className="font-extrabold text-sm text-gray-900 block leading-tight">
+                      <span className="font-extrabold text-sm text-gray-900 dark:text-white block leading-tight">
                         {review.user?.name || 'Customer'}
                       </span>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-[11px] font-semibold text-gray-400">
+                        <span className="text-[11px] font-semibold text-gray-400 dark:text-slate-500">
                           Order #{review.order?.orderNumber}
                         </span>
-                        <span className="text-gray-300">•</span>
-                        <span className="text-[11px] font-semibold text-gray-500">
+                        <span className="text-gray-300 dark:text-slate-600">•</span>
+                        <span className="text-[11px] font-semibold text-gray-500 dark:text-slate-400">
                           {review.restaurant?.name} ({review.restaurant?.city})
                         </span>
-                        <span className="text-gray-300">•</span>
-                        <span className="text-[11px] text-gray-400">
+                        <span className="text-gray-300 dark:text-slate-600">•</span>
+                        <span className="text-[11px] text-gray-400 dark:text-slate-500">
                           {new Date(review.createdAt).toLocaleDateString()}
                         </span>
                       </div>
@@ -242,32 +242,32 @@ export const ReviewsPage: React.FC = () => {
                   </div>
 
                   {/* Rating Stars */}
-                  <div className="flex items-center gap-1 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200">
+                  <div className="flex items-center gap-1 bg-amber-50 dark:bg-amber-950/40 px-2.5 py-1 rounded-lg border border-amber-200 dark:border-amber-800/50">
                     <Star className="w-4 h-4 fill-amber-400 stroke-amber-400" />
-                    <span className="text-xs font-black text-amber-800">{review.rating}.0</span>
+                    <span className="text-xs font-black text-amber-800 dark:text-amber-300">{review.rating}.0</span>
                   </div>
                 </div>
 
                 {/* Comment Text */}
                 {review.comment && (
-                  <p className="text-xs text-gray-700 leading-relaxed font-medium bg-gray-50/70 p-3.5 rounded-xl border border-gray-100">
+                  <p className="text-xs text-gray-700 dark:text-slate-300 leading-relaxed font-medium bg-gray-50/70 dark:bg-slate-800/60 p-3.5 rounded-xl border border-gray-100 dark:border-slate-800">
                     "{review.comment}"
                   </p>
                 )}
 
                 {/* Merchant Response Section */}
                 {review.reply ? (
-                  <div className="ml-6 pl-4 border-l-2 border-brand-400 bg-brand-50/40 p-3.5 rounded-r-xl">
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-brand-700 mb-1">
+                  <div className="ml-6 pl-4 border-l-2 border-brand-400 dark:border-brand-500 bg-brand-50/40 dark:bg-brand-950/30 p-3.5 rounded-r-xl">
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-brand-700 dark:text-brand-400 mb-1">
                       <CornerDownRight className="w-3.5 h-3.5" />
                       <span>Response from Restaurant Manager:</span>
                       {review.repliedAt && (
-                        <span className="text-[10px] text-brand-500 font-normal">
+                        <span className="text-[10px] text-brand-500 dark:text-brand-400 font-normal">
                           • {new Date(review.repliedAt).toLocaleDateString()}
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-gray-700 italic">"{review.reply}"</p>
+                    <p className="text-xs text-gray-700 dark:text-slate-300 italic">"{review.reply}"</p>
                   </div>
                 ) : (
                   <div className="flex justify-end">
@@ -300,15 +300,15 @@ export const ReviewsPage: React.FC = () => {
           maxWidth="sm"
         >
           <form onSubmit={handleReplySubmit} className="space-y-4">
-            <div className="p-3 bg-gray-50 rounded-xl border border-gray-100 text-xs">
-              <span className="font-bold text-gray-600 block mb-1">
+            <div className="p-3 bg-gray-50 dark:bg-slate-800/60 rounded-xl border border-gray-100 dark:border-slate-700 text-xs">
+              <span className="font-bold text-gray-600 dark:text-slate-300 block mb-1">
                 Customer's Review ({selectedReview.rating}★):
               </span>
-              <p className="italic text-gray-700">"{selectedReview.comment || 'No written text'}"</p>
+              <p className="italic text-gray-700 dark:text-slate-300">"{selectedReview.comment || 'No written text'}"</p>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-gray-700 uppercase mb-1">
+              <label className="block text-xs font-bold text-gray-700 dark:text-slate-300 uppercase mb-1">
                 Your Public Response*
               </label>
               <textarea
@@ -317,7 +317,7 @@ export const ReviewsPage: React.FC = () => {
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
                 placeholder="Thank you so much for ordering with us! We are thrilled you enjoyed the food..."
-                className="w-full text-xs p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-1 focus:ring-brand-500"
+                className="w-full text-xs p-3 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-900 dark:text-white rounded-xl focus:ring-1 focus:ring-brand-500"
               />
             </div>
 

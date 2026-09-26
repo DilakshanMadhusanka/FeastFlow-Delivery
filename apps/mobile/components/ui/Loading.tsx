@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, ActivityIndicator, Text, StyleSheet } from 'react-native';
+import { useTheme } from '../../theme/useTheme';
 
 interface LoadingProps {
   message?: string;
@@ -7,10 +8,12 @@ interface LoadingProps {
 }
 
 export const Loading: React.FC<LoadingProps> = ({ message = 'Loading delicious options...', fullScreen = false }) => {
+  const { colors } = useTheme();
+
   return (
-    <View style={[styles.container, fullScreen && styles.fullScreen]}>
-      <ActivityIndicator size="large" color="#FF4B3A" />
-      {message ? <Text style={styles.text}>{message}</Text> : null}
+    <View style={[styles.container, fullScreen && [styles.fullScreen, { backgroundColor: colors.background }]]}>
+      <ActivityIndicator size="large" color={colors.brand} />
+      {message ? <Text style={[styles.text, { color: colors.textSecondary }]}>{message}</Text> : null}
     </View>
   );
 };
@@ -32,3 +35,4 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 });
+

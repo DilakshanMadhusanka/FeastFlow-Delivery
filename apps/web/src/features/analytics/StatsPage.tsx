@@ -246,9 +246,9 @@ export const StatsPage: React.FC = () => {
 
       {/* Quick Branch Filter Bar */}
       {(restaurants.length > 1 || isAdmin) && (
-        <div className="bg-white p-3 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between gap-4 overflow-hidden">
+        <div className="bg-white dark:bg-slate-900 p-3 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex items-center justify-between gap-4 overflow-hidden">
           <div className="flex items-center gap-2 overflow-x-auto py-1 scrollbar-none">
-            <div className="flex items-center gap-1.5 px-2.5 text-xs font-bold text-gray-400 uppercase tracking-wider shrink-0">
+            <div className="flex items-center gap-1.5 px-2.5 text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider shrink-0">
               <Store className="w-3.5 h-3.5 text-brand-500" />
               <span>Scope:</span>
             </div>
@@ -259,13 +259,13 @@ export const StatsPage: React.FC = () => {
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
                   isViewingAll
                     ? 'bg-brand-500 text-white shadow-sm shadow-brand-500/20'
-                    : 'bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200/60'
+                    : 'bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-200 border border-gray-200/60 dark:border-slate-700'
                 }`}
               >
                 <span>🌐 All Restaurants (Platform Wide)</span>
                 <span
                   className={`text-[10px] px-1.5 py-0.5 rounded-md ${
-                    isViewingAll ? 'bg-white/20 text-white' : 'bg-gray-200 text-gray-600'
+                    isViewingAll ? 'bg-white/20 text-white' : 'bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-slate-300'
                   }`}
                 >
                   Platform
@@ -285,13 +285,13 @@ export const StatsPage: React.FC = () => {
                   className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
                     isSelected
                       ? 'bg-brand-500 text-white shadow-sm shadow-brand-500/20'
-                      : 'bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200/60'
+                      : 'bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-200 border border-gray-200/60 dark:border-slate-700'
                   }`}
                 >
                   <span>{r.name}</span>
                   <span
                     className={`text-[10px] px-1.5 py-0.5 rounded-md ${
-                      isSelected ? 'bg-white/20 text-white' : 'bg-gray-200 text-gray-600'
+                      isSelected ? 'bg-white/20 text-white' : 'bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-slate-300'
                     }`}
                   >
                     {r.city}
@@ -302,7 +302,7 @@ export const StatsPage: React.FC = () => {
           </div>
 
           {isViewingAll && (
-            <div className="hidden sm:flex items-center gap-2 text-xs font-semibold text-gray-500 shrink-0 pr-2">
+            <div className="hidden sm:flex items-center gap-2 text-xs font-semibold text-gray-500 dark:text-slate-400 shrink-0 pr-2">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span>Platform Aggregated Data</span>
             </div>
@@ -312,75 +312,75 @@ export const StatsPage: React.FC = () => {
 
       {/* Metric KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-gray-100 dark:border-slate-800 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+            <span className="text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
               {isViewingAll ? 'Total Platform Revenue' : 'Total Revenue'}
             </span>
-            <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
               <DollarSign className="w-5 h-5" />
             </div>
           </div>
           <div className="mt-3">
-            <span className="text-2xl font-black text-gray-900 tracking-tight">
+            <span className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">
               ${totalRevenue.toFixed(2)}
             </span>
-            <span className="text-[11px] font-bold text-emerald-600 flex items-center gap-0.5 mt-1">
+            <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-0.5 mt-1">
               <ArrowUpRight className="w-3.5 h-3.5" /> Gross sales from valid orders
             </span>
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-gray-100 dark:border-slate-800 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+            <span className="text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
               {isViewingAll ? 'Total Platform Orders' : 'Total Orders'}
             </span>
-            <div className="w-9 h-9 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-brand-50 dark:bg-brand-950/60 text-brand-600 dark:text-brand-400 flex items-center justify-center">
               <ShoppingBag className="w-5 h-5" />
             </div>
           </div>
           <div className="mt-3">
-            <span className="text-2xl font-black text-gray-900 tracking-tight">{totalOrders}</span>
-            <span className="text-[11px] font-bold text-gray-500 block mt-1">
+            <span className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">{totalOrders}</span>
+            <span className="text-[11px] font-bold text-gray-500 dark:text-slate-400 block mt-1">
               {completedOrders} fulfilled successfully
             </span>
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-gray-100 dark:border-slate-800 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+            <span className="text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
               Avg Order Value
             </span>
-            <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center">
               <TrendingUp className="w-5 h-5" />
             </div>
           </div>
           <div className="mt-3">
-            <span className="text-2xl font-black text-gray-900 tracking-tight">
+            <span className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">
               ${aov.toFixed(2)}
             </span>
-            <span className="text-[11px] font-bold text-blue-600 block mt-1">
+            <span className="text-[11px] font-bold text-blue-600 dark:text-blue-400 block mt-1">
               Average basket size
             </span>
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-gray-100 dark:border-slate-800 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+            <span className="text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
               Fulfillment Rate
             </span>
-            <div className="w-9 h-9 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center">
               <CheckCircle2 className="w-5 h-5" />
             </div>
           </div>
           <div className="mt-3">
-            <span className="text-2xl font-black text-gray-900 tracking-tight">
+            <span className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">
               {fulfillmentRate}%
             </span>
-            <span className="text-[11px] font-bold text-emerald-600 block mt-1">
+            <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 block mt-1">
               Optimal order completion
             </span>
           </div>
@@ -389,27 +389,27 @@ export const StatsPage: React.FC = () => {
 
       {/* Platform-Wide Restaurant Performance Comparison (Admin View) */}
       {isViewingAll && (
-        <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-gray-100 dark:border-slate-800 shadow-sm">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-5">
             <div>
               <div className="flex items-center gap-2">
                 <Building2 className="w-4 h-4 text-brand-500" />
-                <h3 className="font-extrabold text-sm text-gray-900 tracking-tight">
+                <h3 className="font-extrabold text-sm text-gray-900 dark:text-white tracking-tight">
                   Restaurant Performance Breakdown
                 </h3>
               </div>
-              <p className="text-xs text-gray-500 mt-0.5">
+              <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">
                 Comparison of revenue, order volume, and fulfillment efficiency across all branches
               </p>
             </div>
-            <span className="text-xs font-bold text-gray-500 bg-gray-100 px-2.5 py-1 rounded-lg self-start sm:self-auto">
+            <span className="text-xs font-bold text-gray-500 dark:text-slate-400 bg-gray-100 dark:bg-slate-800 px-2.5 py-1 rounded-lg self-start sm:self-auto">
               {allKnownRestaurants.length} Registered Restaurants
             </span>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-gray-50/75 border-b border-gray-100 text-gray-400 font-extrabold uppercase tracking-wider">
+              <thead className="bg-gray-50/75 dark:bg-slate-800/60 border-b border-gray-100 dark:border-slate-800 text-gray-400 dark:text-slate-400 font-extrabold uppercase tracking-wider">
                 <tr>
                   <th className="py-3 px-4">Restaurant</th>
                   <th className="py-3 px-4">City</th>
@@ -421,52 +421,52 @@ export const StatsPage: React.FC = () => {
                   <th className="py-3 px-4 text-right">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-gray-100 dark:divide-slate-800">
                 {restaurantBreakdown.map((r) => (
-                  <tr key={r.id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="py-3.5 px-4 font-extrabold text-gray-900 text-sm">
+                  <tr key={r.id} className="hover:bg-gray-50/50 dark:hover:bg-slate-800/50 transition-colors">
+                    <td className="py-3.5 px-4 font-extrabold text-gray-900 dark:text-white text-sm">
                       <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-lg bg-brand-50 text-brand-600 flex items-center justify-center font-bold text-xs shrink-0">
+                        <div className="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-950/60 text-brand-600 dark:text-brand-400 flex items-center justify-center font-bold text-xs shrink-0">
                           {r.name.slice(0, 1)}
                         </div>
                         <div>
                           <p>{r.name}</p>
-                          <p className="text-[10px] text-gray-400 font-normal">{r.street}</p>
+                          <p className="text-[10px] text-gray-400 dark:text-slate-500 font-normal">{r.street}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="py-3.5 px-4 font-semibold text-gray-600">
-                      <span className="px-2 py-0.5 rounded-md bg-gray-100 text-gray-700 text-[11px] font-bold">
+                    <td className="py-3.5 px-4 font-semibold text-gray-600 dark:text-slate-300">
+                      <span className="px-2 py-0.5 rounded-md bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 text-[11px] font-bold">
                         {r.city}
                       </span>
                     </td>
-                    <td className="py-3.5 px-4 text-center font-extrabold text-sm text-gray-900">
+                    <td className="py-3.5 px-4 text-center font-extrabold text-sm text-gray-900 dark:text-white">
                       {r.totalOrders}
                     </td>
                     <td className="py-3.5 px-4 text-center">
                       {r.activeOrders > 0 ? (
-                        <span className="px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 font-bold text-[11px]">
+                        <span className="px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800 font-bold text-[11px]">
                           {r.activeOrders} active
                         </span>
                       ) : (
-                        <span className="text-gray-400 text-[11px]">0 active</span>
+                        <span className="text-gray-400 dark:text-slate-500 text-[11px]">0 active</span>
                       )}
                     </td>
-                    <td className="py-3.5 px-4 font-black text-sm text-gray-900">
+                    <td className="py-3.5 px-4 font-black text-sm text-gray-900 dark:text-white">
                       ${r.revenue.toFixed(2)}
                     </td>
-                    <td className="py-3.5 px-4 font-bold text-gray-700">
+                    <td className="py-3.5 px-4 font-bold text-gray-700 dark:text-slate-300">
                       ${r.aov.toFixed(2)}
                     </td>
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-2">
-                        <div className="w-16 bg-gray-100 rounded-full h-2 overflow-hidden">
+                        <div className="w-16 bg-gray-100 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
                           <div
                             className="bg-emerald-500 h-2 rounded-full transition-all"
                             style={{ width: `${r.fulfillment}%` }}
                           />
                         </div>
-                        <span className="font-bold text-xs text-gray-800">{r.fulfillment}%</span>
+                        <span className="font-bold text-xs text-gray-800 dark:text-slate-200">{r.fulfillment}%</span>
                       </div>
                     </td>
                     <td className="py-3.5 px-4 text-right">
@@ -476,7 +476,7 @@ export const StatsPage: React.FC = () => {
                           const found = restaurants.find((item) => item.id === r.id);
                           if (found) setRestaurant(found);
                         }}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-brand-600 hover:text-brand-700 hover:bg-brand-50 rounded-lg transition-colors"
+                        className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-brand-600 dark:text-brand-400 hover:text-brand-700 hover:bg-brand-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
                       >
                         <span>Filter Branch</span>
                         <ChevronRight className="w-3.5 h-3.5" />
@@ -493,15 +493,15 @@ export const StatsPage: React.FC = () => {
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Hourly Volume Area Chart */}
-        <div className="lg:col-span-2 bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+        <div className="lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl p-6 border border-gray-100 dark:border-slate-800 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="font-extrabold text-sm text-gray-900 tracking-tight">
+              <h3 className="font-extrabold text-sm text-gray-900 dark:text-white tracking-tight">
                 {isViewingAll
                   ? 'Platform-Wide Hourly Revenue & Volume Trend'
                   : 'Hourly Revenue & Volume Trend'}
               </h3>
-              <p className="text-xs text-gray-500">Live order influx throughout operating hours</p>
+              <p className="text-xs text-gray-500 dark:text-slate-400">Live order influx throughout operating hours</p>
             </div>
           </div>
 
@@ -514,7 +514,7 @@ export const StatsPage: React.FC = () => {
                     <stop offset="95%" stopColor="#ff4b3a" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" opacity={0.3} />
                 <XAxis dataKey="time" tick={{ fontSize: 11, fill: '#94a3b8' }} />
                 <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} />
                 <Tooltip
@@ -523,12 +523,14 @@ export const StatsPage: React.FC = () => {
                     name === 'revenue' ? 'Revenue' : 'Orders',
                   ]}
                   contentStyle={{
-                    backgroundColor: '#ffffff',
+                    backgroundColor: '#1e293b',
                     borderRadius: '12px',
-                    border: '1px solid #e2e8f0',
+                    border: '1px solid #334155',
+                    color: '#f8fafc',
                     boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
                     fontSize: '12px',
                   }}
+                  itemStyle={{ color: '#f8fafc' }}
                 />
                 <Area
                   type="monotone"
@@ -544,15 +546,15 @@ export const StatsPage: React.FC = () => {
         </div>
 
         {/* Status Distribution Pie Chart */}
-        <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm flex flex-col">
-          <h3 className="font-extrabold text-sm text-gray-900 tracking-tight mb-1">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col">
+          <h3 className="font-extrabold text-sm text-gray-900 dark:text-white tracking-tight mb-1">
             Order Status Breakdown
           </h3>
-          <p className="text-xs text-gray-500 mb-4">Distribution by fulfillment status</p>
+          <p className="text-xs text-gray-500 dark:text-slate-400 mb-4">Distribution by fulfillment status</p>
 
           <div className="h-48 w-full flex-1">
             {statusChartData.length === 0 ? (
-              <div className="h-full flex items-center justify-center text-xs text-gray-400">
+              <div className="h-full flex items-center justify-center text-xs text-gray-400 dark:text-slate-500">
                 No orders data yet
               </div>
             ) : (
@@ -573,27 +575,30 @@ export const StatsPage: React.FC = () => {
                   </Pie>
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: '#ffffff',
+                      backgroundColor: '#1e293b',
                       borderRadius: '10px',
+                      border: '1px solid #334155',
+                      color: '#f8fafc',
                       fontSize: '11px',
                     }}
+                    itemStyle={{ color: '#f8fafc' }}
                   />
                 </PieChart>
               </ResponsiveContainer>
             )}
           </div>
 
-          <div className="space-y-1.5 mt-2 pt-2 border-t border-gray-100">
+          <div className="space-y-1.5 mt-2 pt-2 border-t border-gray-100 dark:border-slate-800">
             {statusChartData.slice(0, 4).map((item) => (
               <div key={item.name} className="flex justify-between text-xs font-semibold">
-                <span className="flex items-center gap-1.5 text-gray-600">
+                <span className="flex items-center gap-1.5 text-gray-600 dark:text-slate-300">
                   <span
                     className="w-2.5 h-2.5 rounded-full"
                     style={{ backgroundColor: item.color }}
                   />
                   {item.name}
                 </span>
-                <span className="text-gray-900">{item.value}</span>
+                <span className="text-gray-900 dark:text-white">{item.value}</span>
               </div>
             ))}
           </div>
@@ -601,29 +606,29 @@ export const StatsPage: React.FC = () => {
       </div>
 
       {/* Top Selling Food Items Table */}
-      <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-        <h3 className="font-extrabold text-sm text-gray-900 tracking-tight mb-1">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-gray-100 dark:border-slate-800 shadow-sm">
+        <h3 className="font-extrabold text-sm text-gray-900 dark:text-white tracking-tight mb-1">
           Top Selling Dishes Today
         </h3>
-        <p className="text-xs text-gray-500 mb-4">
+        <p className="text-xs text-gray-500 dark:text-slate-400 mb-4">
           Most ordered items based on real-time order logs
         </p>
 
         {topItems.length === 0 ? (
-          <p className="text-xs text-gray-400 py-6 text-center">No sales logged today yet.</p>
+          <p className="text-xs text-gray-400 dark:text-slate-500 py-6 text-center">No sales logged today yet.</p>
         ) : (
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-gray-100 dark:divide-slate-800">
             {topItems.map((item, idx) => (
               <div key={item.name + idx} className="py-3 flex items-center justify-between text-xs">
                 <div className="flex items-center gap-3">
-                  <span className="w-5 h-5 rounded-md bg-gray-100 font-extrabold text-gray-600 flex items-center justify-center text-[10px]">
+                  <span className="w-5 h-5 rounded-md bg-gray-100 dark:bg-slate-800 font-extrabold text-gray-600 dark:text-slate-300 flex items-center justify-center text-[10px]">
                     {idx + 1}
                   </span>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-gray-900 text-sm">{item.name}</span>
+                      <span className="font-bold text-gray-900 dark:text-white text-sm">{item.name}</span>
                       {isViewingAll && item.restaurantName && (
-                        <span className="text-[10px] font-bold bg-orange-50 text-orange-700 border border-orange-200/80 px-2 py-0.5 rounded-md shrink-0">
+                        <span className="text-[10px] font-bold bg-orange-50 dark:bg-orange-950/40 text-orange-700 dark:text-orange-400 border border-orange-200/80 dark:border-orange-800 px-2 py-0.5 rounded-md shrink-0">
                           {item.restaurantName}
                         </span>
                       )}
@@ -631,8 +636,8 @@ export const StatsPage: React.FC = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-6">
-                  <span className="text-gray-600 font-medium">{item.count} orders</span>
-                  <span className="font-extrabold text-gray-900 text-sm w-20 text-right">
+                  <span className="text-gray-600 dark:text-slate-300 font-medium">{item.count} orders</span>
+                  <span className="font-extrabold text-gray-900 dark:text-white text-sm w-20 text-right">
                     ${Number(item.revenue || 0).toFixed(2)}
                   </span>
                 </div>

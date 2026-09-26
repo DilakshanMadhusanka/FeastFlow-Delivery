@@ -25,9 +25,9 @@ export const Button: React.FC<ButtonProps> = ({
     primary:
       'bg-brand-500 text-white hover:bg-brand-600 focus:ring-brand-500 shadow-sm active:scale-[0.98]',
     secondary:
-      'bg-gray-100 text-gray-800 hover:bg-gray-200 focus:ring-gray-300',
+      'bg-gray-100 text-gray-800 hover:bg-gray-200 focus:ring-gray-300 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 dark:focus:ring-slate-700',
     outline:
-      'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:ring-brand-500',
+      'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700',
     danger:
       'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 active:scale-[0.98]',
     success:

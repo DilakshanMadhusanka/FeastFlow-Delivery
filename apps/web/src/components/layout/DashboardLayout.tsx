@@ -34,7 +34,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = () => {
 
   if (isLoading) {
     return (
-      <div className="h-screen w-screen flex items-center justify-center bg-gray-50">
+      <div className="h-screen w-screen flex items-center justify-center bg-gray-50 dark:bg-slate-950">
         <Loader2 className="w-8 h-8 text-brand-500 animate-spin" />
       </div>
     );
@@ -45,13 +45,13 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-950 flex transition-colors">
       {/* Fixed Left Sidebar */}
       <Sidebar />
 
       {/* Main Content Area */}
-      <div className="flex-1 ml-64 flex flex-col min-h-screen">
-        <main className="flex-1 p-8 overflow-y-auto">
+      <div className="flex-1 ml-64 flex flex-col min-h-screen bg-gray-50 dark:bg-slate-950">
+        <main className="flex-1 overflow-y-auto">
           <Outlet />
         </main>
       </div>

@@ -18,6 +18,7 @@ import { Loading } from '../../components/ui/Loading';
 import { Button } from '../../components/ui/Button';
 import { DeliveryJobRequestDto } from '@food-delivery/shared';
 import { formatCurrency } from '../../utils/formatters';
+import { useTheme } from '../../theme/useTheme';
 import {
   Bike,
   Navigation,
@@ -34,6 +35,8 @@ import {
   Package,
   Flame,
   Zap,
+  Sun,
+  Moon,
 } from 'lucide-react-native';
 import { OpenStreetMap } from '../../components/map/OpenStreetMap';
 import { OpenStreetMapModal } from '../../components/map/OpenStreetMapModal';
@@ -43,8 +46,10 @@ export default function DriverDashboardScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
+  const { colors, isDark, toggleTheme } = useTheme();
 
   // Fetch driver profile
+
   const { data: profile, isLoading: loadingProfile } = useQuery({
     queryKey: ['driverProfile'],
     queryFn: () => driverService.getProfile(),
@@ -178,27 +183,37 @@ export default function DriverDashboardScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Top Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.borderLight }]}>
         <View style={styles.headerLeft}>
-          <View style={styles.avatarBox}>
-            <Bike size={20} color="#FF4B3A" />
+          <View style={[styles.avatarBox, { backgroundColor: colors.brandLight }]}>
+            <Bike size={20} color={colors.brand} />
           </View>
           <View>
-            <Text style={styles.driverName}>{user?.name || 'Courier Partner'}</Text>
-            <Text style={styles.driverSub}>
+            <Text style={[styles.driverName, { color: colors.text }]}>{user?.name || 'Courier Partner'}</Text>
+            <Text style={[styles.driverSub, { color: colors.textMuted }]}>
               {profile?.vehicleType || 'Motorcycle'} • {profile?.ratingAverage?.toFixed(1) || '5.0'} ★
             </Text>
           </View>
         </View>
 
-        <TouchableOpacity
-          style={styles.switchModeBtn}
-          onPress={() => router.replace('/(customer)/(tabs)/home')}
-        >
-          <Text style={styles.switchModeText}>Customer App</Text>
-        </TouchableOpacity>
+        <View style={styles.headerRight}>
+          <TouchableOpacity
+            style={[styles.themeToggleBtn, { backgroundColor: colors.surfaceSecondary }]}
+            onPress={() => toggleTheme()}
+            activeOpacity={0.7}
+          >
+            {isDark ? <Sun size={18} color="#F59E0B" /> : <Moon size={18} color="#6366F1" />}
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.switchModeBtn, { backgroundColor: colors.surfaceSecondary }]}
+            onPress={() => router.replace('/(customer)/(tabs)/home')}
+          >
+            <Text style={[styles.switchModeText, { color: colors.textSecondary }]}>Customer App</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <ScrollView
@@ -210,7 +225,7 @@ export default function DriverDashboardScreen() {
               refetchJobs();
               refetchActive();
             }}
-            tintColor="#FF4B3A"
+            tintColor={colors.brand}
           />
         }
       >
@@ -242,21 +257,29 @@ export default function DriverDashboardScreen() {
         ) : null}
 
         {/* Online / Offline Toggle Card */}
-        <View style={[styles.statusCard, isOnline ? styles.statusCardOnline : styles.statusCardOffline]}>
+        <View
+          style={[
+            styles.statusCard,
+            { backgroundColor: colors.card },
+            isOnline
+              ? (isDark ? { borderColor: '#065F46' } : styles.statusCardOnline)
+              : { borderColor: colors.borderLight },
+          ]}
+        >
           <View style={styles.statusLeft}>
             <View
               style={[
                 styles.statusBeacon,
-                isOnline ? styles.statusBeaconOnline : styles.statusBeaconOffline,
+                isOnline ? styles.statusBeaconOnline : { backgroundColor: colors.surfaceSecondary },
               ]}
             >
-              <Power size={18} color={isOnline ? '#16A34A' : '#9CA3AF'} />
+              <Power size={18} color={isOnline ? '#16A34A' : colors.textMuted} />
             </View>
             <View>
-              <Text style={styles.statusTitle}>
+              <Text style={[styles.statusTitle, { color: colors.text }]}>
                 {isOnline ? 'Online & Searching' : 'You are Offline'}
               </Text>
-              <Text style={styles.statusSubtitle}>
+              <Text style={[styles.statusSubtitle, { color: colors.textMuted }]}>
                 {isOnline
                   ? 'Listening for nearby pickup requests'
                   : 'Toggle switch to go online and earn'}
@@ -274,43 +297,43 @@ export default function DriverDashboardScreen() {
 
         {/* Daily Stats Summary */}
         <TouchableOpacity
-          style={styles.statsRow}
+          style={[styles.statsRow, { backgroundColor: colors.card, borderColor: colors.borderLight }]}
           activeOpacity={0.8}
           onPress={() => router.push('/(driver)/earnings')}
         >
           <View style={styles.statItem}>
-            <Text style={styles.statLabel}>Today's Payout</Text>
-            <Text style={styles.statAmount}>
+            <Text style={[styles.statLabel, { color: colors.textMuted }]}>Today's Payout</Text>
+            <Text style={[styles.statAmount, { color: colors.text }]}>
               ${formatCurrency(earningsData?.todayEarnings)}
             </Text>
           </View>
 
-          <View style={styles.statDivider} />
+          <View style={[styles.statDivider, { backgroundColor: colors.borderLight }]} />
 
           <View style={styles.statItem}>
-            <Text style={styles.statLabel}>Trips Completed</Text>
-            <Text style={styles.statAmount}>{earningsData?.todayDeliveries || 0}</Text>
+            <Text style={[styles.statLabel, { color: colors.textMuted }]}>Trips Completed</Text>
+            <Text style={[styles.statAmount, { color: colors.text }]}>{earningsData?.todayDeliveries || 0}</Text>
           </View>
 
           <View style={styles.statChevron}>
-            <ChevronRight size={18} color="#9CA3AF" />
+            <ChevronRight size={18} color={colors.textMuted} />
           </View>
         </TouchableOpacity>
 
         {/* Surge Bonus & High-Demand District Radar Card */}
-        <View style={styles.surgeCard}>
+        <View style={[styles.surgeCard, isDark && { backgroundColor: '#20120D', borderColor: '#7C2D12' }]}>
           <View style={styles.surgeHeader}>
             <View style={styles.surgeTitleRow}>
               <Flame size={18} color="#EA580C" />
-              <Text style={styles.surgeTitle}>Surge Demand Radar</Text>
+              <Text style={[styles.surgeTitle, isDark && { color: '#FB923C' }]}>Surge Demand Radar</Text>
             </View>
-            <View style={styles.surgeBoostBadge}>
-              <Zap size={12} color="#D97706" />
-              <Text style={styles.surgeBoostBadgeText}>Up to +$2.50 / trip</Text>
+            <View style={[styles.surgeBoostBadge, isDark && { backgroundColor: '#451A03', borderColor: '#78350F' }]}>
+              <Zap size={12} color={isDark ? '#FBBF24' : '#D97706'} />
+              <Text style={[styles.surgeBoostBadgeText, isDark && { color: '#FCD34D' }]}>Up to +$2.50 / trip</Text>
             </View>
           </View>
 
-          <Text style={styles.surgeDesc}>
+          <Text style={[styles.surgeDesc, isDark && { color: '#FDBA74' }]}>
             High order density detected in these clusters. Relocate nearby for priority dispatch and bonus multipliers.
           </Text>
 
@@ -342,9 +365,15 @@ export default function DriverDashboardScreen() {
                 level: 'MED',
               },
             ].map((zone) => (
-              <View key={zone.district} style={styles.zoneCard}>
+              <View
+                key={zone.district}
+                style={[
+                  styles.zoneCard,
+                  { backgroundColor: colors.card, borderColor: isDark ? '#7C2D12' : '#FFEDD5' },
+                ]}
+              >
                 <View style={styles.zoneTopRow}>
-                  <Text style={styles.zoneDistrict} numberOfLines={1}>
+                  <Text style={[styles.zoneDistrict, { color: colors.text }]} numberOfLines={1}>
                     {zone.district}
                   </Text>
                   <View
@@ -362,12 +391,12 @@ export default function DriverDashboardScreen() {
                   </View>
                 </View>
                 <Text style={styles.zoneBoost}>
-                  {zone.boost} <Text style={styles.zoneBoostSub}>per order</Text>
+                  {zone.boost} <Text style={[styles.zoneBoostSub, { color: colors.textMuted }]}>per order</Text>
                 </Text>
                 <View style={styles.zoneBottomRow}>
-                  <Text style={styles.zoneMeta}>{zone.multiplier}</Text>
-                  <Text style={styles.zoneMeta}>•</Text>
-                  <Text style={styles.zoneMeta}>{zone.wait}</Text>
+                  <Text style={[styles.zoneMeta, { color: colors.textSecondary }]}>{zone.multiplier}</Text>
+                  <Text style={[styles.zoneMeta, { color: colors.textMuted }]}>•</Text>
+                  <Text style={[styles.zoneMeta, { color: colors.textSecondary }]}>{zone.wait}</Text>
                 </View>
               </View>
             ))}
@@ -377,25 +406,25 @@ export default function DriverDashboardScreen() {
         {/* Job Radar Section */}
         <View style={styles.radarHeader}>
           <View style={styles.radarTitleRow}>
-            <Navigation size={18} color="#FF4B3A" />
-            <Text style={styles.sectionTitle}>Job Radar</Text>
+            <Navigation size={18} color={colors.brand} />
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Job Radar</Text>
           </View>
 
           {isOnline ? (
             <View style={styles.radarHeaderRight}>
               {/* Map / List View Mode Toggle */}
-              <View style={styles.togglePillGroup}>
+              <View style={[styles.togglePillGroup, { backgroundColor: colors.surfaceSecondary }]}>
                 <TouchableOpacity
                   style={[
                     styles.togglePill,
-                    radarViewMode === 'MAP' && styles.togglePillActive,
+                    radarViewMode === 'MAP' && [styles.togglePillActive, { backgroundColor: colors.card }],
                   ]}
                   onPress={() => setRadarViewMode('MAP')}
                 >
                   <Text
                     style={[
                       styles.togglePillText,
-                      radarViewMode === 'MAP' && styles.togglePillTextActive,
+                      { color: radarViewMode === 'MAP' ? colors.text : colors.textMuted },
                     ]}
                   >
                     🗺️ Map
@@ -404,14 +433,14 @@ export default function DriverDashboardScreen() {
                 <TouchableOpacity
                   style={[
                     styles.togglePill,
-                    radarViewMode === 'LIST' && styles.togglePillActive,
+                    radarViewMode === 'LIST' && [styles.togglePillActive, { backgroundColor: colors.card }],
                   ]}
                   onPress={() => setRadarViewMode('LIST')}
                 >
                   <Text
                     style={[
                       styles.togglePillText,
-                      radarViewMode === 'LIST' && styles.togglePillTextActive,
+                      { color: radarViewMode === 'LIST' ? colors.text : colors.textMuted },
                     ]}
                   >
                     📋 List ({jobs.length})
@@ -428,10 +457,10 @@ export default function DriverDashboardScreen() {
         </View>
 
         {!isOnline ? (
-          <View style={styles.offlineState}>
-            <Power size={40} color="#D1D5DB" />
-            <Text style={styles.offlineStateTitle}>Go Online to Receive Jobs</Text>
-            <Text style={styles.offlineStateText}>
+          <View style={[styles.offlineState, { backgroundColor: colors.card, borderColor: colors.borderLight }]}>
+            <Power size={40} color={colors.textMuted} />
+            <Text style={[styles.offlineStateTitle, { color: colors.text }]}>Go Online to Receive Jobs</Text>
+            <Text style={[styles.offlineStateText, { color: colors.textMuted }]}>
               Turn on your availability to see incoming orders ready for pickup around you.
             </Text>
             <Button
@@ -443,13 +472,13 @@ export default function DriverDashboardScreen() {
             />
           </View>
         ) : activeDelivery ? (
-          <View style={styles.activeRadarNotice}>
-            <View style={styles.activeRadarIcon}>
-              <Bike size={32} color="#FF4B3A" />
+          <View style={[styles.activeRadarNotice, { backgroundColor: colors.card, borderColor: isDark ? '#7C2D12' : '#FED7AA' }]}>
+            <View style={[styles.activeRadarIcon, isDark && { backgroundColor: '#451A03' }]}>
+              <Bike size={32} color={colors.brand} />
             </View>
-            <Text style={styles.activeRadarNoticeTitle}>Active Delivery in Progress</Text>
+            <Text style={[styles.activeRadarNoticeTitle, { color: colors.text }]}>Active Delivery in Progress</Text>
             <Text style={styles.activeRadarNoticeSub}>Order #{activeDelivery.orderNumber}</Text>
-            <Text style={styles.activeRadarNoticeText}>
+            <Text style={[styles.activeRadarNoticeText, { color: colors.textSecondary }]}>
               A courier driver can accept only one job at a time. Please fulfill Order #{activeDelivery.orderNumber} before accepting new radar requests.
             </Text>
             <Button
@@ -461,10 +490,10 @@ export default function DriverDashboardScreen() {
             />
           </View>
         ) : jobs.length === 0 ? (
-          <View style={styles.emptyRadarState}>
-            <Clock size={40} color="#9CA3AF" />
-            <Text style={styles.emptyRadarTitle}>Scanning for Orders...</Text>
-            <Text style={styles.emptyRadarText}>
+          <View style={[styles.emptyRadarState, { backgroundColor: colors.card, borderColor: colors.borderLight }]}>
+            <Clock size={40} color={colors.textMuted} />
+            <Text style={[styles.emptyRadarTitle, { color: colors.text }]}>Scanning for Orders...</Text>
+            <Text style={[styles.emptyRadarText, { color: colors.textMuted }]}>
               New kitchen requests within 25 km will pop up automatically. Keep your phone nearby!
             </Text>
           </View>
@@ -492,21 +521,27 @@ export default function DriverDashboardScreen() {
               contentContainerStyle={styles.radarJobsScroll}
             >
               {jobs.map((job: DeliveryJobRequestDto) => (
-                <View key={job.orderId} style={styles.radarMiniJobCard}>
+                <View
+                  key={job.orderId}
+                  style={[
+                    styles.radarMiniJobCard,
+                    { backgroundColor: colors.card, borderColor: colors.borderLight },
+                  ]}
+                >
                   <View style={styles.miniJobTop}>
                     <Text style={styles.miniJobEarnings}>
                       ${formatCurrency(job.estimatedEarnings)}
                     </Text>
-                    <View style={styles.miniJobDistancePill}>
-                      <Text style={styles.miniJobDistanceText}>
+                    <View style={[styles.miniJobDistancePill, { backgroundColor: colors.surfaceSecondary }]}>
+                      <Text style={[styles.miniJobDistanceText, { color: colors.textSecondary }]}>
                         {(job.distanceToRestaurantKm + job.distanceToCustomerKm).toFixed(1)} km
                       </Text>
                     </View>
                   </View>
-                  <Text style={styles.miniJobName} numberOfLines={1}>
+                  <Text style={[styles.miniJobName, { color: colors.text }]} numberOfLines={1}>
                     {job.restaurant.name}
                   </Text>
-                  <Text style={styles.miniJobDrop} numberOfLines={1}>
+                  <Text style={[styles.miniJobDrop, { color: colors.textMuted }]} numberOfLines={1}>
                     Drop: {job.deliveryAddress.street}
                   </Text>
                   <Button
@@ -524,20 +559,26 @@ export default function DriverDashboardScreen() {
         ) : (
           <View style={styles.jobsList}>
             {jobs.map((job: DeliveryJobRequestDto) => (
-              <View key={job.orderId} style={styles.jobCard}>
+              <View
+                key={job.orderId}
+                style={[
+                  styles.jobCard,
+                  { backgroundColor: colors.card, borderColor: colors.borderLight },
+                ]}
+              >
                 {/* Header: Earnings & Distance */}
                 <View style={styles.jobCardTop}>
                   <View>
                     <Text style={styles.jobEarnings}>
                       ${formatCurrency(job.estimatedEarnings)}
                     </Text>
-                    <Text style={styles.jobEarningsSub}>
+                    <Text style={[styles.jobEarningsSub, { color: colors.textMuted }]}>
                       Includes ${formatCurrency(job.customerTip)} customer tip
                     </Text>
                   </View>
 
-                  <View style={styles.jobDistancePill}>
-                    <Text style={styles.jobDistanceText}>
+                  <View style={[styles.jobDistancePill, { backgroundColor: colors.surfaceSecondary }]}>
+                    <Text style={[styles.jobDistanceText, { color: colors.textSecondary }]}>
                       {(job.distanceToRestaurantKm + job.distanceToCustomerKm).toFixed(1)} km total
                     </Text>
                   </View>
@@ -549,21 +590,21 @@ export default function DriverDashboardScreen() {
                   <View style={styles.routeRow}>
                     <View style={styles.pickupDot} />
                     <View style={{ flex: 1 }}>
-                      <Text style={styles.routeLocationName}>{job.restaurant.name}</Text>
-                      <Text style={styles.routeAddress} numberOfLines={1}>
+                      <Text style={[styles.routeLocationName, { color: colors.text }]}>{job.restaurant.name}</Text>
+                      <Text style={[styles.routeAddress, { color: colors.textMuted }]} numberOfLines={1}>
                         {job.restaurant.street}, {job.restaurant.city} ({job.distanceToRestaurantKm.toFixed(1)} km away)
                       </Text>
                     </View>
                   </View>
 
-                  <View style={styles.routeDottedLine} />
+                  <View style={[styles.routeDottedLine, { backgroundColor: colors.borderLight }]} />
 
                   {/* Dropoff */}
                   <View style={styles.routeRow}>
                     <View style={styles.dropoffDot} />
                     <View style={{ flex: 1 }}>
-                      <Text style={styles.routeLocationName}>Customer Dropoff</Text>
-                      <Text style={styles.routeAddress} numberOfLines={1}>
+                      <Text style={[styles.routeLocationName, { color: colors.text }]}>Customer Dropoff</Text>
+                      <Text style={[styles.routeAddress, { color: colors.textMuted }]} numberOfLines={1}>
                         {job.deliveryAddress.street}, {job.deliveryAddress.city}
                       </Text>
                     </View>
@@ -571,8 +612,8 @@ export default function DriverDashboardScreen() {
                 </View>
 
                 {/* Items & action */}
-                <View style={styles.jobCardFooter}>
-                  <Text style={styles.jobItemsText}>
+                <View style={[styles.jobCardFooter, { borderTopColor: colors.borderLight }]}>
+                  <Text style={[styles.jobItemsText, { color: colors.textMuted }]}>
                     Order #{job.orderNumber} • {job.itemsCount} items
                   </Text>
 
@@ -600,6 +641,7 @@ export default function DriverDashboardScreen() {
       />
     </View>
   );
+
 }
 
 const styles = StyleSheet.create({
@@ -641,9 +683,21 @@ const styles = StyleSheet.create({
     color: '#6B7280',
     marginTop: 1,
   },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  themeToggleBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   switchModeBtn: {
     paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingVertical: 8,
     backgroundColor: '#F3F4F6',
     borderRadius: 10,
   },

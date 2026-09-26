@@ -3,6 +3,7 @@ import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { Plus, Heart } from 'lucide-react-native';
 import { FoodDetailItem } from '../../services/menu.service';
 import { useFavoritesStore } from '../../store/favoritesStore';
+import { useTheme } from '../../theme/useTheme';
 
 interface FoodCardProps {
   item: FoodDetailItem;
@@ -11,6 +12,7 @@ interface FoodCardProps {
 }
 
 export const FoodCard: React.FC<FoodCardProps> = ({ item, onPress, onAddPress }) => {
+  const { colors } = useTheme();
   const { isFoodFavorite, toggleFoodItem } = useFavoritesStore();
   const isFav = isFoodFavorite(item.id);
   const defaultImage =
@@ -33,7 +35,11 @@ export const FoodCard: React.FC<FoodCardProps> = ({ item, onPress, onAddPress })
     item.description?.toLowerCase().includes('vegan');
 
   return (
-    <TouchableOpacity activeOpacity={0.8} style={styles.card} onPress={onPress}>
+    <TouchableOpacity
+      activeOpacity={0.8}
+      style={[styles.card, { backgroundColor: colors.card, borderColor: colors.borderLight }]}
+      onPress={onPress}
+    >
       {/* Text Info */}
       <View style={styles.textContainer}>
         {/* Dietary Tag Row */}
@@ -45,21 +51,21 @@ export const FoodCard: React.FC<FoodCardProps> = ({ item, onPress, onAddPress })
           </View>
         )}
 
-        <Text style={styles.name} numberOfLines={1}>
+        <Text style={[styles.name, { color: colors.text }]} numberOfLines={1}>
           {item.name}
         </Text>
 
         {item.description ? (
-          <Text style={styles.description} numberOfLines={2}>
+          <Text style={[styles.description, { color: colors.textSecondary }]} numberOfLines={2}>
             {item.description}
           </Text>
         ) : null}
 
         <View style={styles.priceRow}>
-          <Text style={styles.price}>${numericPrice.toFixed(2)}</Text>
+          <Text style={[styles.price, { color: colors.brand }]}>${numericPrice.toFixed(2)}</Text>
 
           {item.calories ? (
-            <Text style={styles.calories}>{item.calories} kcal</Text>
+            <Text style={[styles.calories, { color: colors.textMuted }]}>{item.calories} kcal</Text>
           ) : null}
         </View>
       </View>

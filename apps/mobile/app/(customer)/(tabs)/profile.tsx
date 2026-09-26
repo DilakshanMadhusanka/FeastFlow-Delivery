@@ -1,10 +1,11 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Switch } from 'react-native';
 import { useAuthStore } from '../../../store/authStore';
 import { Button } from '../../../components/ui/Button';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { mobileNotificationService } from '../../../services/notification.service';
+import { useTheme } from '../../../theme/useTheme';
 import {
   User as UserIcon,
   MapPin,
@@ -15,11 +16,14 @@ import {
   ChevronRight,
   ShieldCheck,
   Bike,
+  Sun,
+  Moon,
 } from 'lucide-react-native';
 
 export default function ProfileScreen() {
   const router = useRouter();
   const { user, isAuthenticated, logout } = useAuthStore();
+  const { colors, isDark, toggleTheme } = useTheme();
 
   const { data: unreadNotifCount = 0 } = useQuery({
     queryKey: ['unreadNotificationsCount'],
@@ -34,12 +38,12 @@ export default function ProfileScreen() {
 
   if (!isAuthenticated || !user) {
     return (
-      <View style={styles.centerContainer}>
-        <View style={styles.guestIcon}>
-          <UserIcon size={44} color="#FF4B3A" />
+      <View style={[styles.centerContainer, { backgroundColor: colors.background }]}>
+        <View style={[styles.guestIcon, { backgroundColor: colors.brandLight }]}>
+          <UserIcon size={44} color={colors.brand} />
         </View>
-        <Text style={styles.guestTitle}>Your Profile</Text>
-        <Text style={styles.guestSubtitle}>
+        <Text style={[styles.guestTitle, { color: colors.text }]}>Your Profile</Text>
+        <Text style={[styles.guestSubtitle, { color: colors.textSecondary }]}>
           Sign in or create an account to view your saved addresses, payment methods, and profile settings.
         </Text>
         <Button
@@ -52,14 +56,14 @@ export default function ProfileScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Account</Text>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.borderLight }]}>
+        <Text style={[styles.title, { color: colors.text }]}>Account</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
         {/* User Card */}
-        <View style={styles.userCard}>
+        <View style={[styles.userCard, { backgroundColor: colors.card, borderColor: colors.borderLight }]}>
           <Image
             source={{
               uri:
@@ -69,19 +73,19 @@ export default function ProfileScreen() {
             style={styles.avatar}
           />
           <View style={styles.userInfo}>
-            <Text style={styles.userName}>{user.name}</Text>
-            <Text style={styles.userEmail}>{user.email}</Text>
-            {user.phone ? <Text style={styles.userPhone}>{user.phone}</Text> : null}
-            <View style={styles.roleBadge}>
-              <ShieldCheck size={12} color="#166534" />
-              <Text style={styles.roleText}>{user.roles.join(', ')}</Text>
+            <Text style={[styles.userName, { color: colors.text }]}>{user.name}</Text>
+            <Text style={[styles.userEmail, { color: colors.textSecondary }]}>{user.email}</Text>
+            {user.phone ? <Text style={[styles.userPhone, { color: colors.textMuted }]}>{user.phone}</Text> : null}
+            <View style={[styles.roleBadge, isDark && { backgroundColor: '#064E3B' }]}>
+              <ShieldCheck size={12} color={isDark ? '#34D399' : '#166534'} />
+              <Text style={[styles.roleText, isDark && { color: '#34D399' }]}>{user.roles.join(', ')}</Text>
             </View>
           </View>
         </View>
 
         {/* Courier Partner Mode Launcher */}
         <TouchableOpacity
-          style={styles.driverCard}
+          style={[styles.driverCard, isDark && { backgroundColor: '#1E293B', borderColor: colors.border, borderWidth: 1 }]}
           activeOpacity={0.88}
           onPress={() => router.push('/(driver)/dashboard' as any)}
         >
@@ -98,45 +102,74 @@ export default function ProfileScreen() {
         </TouchableOpacity>
 
         {/* Menu Options */}
-        <View style={styles.menuSection}>
-          <TouchableOpacity style={styles.menuItem} activeOpacity={0.7}>
+        <View style={[styles.menuSection, { backgroundColor: colors.card, borderColor: colors.borderLight }]}>
+          {/* Appearance / Dark Mode Toggle */}
+          <View style={[styles.menuItem, { borderBottomColor: colors.borderLight, justifyContent: 'space-between' }]}>
             <View style={styles.menuItemLeft}>
-              <MapPin size={20} color="#FF4B3A" />
-              <Text style={styles.menuItemText}>Delivery Addresses</Text>
+              <View style={[styles.iconPill, { backgroundColor: isDark ? '#312E81' : '#FEF3C7' }]}>
+                {isDark ? <Moon size={18} color="#A5B4FC" /> : <Sun size={18} color="#D97706" />}
+              </View>
+              <View>
+                <Text style={[styles.menuItemText, { color: colors.text }]}>Dark Mode</Text>
+                <Text style={{ fontSize: 11, color: colors.textMuted, marginTop: 1 }}>
+                  {isDark ? 'Dark theme active' : 'Light theme active'}
+                </Text>
+              </View>
             </View>
-            <ChevronRight size={18} color="#9CA3AF" />
+            <Switch
+              value={isDark}
+              onValueChange={() => toggleTheme()}
+              trackColor={{ false: '#D1D5DB', true: colors.brand }}
+              thumbColor="#FFFFFF"
+            />
+          </View>
+
+          <TouchableOpacity style={[styles.menuItem, { borderBottomColor: colors.borderLight }]} activeOpacity={0.7}>
+            <View style={styles.menuItemLeft}>
+              <View style={[styles.iconPill, { backgroundColor: isDark ? '#450A0A' : '#FFF1F0' }]}>
+                <MapPin size={18} color="#FF4B3A" />
+              </View>
+              <Text style={[styles.menuItemText, { color: colors.text }]}>Delivery Addresses</Text>
+            </View>
+            <ChevronRight size={18} color={colors.textMuted} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem} activeOpacity={0.7}>
+          <TouchableOpacity style={[styles.menuItem, { borderBottomColor: colors.borderLight }]} activeOpacity={0.7}>
             <View style={styles.menuItemLeft}>
-              <CreditCard size={20} color="#3B82F6" />
-              <Text style={styles.menuItemText}>Payment Methods</Text>
+              <View style={[styles.iconPill, { backgroundColor: isDark ? '#172554' : '#EFF6FF' }]}>
+                <CreditCard size={18} color="#3B82F6" />
+              </View>
+              <Text style={[styles.menuItemText, { color: colors.text }]}>Payment Methods</Text>
             </View>
-            <ChevronRight size={18} color="#9CA3AF" />
+            <ChevronRight size={18} color={colors.textMuted} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem} activeOpacity={0.7}>
+          <TouchableOpacity style={[styles.menuItem, { borderBottomColor: colors.borderLight }]} activeOpacity={0.7}>
             <View style={styles.menuItemLeft}>
-              <Heart size={20} color="#EC4899" />
-              <Text style={styles.menuItemText}>Favorite Restaurants</Text>
+              <View style={[styles.iconPill, { backgroundColor: isDark ? '#500724' : '#FDF2F8' }]}>
+                <Heart size={18} color="#EC4899" />
+              </View>
+              <Text style={[styles.menuItemText, { color: colors.text }]}>Favorite Restaurants</Text>
             </View>
-            <ChevronRight size={18} color="#9CA3AF" />
+            <ChevronRight size={18} color={colors.textMuted} />
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.menuItem}
+            style={[styles.menuItem, { borderBottomWidth: 0 }]}
             activeOpacity={0.7}
             onPress={() => router.push('/(customer)/notifications' as any)}
           >
             <View style={styles.menuItemLeft}>
-              <Bell size={20} color="#F59E0B" />
-              <Text style={styles.menuItemText}>Notifications Inbox</Text>
+              <View style={[styles.iconPill, { backgroundColor: isDark ? '#451A03' : '#FFFBEB' }]}>
+                <Bell size={18} color="#F59E0B" />
+              </View>
+              <Text style={[styles.menuItemText, { color: colors.text }]}>Notifications Inbox</Text>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
               {unreadNotifCount > 0 && (
                 <View
                   style={{
-                    backgroundColor: '#FF4B3A',
+                    backgroundColor: colors.brand,
                     paddingHorizontal: 7,
                     paddingVertical: 2,
                     borderRadius: 10,
@@ -147,7 +180,7 @@ export default function ProfileScreen() {
                   </Text>
                 </View>
               )}
-              <ChevronRight size={18} color="#9CA3AF" />
+              <ChevronRight size={18} color={colors.textMuted} />
             </View>
           </TouchableOpacity>
         </View>
@@ -156,7 +189,7 @@ export default function ProfileScreen() {
         <Button
           title="Log Out"
           variant="outline"
-          leftIcon={<LogOut size={18} color="#FF4B3A" />}
+          leftIcon={<LogOut size={18} color={colors.brand} />}
           onPress={handleLogout}
           style={styles.logoutButton}
         />
@@ -164,6 +197,7 @@ export default function ProfileScreen() {
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -340,7 +374,15 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#374151',
   },
+  iconPill: {
+    width: 34,
+    height: 34,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   logoutButton: {
     marginTop: 8,
   },
 });
+

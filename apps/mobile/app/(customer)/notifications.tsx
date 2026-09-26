@@ -27,10 +27,12 @@ import {
   Trash2,
   ChevronRight,
 } from 'lucide-react-native';
+import { useTheme } from '../../theme/useTheme';
 
 export default function NotificationsScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { colors, isDark } = useTheme();
 
   const {
     data: notificationsData,
@@ -147,19 +149,19 @@ export default function NotificationsScreen() {
   const notifications = notificationsData?.items || [];
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Top Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
         <TouchableOpacity
           onPress={() => router.back()}
-          style={styles.backBtn}
+          style={[styles.backBtn, { backgroundColor: isDark ? colors.surfaceSecondary : '#F3F4F6' }]}
           accessibilityLabel="Back"
         >
-          <ArrowLeft size={22} color="#111827" />
+          <ArrowLeft size={22} color={colors.text} />
         </TouchableOpacity>
 
         <View style={styles.headerTitleRow}>
-          <Text style={styles.headerTitle}>Notifications</Text>
+          <Text style={[styles.headerTitle, { color: colors.text }]}>Notifications</Text>
           {unreadCount > 0 && (
             <View style={styles.unreadCountBadge}>
               <Text style={styles.unreadCountText}>{unreadCount}</Text>
@@ -195,11 +197,11 @@ export default function NotificationsScreen() {
         }
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <View style={styles.emptyIconCircle}>
-              <Bell size={36} color="#9CA3AF" />
+            <View style={[styles.emptyIconCircle, { backgroundColor: isDark ? colors.surfaceSecondary : '#F3F4F6' }]}>
+              <Bell size={36} color={colors.textMuted} />
             </View>
-            <Text style={styles.emptyTitle}>All Caught Up!</Text>
-            <Text style={styles.emptySub}>
+            <Text style={[styles.emptyTitle, { color: colors.text }]}>All Caught Up!</Text>
+            <Text style={[styles.emptySub, { color: colors.textSecondary }]}>
               You have no notifications at the moment. Order updates and alerts will appear here.
             </Text>
           </View>
@@ -210,10 +212,11 @@ export default function NotificationsScreen() {
             onPress={() => handleNotificationPress(item)}
             style={[
               styles.notificationCard,
-              !item.isRead && styles.unreadNotificationCard,
+              { backgroundColor: colors.card, borderColor: colors.border },
+              !item.isRead && (isDark ? { backgroundColor: '#3B1A04', borderColor: '#7C2D12' } : styles.unreadNotificationCard),
             ]}
           >
-            <View style={styles.iconCircle}>
+            <View style={[styles.iconCircle, { backgroundColor: isDark ? colors.surfaceSecondary : '#F3F4F6' }]}>
               {getNotificationIcon(item.type, item.title)}
             </View>
 
@@ -222,16 +225,17 @@ export default function NotificationsScreen() {
                 <Text
                   style={[
                     styles.notificationTitle,
-                    !item.isRead && styles.unreadTitleText,
+                    { color: colors.textSecondary },
+                    !item.isRead && [styles.unreadTitleText, { color: colors.text }],
                   ]}
                   numberOfLines={1}
                 >
                   {item.title}
                 </Text>
-                <Text style={styles.timeText}>{formatTimestamp(item.createdAt)}</Text>
+                <Text style={[styles.timeText, { color: colors.textMuted }]}>{formatTimestamp(item.createdAt)}</Text>
               </View>
 
-              <Text style={styles.notificationBody} numberOfLines={2}>
+              <Text style={[styles.notificationBody, { color: colors.textSecondary }]} numberOfLines={2}>
                 {item.body}
               </Text>
             </View>
@@ -243,7 +247,7 @@ export default function NotificationsScreen() {
                 style={styles.deleteBtn}
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >
-                <Trash2 size={14} color="#9CA3AF" />
+                <Trash2 size={14} color={colors.textMuted} />
               </TouchableOpacity>
             </View>
           </TouchableOpacity>

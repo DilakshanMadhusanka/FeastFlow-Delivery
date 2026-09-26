@@ -4,6 +4,8 @@ import { Minus, Plus, Trash2 } from 'lucide-react-native';
 import { CartItemModel } from '../../services/cart.service';
 import { formatCurrency } from '../../utils/formatters';
 
+import { useTheme } from '../../theme/useTheme';
+
 interface CartItemCardProps {
   item: CartItemModel;
   onIncrease: () => void;
@@ -17,12 +19,14 @@ export const CartItemCard: React.FC<CartItemCardProps> = ({
   onDecrease,
   onRemove,
 }) => {
+  const { colors, isDark } = useTheme();
+
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
       <View style={styles.headerRow}>
         <View style={styles.nameContainer}>
-          <Text style={styles.name}>{item.name}</Text>
-          <Text style={styles.unitPrice}>${formatCurrency(item.basePrice)} each</Text>
+          <Text style={[styles.name, { color: colors.text }]}>{item.name}</Text>
+          <Text style={[styles.unitPrice, { color: colors.textSecondary }]}>${formatCurrency(item.basePrice)} each</Text>
         </View>
 
         <TouchableOpacity onPress={onRemove} style={styles.deleteButton}>
@@ -34,7 +38,7 @@ export const CartItemCard: React.FC<CartItemCardProps> = ({
       {item.addons && item.addons.length > 0 ? (
         <View style={styles.addonsList}>
           {item.addons.map((a) => (
-            <Text key={a.id} style={styles.addonText}>
+            <Text key={a.id} style={[styles.addonText, { color: colors.textSecondary }]}>
               + {a.name} (${formatCurrency(a.price)})
             </Text>
           ))}
@@ -47,14 +51,14 @@ export const CartItemCard: React.FC<CartItemCardProps> = ({
       ) : null}
 
       {/* Footer: Stepper and Line Subtotal */}
-      <View style={styles.footerRow}>
-        <View style={styles.stepper}>
-          <TouchableOpacity style={styles.stepperBtn} onPress={onDecrease}>
-            <Minus size={16} color="#374151" />
+      <View style={[styles.footerRow, { borderTopColor: colors.borderLight }]}>
+        <View style={[styles.stepper, { backgroundColor: colors.surfaceSecondary }]}>
+          <TouchableOpacity style={[styles.stepperBtn, { backgroundColor: colors.card }]} onPress={onDecrease}>
+            <Minus size={16} color={colors.text} />
           </TouchableOpacity>
-          <Text style={styles.qtyText}>{item.quantity}</Text>
-          <TouchableOpacity style={styles.stepperBtn} onPress={onIncrease}>
-            <Plus size={16} color="#374151" />
+          <Text style={[styles.qtyText, { color: colors.text }]}>{item.quantity}</Text>
+          <TouchableOpacity style={[styles.stepperBtn, { backgroundColor: colors.card }]} onPress={onIncrease}>
+            <Plus size={16} color={colors.text} />
           </TouchableOpacity>
         </View>
 

@@ -25,6 +25,7 @@ import { EmptyState } from '../../../components/ui/EmptyState';
 import { orderService } from '../../../services/order.service';
 import { useAuthStore } from '../../../store/authStore';
 import { OrderStatus, OrderSummary } from '@food-delivery/shared';
+import { useTheme } from '../../../theme/useTheme';
 import {
   MapPin,
   Search as SearchIcon,
@@ -50,6 +51,7 @@ const ACTIVE_STATUSES: OrderStatus[] = [
 export default function HomeScreen() {
   const router = useRouter();
   const { isAuthenticated } = useAuthStore();
+  const { colors, isDark } = useTheme();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   // 0. Fetch Active Orders for live home banner
@@ -149,17 +151,17 @@ export default function HomeScreen() {
   const foodItems = (featuredFood?.items as any[]) || [];
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Top Address & Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.borderLight }]}>
         <View style={styles.addressSection}>
-          <Text style={styles.deliverTo}>DELIVER TO</Text>
+          <Text style={[styles.deliverTo, { color: colors.brand }]}>DELIVER TO</Text>
           <TouchableOpacity style={styles.addressRow} activeOpacity={0.7}>
-            <MapPin size={16} color="#FF4B3A" />
-            <Text style={styles.addressText} numberOfLines={1}>
+            <MapPin size={16} color={colors.brand} />
+            <Text style={[styles.addressText, { color: colors.text }]} numberOfLines={1}>
               350 5th Ave, New York
             </Text>
-            <ChevronDown size={16} color="#6B7280" />
+            <ChevronDown size={16} color={colors.textMuted} />
           </TouchableOpacity>
         </View>
       </View>
@@ -167,16 +169,16 @@ export default function HomeScreen() {
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#FF4B3A']} />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.brand]} />}
       >
         {/* Search Bar Button */}
         <TouchableOpacity
-          style={styles.searchBar}
+          style={[styles.searchBar, { backgroundColor: colors.surfaceSecondary, borderColor: colors.borderLight }]}
           activeOpacity={0.8}
           onPress={() => router.push('/(customer)/(tabs)/search')}
         >
-          <SearchIcon size={20} color="#9CA3AF" />
-          <Text style={styles.searchPlaceholder}>Search for restaurants, burgers, pizza...</Text>
+          <SearchIcon size={20} color={colors.textMuted} />
+          <Text style={[styles.searchPlaceholder, { color: colors.textMuted }]}>Search for restaurants, burgers, pizza...</Text>
         </TouchableOpacity>
 
         {/* Live Active Order Banner */}
@@ -245,11 +247,11 @@ export default function HomeScreen() {
           <View style={styles.orderAgainSection}>
             <View style={styles.sectionHeader}>
               <View style={styles.orderAgainHeaderTitle}>
-                <RotateCcw size={16} color="#FF4B3A" />
-                <Text style={styles.sectionTitle}>Order Again in 1 Tap</Text>
+                <RotateCcw size={16} color={colors.brand} />
+                <Text style={[styles.sectionTitle, { color: colors.text }]}>Order Again in 1 Tap</Text>
               </View>
               <TouchableOpacity onPress={() => router.push('/(customer)/(tabs)/orders')}>
-                <Text style={styles.seeAllText}>Past Orders</Text>
+                <Text style={[styles.seeAllText, { color: colors.brand }]}>Past Orders</Text>
               </TouchableOpacity>
             </View>
 
@@ -259,12 +261,12 @@ export default function HomeScreen() {
               contentContainerStyle={styles.orderAgainScroll}
             >
               {pastOrders.slice(0, 5).map((order) => (
-                <View key={order.id} style={styles.orderAgainCard}>
+                <View key={order.id} style={[styles.orderAgainCard, { backgroundColor: colors.card, borderColor: colors.borderLight }]}>
                   <View style={styles.orderAgainCardTop}>
-                    <Text style={styles.orderAgainRestName} numberOfLines={1}>
+                    <Text style={[styles.orderAgainRestName, { color: colors.text }]} numberOfLines={1}>
                       {order.restaurant?.name || 'Restaurant'}
                     </Text>
-                    <Text style={styles.orderAgainDate}>
+                    <Text style={[styles.orderAgainDate, { color: colors.textMuted }]}>
                       {new Date(order.placedAt).toLocaleDateString([], {
                         month: 'short',
                         day: 'numeric',
@@ -272,12 +274,12 @@ export default function HomeScreen() {
                     </Text>
                   </View>
 
-                  <Text style={styles.orderAgainItems} numberOfLines={2}>
+                  <Text style={[styles.orderAgainItems, { color: colors.textSecondary }]} numberOfLines={2}>
                     {order.items?.map((i) => `${i.quantity}x ${i.nameSnapshot}`).join(', ')}
                   </Text>
 
                   <View style={styles.orderAgainCardBottom}>
-                    <Text style={styles.orderAgainPrice}>
+                    <Text style={[styles.orderAgainPrice, { color: colors.text }]}>
                       ${Number(order.totalAmount || 0).toFixed(2)}
                     </Text>
                     <TouchableOpacity
@@ -304,7 +306,7 @@ export default function HomeScreen() {
 
         {/* Categories Section */}
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Food Categories</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Food Categories</Text>
         </View>
 
         {loadingCategories ? (
@@ -325,7 +327,9 @@ export default function HomeScreen() {
               activeOpacity={0.8}
               style={[
                 styles.favPill,
-                selectedCategory === 'FAVORITES' ? styles.favPillActive : null,
+                selectedCategory === 'FAVORITES'
+                  ? styles.favPillActive
+                  : { backgroundColor: colors.surfaceSecondary, borderColor: colors.borderLight },
               ]}
               onPress={() =>
                 setSelectedCategory(selectedCategory === 'FAVORITES' ? null : 'FAVORITES')
@@ -333,13 +337,13 @@ export default function HomeScreen() {
             >
               <Heart
                 size={13}
-                color={selectedCategory === 'FAVORITES' ? '#FFFFFF' : '#FF4B3A'}
-                fill={selectedCategory === 'FAVORITES' ? '#FFFFFF' : '#FF4B3A'}
+                color={selectedCategory === 'FAVORITES' ? '#FFFFFF' : colors.brand}
+                fill={selectedCategory === 'FAVORITES' ? '#FFFFFF' : colors.brand}
               />
               <Text
                 style={[
                   styles.favPillText,
-                  selectedCategory === 'FAVORITES' ? styles.favPillTextActive : null,
+                  selectedCategory === 'FAVORITES' ? styles.favPillTextActive : { color: colors.textSecondary },
                 ]}
               >
                 Favorites ({restaurantIds.length})
@@ -361,7 +365,7 @@ export default function HomeScreen() {
 
         {/* Popular Restaurants Section */}
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Popular Restaurants</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Popular Restaurants</Text>
         </View>
 
         {loadingRestaurants ? (
@@ -387,7 +391,7 @@ export default function HomeScreen() {
         {foodItems.length > 0 ? (
           <>
             <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Recommended For You</Text>
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>Recommended For You</Text>
             </View>
 
             {foodItems.map((item) => (

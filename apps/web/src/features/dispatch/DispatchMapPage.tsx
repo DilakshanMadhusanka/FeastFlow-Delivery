@@ -159,23 +159,23 @@ export const DispatchMapPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Top Banner & KPI Stat Strip */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm">
         <div>
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-600 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
               <Radio className="w-5 h-5 animate-pulse" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-2xl font-black text-gray-900 tracking-tight">
+                <h1 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">
                   GPS Fleet Dispatch & Radar
                 </h1>
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
                   Live GPS 5s
                 </span>
               </div>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-500 dark:text-slate-400">
                 Real-time courier fleet tracking, telemetry telemetry, and 1-click manual order dispatch.
               </p>
             </div>
@@ -184,17 +184,17 @@ export const DispatchMapPage: React.FC = () => {
 
         {/* Quick Stats */}
         <div className="flex items-center gap-3">
-          <div className="px-4 py-2 bg-emerald-50 border border-emerald-200/80 rounded-xl text-center">
-            <span className="text-xs font-semibold text-emerald-600 block">Available Couriers</span>
-            <span className="text-lg font-black text-emerald-700">{availableCount}</span>
+          <div className="px-4 py-2 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-900/50 rounded-xl text-center">
+            <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 block">Available Couriers</span>
+            <span className="text-lg font-black text-emerald-700 dark:text-emerald-300">{availableCount}</span>
           </div>
-          <div className="px-4 py-2 bg-blue-50 border border-blue-200/80 rounded-xl text-center">
-            <span className="text-xs font-semibold text-blue-600 block">Active Trips</span>
-            <span className="text-lg font-black text-blue-700">{busyCount}</span>
+          <div className="px-4 py-2 bg-blue-50 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-900/50 rounded-xl text-center">
+            <span className="text-xs font-semibold text-blue-600 dark:text-blue-400 block">Active Trips</span>
+            <span className="text-lg font-black text-blue-700 dark:text-blue-300">{busyCount}</span>
           </div>
-          <div className="px-4 py-2 bg-amber-50 border border-amber-200/80 rounded-xl text-center">
-            <span className="text-xs font-semibold text-amber-600 block">Unassigned Orders</span>
-            <span className="text-lg font-black text-amber-700">{unassignedOrders.length}</span>
+          <div className="px-4 py-2 bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-900/50 rounded-xl text-center">
+            <span className="text-xs font-semibold text-amber-600 dark:text-amber-400 block">Unassigned Orders</span>
+            <span className="text-lg font-black text-amber-700 dark:text-amber-300">{unassignedOrders.length}</span>
           </div>
           <Button
             variant="outline"
@@ -445,13 +445,13 @@ export const DispatchMapPage: React.FC = () => {
         {/* Right Sidebar: Ready Orders Queue & Couriers Directory */}
         <div className="lg:col-span-4 space-y-6">
           {/* Section 1: Orders Requiring Dispatch */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 p-5 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-600 flex items-center justify-center font-bold">
+                <div className="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold">
                   <Zap className="w-4 h-4" />
                 </div>
-                <h2 className="font-extrabold text-base text-gray-900">
+                <h2 className="font-extrabold text-base text-gray-900 dark:text-white">
                   Ready for Dispatch
                 </h2>
               </div>
@@ -459,10 +459,10 @@ export const DispatchMapPage: React.FC = () => {
             </div>
 
             {unassignedOrders.length === 0 ? (
-              <div className="text-center py-8 px-4 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+              <div className="text-center py-8 px-4 bg-gray-50 dark:bg-slate-800/50 rounded-xl border border-dashed border-gray-200 dark:border-slate-700">
                 <CheckCircle2 className="w-8 h-8 text-emerald-500 mx-auto mb-2" />
-                <p className="text-xs font-bold text-gray-700">All Orders Dispatched!</p>
-                <p className="text-[11px] text-gray-400 mt-0.5">
+                <p className="text-xs font-bold text-gray-700 dark:text-slate-300">All Orders Dispatched!</p>
+                <p className="text-[11px] text-gray-400 dark:text-slate-500 mt-0.5">
                   No active orders are waiting for courier pickup at this moment.
                 </p>
               </div>
@@ -471,22 +471,22 @@ export const DispatchMapPage: React.FC = () => {
                 {unassignedOrders.map((order) => (
                   <div
                     key={order.id}
-                    className="p-3.5 bg-gray-50 hover:bg-brand-50/50 rounded-xl border border-gray-200/80 transition-all flex items-center justify-between"
+                    className="p-3.5 bg-gray-50 dark:bg-slate-800/80 hover:bg-brand-50/50 dark:hover:bg-slate-700/80 rounded-xl border border-gray-200/80 dark:border-slate-700 transition-all flex items-center justify-between"
                   >
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-black text-sm text-gray-900">
+                        <span className="font-black text-sm text-gray-900 dark:text-white">
                           #{order.orderNumber}
                         </span>
                         <Badge variant="info">
                           {order.status.replace(/_/g, ' ')}
                         </Badge>
                       </div>
-                      <p className="text-xs text-gray-600 mt-1 font-medium">
+                      <p className="text-xs text-gray-600 dark:text-slate-300 mt-1 font-medium">
                         {(order as any).customer?.name || (order as any).customerName || 'Customer'} • $
                         {Number(order.totalAmount || 0).toFixed(2)}
                       </p>
-                      <p className="text-[11px] text-gray-400 flex items-center gap-1 mt-0.5">
+                      <p className="text-[11px] text-gray-400 dark:text-slate-500 flex items-center gap-1 mt-0.5">
                         <Clock className="w-3 h-3" />
                         {new Date(order.placedAt).toLocaleTimeString([], {
                           hour: '2-digit',
@@ -513,15 +513,15 @@ export const DispatchMapPage: React.FC = () => {
           </div>
 
           {/* Section 2: Courier Fleet Directory & Status */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 p-5 shadow-sm">
             <div className="flex items-center justify-between mb-3">
-              <h2 className="font-extrabold text-base text-gray-900">Couriers ({fleet.length})</h2>
+              <h2 className="font-extrabold text-base text-gray-900 dark:text-white">Couriers ({fleet.length})</h2>
               {/* Filter tabs */}
-              <div className="flex items-center bg-gray-100 p-0.5 rounded-lg text-[11px] font-bold text-gray-600">
+              <div className="flex items-center bg-gray-100 dark:bg-slate-800 p-0.5 rounded-lg text-[11px] font-bold text-gray-600 dark:text-slate-400">
                 <button
                   onClick={() => setFilterMode('ALL')}
                   className={`px-2 py-1 rounded-md transition-all ${
-                    filterMode === 'ALL' ? 'bg-white text-gray-900 shadow-sm' : ''
+                    filterMode === 'ALL' ? 'bg-white dark:bg-slate-700 text-gray-900 dark:text-white shadow-sm' : ''
                   }`}
                 >
                   All
@@ -529,7 +529,7 @@ export const DispatchMapPage: React.FC = () => {
                 <button
                   onClick={() => setFilterMode('AVAILABLE')}
                   className={`px-2 py-1 rounded-md transition-all ${
-                    filterMode === 'AVAILABLE' ? 'bg-white text-emerald-700 shadow-sm' : ''
+                    filterMode === 'AVAILABLE' ? 'bg-white dark:bg-slate-700 text-emerald-700 dark:text-emerald-400 shadow-sm' : ''
                   }`}
                 >
                   Ready
@@ -537,7 +537,7 @@ export const DispatchMapPage: React.FC = () => {
                 <button
                   onClick={() => setFilterMode('BUSY')}
                   className={`px-2 py-1 rounded-md transition-all ${
-                    filterMode === 'BUSY' ? 'bg-white text-blue-700 shadow-sm' : ''
+                    filterMode === 'BUSY' ? 'bg-white dark:bg-slate-700 text-blue-700 dark:text-blue-400 shadow-sm' : ''
                   }`}
                 >
                   Busy
@@ -547,13 +547,13 @@ export const DispatchMapPage: React.FC = () => {
 
             {/* Courier Search Input */}
             <div className="relative mb-3">
-              <Search className="w-4 h-4 absolute left-3 top-2.5 text-gray-400" />
+              <Search className="w-4 h-4 absolute left-3 top-2.5 text-gray-400 dark:text-slate-500" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search driver by name or plate..."
-                className="w-full pl-9 pr-3 py-1.5 text-xs bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-brand-500"
+                className="w-full pl-9 pr-3 py-1.5 text-xs bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
               />
             </div>
 
@@ -567,17 +567,17 @@ export const DispatchMapPage: React.FC = () => {
                     onClick={() => setSelectedDriver(d)}
                     className={`p-3 rounded-xl border cursor-pointer transition-all flex items-center justify-between ${
                       isSelected
-                        ? 'border-brand-500 bg-brand-50/40 ring-1 ring-brand-500'
-                        : 'border-gray-200/80 bg-gray-50 hover:bg-gray-100/70'
+                        ? 'border-brand-500 bg-brand-50/40 dark:bg-brand-950/30 ring-1 ring-brand-500'
+                        : 'border-gray-200/80 dark:border-slate-800 bg-gray-50 dark:bg-slate-800/70 hover:bg-gray-100/70 dark:hover:bg-slate-800'
                     }`}
                   >
                     <div className="flex items-center gap-3">
                       <div className="relative">
-                        <div className="w-9 h-9 rounded-xl bg-white border border-gray-200 flex items-center justify-center font-bold text-xs text-gray-800 shadow-sm">
+                        <div className="w-9 h-9 rounded-xl bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 flex items-center justify-center font-bold text-xs text-gray-800 dark:text-slate-200 shadow-sm">
                           {d.user?.name ? d.user.name.slice(0, 2).toUpperCase() : 'DR'}
                         </div>
                         <span
-                          className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white ${
+                          className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white dark:border-slate-900 ${
                             d.isOnline
                               ? d.activeAssignment
                                 ? 'bg-blue-500'
@@ -587,10 +587,10 @@ export const DispatchMapPage: React.FC = () => {
                         />
                       </div>
                       <div>
-                        <p className="text-xs font-bold text-gray-900 leading-tight">
+                        <p className="text-xs font-bold text-gray-900 dark:text-white leading-tight">
                           {d.user?.name || 'Courier Driver'}
                         </p>
-                        <p className="text-[11px] text-gray-500 mt-0.5">
+                        <p className="text-[11px] text-gray-500 dark:text-slate-400 mt-0.5">
                           {d.vehicleType} • {d.licensePlate || 'Plate N/A'}
                         </p>
                       </div>
@@ -601,9 +601,9 @@ export const DispatchMapPage: React.FC = () => {
                         className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                           d.isOnline
                             ? d.activeAssignment
-                              ? 'bg-blue-100 text-blue-800'
-                              : 'bg-emerald-100 text-emerald-800'
-                            : 'bg-gray-200 text-gray-600'
+                              ? 'bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300'
+                              : 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300'
+                            : 'bg-gray-200 dark:bg-slate-800 text-gray-600 dark:text-slate-400'
                         }`}
                       >
                         {d.isOnline
@@ -612,7 +612,7 @@ export const DispatchMapPage: React.FC = () => {
                             : 'Available'
                           : 'Offline'}
                       </span>
-                      <p className="text-[10px] text-gray-400 font-semibold mt-1">
+                      <p className="text-[10px] text-gray-400 dark:text-slate-500 font-semibold mt-1">
                         ★ {d.ratingAverage?.toFixed(1) || '5.0'}
                       </p>
                     </div>
@@ -632,44 +632,44 @@ export const DispatchMapPage: React.FC = () => {
           title={`Manual Dispatch: Order #${assigningOrder.orderNumber}`}
         >
           <div className="space-y-4">
-            <div className="bg-gray-50 p-3.5 rounded-xl border border-gray-200 text-xs">
+            <div className="bg-gray-50 dark:bg-slate-800/80 p-3.5 rounded-xl border border-gray-200 dark:border-slate-700 text-xs">
               <div className="flex justify-between items-center mb-1">
-                <span className="font-bold text-gray-900">Destination Customer:</span>
-                <span className="font-semibold text-gray-700">
+                <span className="font-bold text-gray-900 dark:text-white">Destination Customer:</span>
+                <span className="font-semibold text-gray-700 dark:text-slate-300">
                   {(assigningOrder as any).customer?.name || (assigningOrder as any).customerName || 'Customer'}
                 </span>
               </div>
               <div className="flex justify-between items-center mb-1">
-                <span className="font-bold text-gray-900">Delivery Address:</span>
-                <span className="text-gray-600 truncate max-w-[220px]">
+                <span className="font-bold text-gray-900 dark:text-white">Delivery Address:</span>
+                <span className="text-gray-600 dark:text-slate-400 truncate max-w-[220px]">
                   {typeof assigningOrder.deliveryAddress === 'object'
                     ? assigningOrder.deliveryAddress?.street || 'Standard Delivery'
                     : assigningOrder.deliveryAddress || 'Standard Delivery'}
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="font-bold text-gray-900">Order Subtotal:</span>
-                <span className="font-black text-brand-600">
+                <span className="font-bold text-gray-900 dark:text-white">Order Subtotal:</span>
+                <span className="font-black text-brand-600 dark:text-brand-400">
                   ${Number(assigningOrder.totalAmount || 0).toFixed(2)}
                 </span>
               </div>
             </div>
 
             {assignSuccess && (
-              <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs font-bold flex items-center gap-2">
+              <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 rounded-xl text-xs font-bold flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                 {assignSuccess}
               </div>
             )}
 
             <div>
-              <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-gray-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Assign to Courier Driver
               </label>
               <select
                 value={targetDriverId}
                 onChange={(e) => setTargetDriverId(e.target.value)}
-                className="w-full text-xs font-medium bg-white border border-gray-300 rounded-xl p-2.5 text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                className="w-full text-xs font-medium bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl p-2.5 text-gray-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500"
               >
                 <option value="">-- Choose Courier --</option>
                 {fleet.map((d) => (
@@ -682,7 +682,7 @@ export const DispatchMapPage: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-gray-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Courier Payout Bonus ($)
               </label>
               <input
@@ -690,12 +690,12 @@ export const DispatchMapPage: React.FC = () => {
                 step="0.50"
                 value={dispatchPayout}
                 onChange={(e) => setDispatchPayout(e.target.value)}
-                className="w-full text-xs font-semibold bg-white border border-gray-300 rounded-xl p-2.5 text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                className="w-full text-xs font-semibold bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl p-2.5 text-gray-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500"
                 placeholder="5.00"
               />
             </div>
 
-            <div className="flex justify-end gap-2 pt-2 border-t border-gray-100">
+            <div className="flex justify-end gap-2 pt-2 border-t border-gray-100 dark:border-slate-800">
               <Button variant="outline" onClick={() => setAssigningOrder(null)}>
                 Cancel
               </Button>

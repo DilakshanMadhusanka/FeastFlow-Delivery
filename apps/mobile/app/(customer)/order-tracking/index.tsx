@@ -25,6 +25,7 @@ import {
   Compass,
   ArrowRight,
 } from 'lucide-react-native';
+import { useTheme } from '../../../theme/useTheme';
 
 const ACTIVE_STATUSES = [
   OrderStatus.PENDING,
@@ -38,6 +39,7 @@ const ACTIVE_STATUSES = [
 
 export default function OrderTrackingIndexScreen() {
   const router = useRouter();
+  const { colors, isDark } = useTheme();
 
   const {
     data: ordersData,
@@ -68,29 +70,29 @@ export default function OrderTrackingIndexScreen() {
   // If redirecting to active order
   if (activeOrder) {
     return (
-      <View style={styles.centerContainer}>
+      <View style={[styles.centerContainer, { backgroundColor: colors.background }]}>
         <Loading message={`Connecting to Live Order #${activeOrder.orderNumber}...`} />
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.pageWrapper}>
         {/* Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
           <TouchableOpacity
             onPress={() => router.back()}
-            style={styles.backBtn}
+            style={[styles.backBtn, { backgroundColor: isDark ? colors.surfaceSecondary : '#F1F5F9' }]}
             accessibilityLabel="Go back"
             hitSlop={10}
           >
-            <ArrowLeft size={22} color="#0F172A" />
+            <ArrowLeft size={22} color={colors.text} />
           </TouchableOpacity>
 
           <View style={styles.headerTitleContainer}>
-            <Text style={styles.headerTitle}>Order Tracking</Text>
-            <Text style={styles.headerSub}>Live Delivery Status</Text>
+            <Text style={[styles.headerTitle, { color: colors.text }]}>Order Tracking</Text>
+            <Text style={[styles.headerSub, { color: colors.textSecondary }]}>Live Delivery Status</Text>
           </View>
 
           <View style={{ width: 36 }} />
@@ -108,12 +110,12 @@ export default function OrderTrackingIndexScreen() {
           }
         >
           {/* Empty State Banner */}
-          <View style={styles.emptyCard}>
+          <View style={[styles.emptyCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <View style={styles.emptyIconCircle}>
               <Compass size={40} color="#FF4B3A" />
             </View>
-            <Text style={styles.emptyTitle}>No Active Deliveries</Text>
-            <Text style={styles.emptySubtitle}>
+            <Text style={[styles.emptyTitle, { color: colors.text }]}>No Active Deliveries</Text>
+            <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>
               You don't have any orders currently on the way. Once you place an order,
               you can track its real-time GPS location and courier status right here.
             </Text>
@@ -129,12 +131,12 @@ export default function OrderTrackingIndexScreen() {
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={styles.historyBtn}
+                style={[styles.historyBtn, { backgroundColor: isDark ? colors.surfaceSecondary : '#F1F5F9' }]}
                 onPress={() => router.push('/(customer)/(tabs)/orders')}
                 activeOpacity={0.8}
               >
-                <Clock size={16} color="#475569" />
-                <Text style={styles.historyBtnText}>Order History</Text>
+                <Clock size={16} color={colors.textSecondary} />
+                <Text style={[styles.historyBtnText, { color: colors.text }]}>Order History</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -142,8 +144,8 @@ export default function OrderTrackingIndexScreen() {
           {/* Recent Orders Section */}
           {recentOrders.length > 0 && (
             <View style={styles.recentSection}>
-              <Text style={styles.sectionTitle}>Recent Orders</Text>
-              <Text style={styles.sectionSubtitle}>
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>Recent Orders</Text>
+              <Text style={[styles.sectionSubtitle, { color: colors.textSecondary }]}>
                 Select a previous order to inspect delivery details and receipt:
               </Text>
 
@@ -162,7 +164,7 @@ export default function OrderTrackingIndexScreen() {
                 return (
                   <TouchableOpacity
                     key={order.id}
-                    style={styles.orderCard}
+                    style={[styles.orderCard, { backgroundColor: colors.card, borderColor: colors.border }]}
                     onPress={() =>
                       router.push(`/(customer)/order-tracking/${order.id}` as any)
                     }
@@ -170,31 +172,31 @@ export default function OrderTrackingIndexScreen() {
                   >
                     <View style={styles.orderTopRow}>
                       <View style={styles.orderRestInfo}>
-                        <Text style={styles.orderRestName}>
+                        <Text style={[styles.orderRestName, { color: colors.text }]}>
                           {order.restaurant?.name || 'Restaurant Order'}
                         </Text>
-                        <Text style={styles.orderDate}>{formattedDate}</Text>
+                        <Text style={[styles.orderDate, { color: colors.textMuted }]}>{formattedDate}</Text>
                       </View>
 
                       <View
                         style={[
                           styles.statusBadge,
                           isDelivered
-                            ? styles.statusBadgeDelivered
-                            : styles.statusBadgeOther,
+                            ? (isDark ? { backgroundColor: '#064E3B' } : styles.statusBadgeDelivered)
+                            : (isDark ? { backgroundColor: '#7F1D1D' } : styles.statusBadgeOther),
                         ]}
                       >
                         {isDelivered ? (
-                          <CheckCircle2 size={13} color="#16A34A" />
+                          <CheckCircle2 size={13} color={isDark ? '#6EE7B7' : '#16A34A'} />
                         ) : (
-                          <XCircle size={13} color="#DC2626" />
+                          <XCircle size={13} color={isDark ? '#FCA5A5' : '#DC2626'} />
                         )}
                         <Text
                           style={[
                             styles.statusText,
                             isDelivered
-                              ? styles.statusTextDelivered
-                              : styles.statusTextOther,
+                              ? (isDark ? { color: '#6EE7B7' } : styles.statusTextDelivered)
+                              : (isDark ? { color: '#FCA5A5' } : styles.statusTextOther),
                           ]}
                         >
                           {order.status.replace(/_/g, ' ')}
@@ -202,10 +204,10 @@ export default function OrderTrackingIndexScreen() {
                       </View>
                     </View>
 
-                    <View style={styles.orderBottomRow}>
+                    <View style={[styles.orderBottomRow, { borderTopColor: colors.border }]}>
                       <View>
-                        <Text style={styles.orderNum}>#{order.orderNumber}</Text>
-                        <Text style={styles.orderAmount}>
+                        <Text style={[styles.orderNum, { color: colors.textMuted }]}>#{order.orderNumber}</Text>
+                        <Text style={[styles.orderAmount, { color: colors.text }]}>
                           {formatCurrency(order.totalAmount)}
                         </Text>
                       </View>

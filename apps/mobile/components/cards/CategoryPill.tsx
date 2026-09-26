@@ -1,5 +1,6 @@
 import React from 'react';
 import { Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { useTheme } from '../../theme/useTheme';
 
 interface CategoryPillProps {
   id?: string;
@@ -15,16 +16,31 @@ export const CategoryPill: React.FC<CategoryPillProps> = ({
   isSelected,
   onPress,
 }) => {
+  const { colors } = useTheme();
+
   return (
     <TouchableOpacity
       activeOpacity={0.75}
-      style={[styles.pill, isSelected ? styles.pillSelected : null]}
+      style={[
+        styles.pill,
+        {
+          backgroundColor: isSelected ? colors.brand : colors.surfaceSecondary,
+          borderColor: isSelected ? colors.brand : colors.borderLight,
+        },
+      ]}
       onPress={onPress}
     >
       {iconUrl ? (
         <Image source={{ uri: iconUrl }} style={styles.icon} resizeMode="cover" />
       ) : null}
-      <Text style={[styles.name, isSelected ? styles.nameSelected : null]}>{name}</Text>
+      <Text
+        style={[
+          styles.name,
+          { color: isSelected ? '#FFFFFF' : colors.textSecondary },
+        ]}
+      >
+        {name}
+      </Text>
     </TouchableOpacity>
   );
 };

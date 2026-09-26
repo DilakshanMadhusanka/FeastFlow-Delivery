@@ -19,6 +19,7 @@ import {
   ArrowRight,
 } from 'lucide-react-native';
 import { Button } from '../ui/Button';
+import { useTheme } from '../../theme/useTheme';
 
 interface PostOrderRewardModalProps {
   visible: boolean;
@@ -31,6 +32,7 @@ export const PostOrderRewardModal: React.FC<PostOrderRewardModalProps> = ({
   onClose,
   onUseCode,
 }) => {
+  const { colors, isDark } = useTheme();
   const [isScratched, setIsScratched] = useState(false);
   const [copied, setCopied] = useState(false);
   const promoCode = 'FEAST15';
@@ -50,54 +52,103 @@ export const PostOrderRewardModal: React.FC<PostOrderRewardModalProps> = ({
   return (
     <Modal visible={visible} animationType="fade" transparent onRequestClose={onClose}>
       <View style={styles.modalOverlay}>
-        <View style={styles.modalContainer}>
+        <View
+          style={[
+            styles.modalContainer,
+            {
+              backgroundColor: colors.card,
+              borderColor: colors.border,
+              borderWidth: isDark ? 1 : 0,
+            },
+          ]}
+        >
           {/* Top Close Button */}
           <TouchableOpacity
-            style={styles.closeBtn}
+            style={[
+              styles.closeBtn,
+              { backgroundColor: isDark ? colors.surfaceSecondary : '#F3F4F6' },
+            ]}
             onPress={onClose}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
-            <X size={18} color="#9CA3AF" />
+            <X size={18} color={isDark ? colors.textSecondary : '#9CA3AF'} />
           </TouchableOpacity>
 
           {/* Celebration Header */}
           <View style={styles.headerIconWrapper}>
-            <View style={styles.headerIconCircle}>
+            <View
+              style={[
+                styles.headerIconCircle,
+                {
+                  backgroundColor: isDark ? colors.surfaceSecondary : '#FFF1F2',
+                  borderColor: isDark ? colors.border : '#FFE4E6',
+                },
+              ]}
+            >
               <Gift size={32} color="#FF4B3A" />
             </View>
-            <View style={styles.sparkleBadge}>
+            <View
+              style={[
+                styles.sparkleBadge,
+                { backgroundColor: isDark ? '#78350F' : '#FEF3C7', borderColor: colors.card },
+              ]}
+            >
               <Sparkles size={14} color="#D97706" />
             </View>
           </View>
 
-          <Text style={styles.modalTitle}>Order Completed! 🎉</Text>
-          <Text style={styles.modalSubtitle}>
+          <Text style={[styles.modalTitle, { color: colors.text }]}>Order Completed! 🎉</Text>
+          <Text style={[styles.modalSubtitle, { color: colors.textSecondary }]}>
             As a thank-you from FeastFlow, you've unlocked a mystery reward card for your next craving!
           </Text>
 
           {/* Scratch Card / Mystery Box */}
           <TouchableOpacity
-            style={[styles.scratchCard, isScratched && styles.scratchCardRevealed]}
+            style={[
+              styles.scratchCard,
+              isScratched && (isDark ? styles.scratchCardRevealedDark : styles.scratchCardRevealed),
+            ]}
             activeOpacity={0.85}
             onPress={() => setIsScratched(true)}
           >
             {isScratched ? (
               <View style={styles.revealedContent}>
-                <View style={styles.rewardTopRow}>
+                <View style={[styles.rewardTopRow, isDark && { backgroundColor: '#431407' }]}>
                   <Flame size={16} color="#EA580C" />
-                  <Text style={styles.rewardTagText}>15% DISCOUNT UNLOCKED</Text>
+                  <Text style={[styles.rewardTagText, isDark && { color: '#FDBA74' }]}>
+                    15% DISCOUNT UNLOCKED
+                  </Text>
                 </View>
 
                 <Text style={styles.rewardValueText}>15% OFF</Text>
-                <Text style={styles.rewardSubText}>Valid on any restaurant up to $10 savings</Text>
+                <Text
+                  style={[
+                    styles.rewardSubText,
+                    { color: isDark ? colors.textSecondary : '#78350F' },
+                  ]}
+                >
+                  Valid on any restaurant up to $10 savings
+                </Text>
 
-                <View style={styles.codeBox}>
+                <View
+                  style={[
+                    styles.codeBox,
+                    {
+                      backgroundColor: isDark ? colors.surfaceSecondary : '#FFFFFF',
+                      borderColor: isDark ? colors.border : '#FED7AA',
+                    },
+                  ]}
+                >
                   <View style={styles.codeTextRow}>
                     <Tag size={15} color="#FF4B3A" />
-                    <Text style={styles.codeText}>{promoCode}</Text>
+                    <Text style={[styles.codeText, { color: colors.text }]}>{promoCode}</Text>
                   </View>
                   <TouchableOpacity
-                    style={[styles.copyBtn, copied && styles.copyBtnSuccess]}
+                    style={[
+                      styles.copyBtn,
+                      copied && styles.copyBtnSuccess,
+                      !copied && isDark && { backgroundColor: colors.cardAlt },
+                    ]}
                     onPress={handleCopyCode}
                   >
                     {copied ? (
@@ -145,7 +196,7 @@ export const PostOrderRewardModal: React.FC<PostOrderRewardModalProps> = ({
               />
             )}
             <TouchableOpacity onPress={onClose} style={styles.dismissBtn}>
-              <Text style={styles.dismissText}>Maybe later</Text>
+              <Text style={[styles.dismissText, { color: colors.textMuted }]}>Maybe later</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -247,6 +298,11 @@ const styles = StyleSheet.create({
   scratchCardRevealed: {
     backgroundColor: '#FFF7ED',
     borderColor: '#FDBA74',
+    borderStyle: 'solid',
+  },
+  scratchCardRevealedDark: {
+    backgroundColor: '#1E140A',
+    borderColor: '#7C2D12',
     borderStyle: 'solid',
   },
   unscratchedContent: {

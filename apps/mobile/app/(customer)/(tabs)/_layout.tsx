@@ -3,6 +3,7 @@ import { Tabs } from 'expo-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Home, Search, ShoppingBag, User } from 'lucide-react-native';
 import { useAuthStore } from '../../../store/authStore';
+import { useTheme } from '../../../theme/useTheme';
 import { orderService } from '../../../services/order.service';
 import { mobileSocketService } from '../../../services/socket.service';
 import { OrderStatus } from '@food-delivery/shared';
@@ -20,6 +21,7 @@ const ACTIVE_STATUSES: OrderStatus[] = [
 export default function CustomerTabsLayout() {
   const queryClient = useQueryClient();
   const { isAuthenticated } = useAuthStore();
+  const { colors, isDark } = useTheme();
 
   const { data: ordersData } = useQuery({
     queryKey: ['myOrders'],
@@ -43,12 +45,12 @@ export default function CustomerTabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#FF4B3A',
-        tabBarInactiveTintColor: '#9CA3AF',
+        tabBarActiveTintColor: colors.brand,
+        tabBarInactiveTintColor: colors.textMuted,
         tabBarStyle: {
-          backgroundColor: '#FFFFFF',
+          backgroundColor: colors.tabBar,
           borderTopWidth: 1,
-          borderTopColor: '#F3F4F6',
+          borderTopColor: colors.tabBarBorder,
           height: 60,
           paddingBottom: 8,
           paddingTop: 8,

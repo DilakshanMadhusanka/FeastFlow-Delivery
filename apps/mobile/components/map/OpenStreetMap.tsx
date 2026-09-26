@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { Maximize2, Navigation, Layers } from 'lucide-react-native';
 import { OSMMapOptions, generateOSMHtml } from './osmHelper';
+import { useTheme } from '../../theme/useTheme';
 
 export interface OpenStreetMapProps extends OSMMapOptions {
   height?: number | string;
@@ -39,7 +40,14 @@ export const OpenStreetMap: React.FC<OpenStreetMapProps> = ({
   headerSubtitle,
   ...mapOptions
 }) => {
-  const htmlContent = useMemo(() => generateOSMHtml(mapOptions), [mapOptions]);
+  const { colors, isDark } = useTheme();
+
+  const effectiveOptions = useMemo(() => ({
+    ...mapOptions,
+    isDark: mapOptions.isDark !== undefined ? mapOptions.isDark : isDark,
+  }), [mapOptions, isDark]);
+
+  const htmlContent = useMemo(() => generateOSMHtml(effectiveOptions), [effectiveOptions]);
 
   const renderMapBody = () => {
     // On Web, render iframe directly with Leaflet OpenStreetMap HTML
@@ -63,7 +71,7 @@ export const OpenStreetMap: React.FC<OpenStreetMapProps> = ({
         <NativeWebView
           originWhitelist={['*']}
           source={{ html: htmlContent }}
-          style={styles.webView}
+          style={[styles.webView, { backgroundColor: isDark ? '#0B0F19' : '#F8FAFC' }]}
           scrollEnabled={false}
           javaScriptEnabled={true}
           domStorageEnabled={true}
@@ -71,9 +79,9 @@ export const OpenStreetMap: React.FC<OpenStreetMapProps> = ({
           showsVerticalScrollIndicator={false}
           startInLoadingState={true}
           renderLoading={() => (
-            <View style={styles.loadingContainer}>
+            <View style={[styles.loadingContainer, { backgroundColor: isDark ? '#0B0F19' : '#F8FAFC' }]}>
               <ActivityIndicator size="small" color="#FF4B3A" />
-              <Text style={styles.loadingText}>Rendering OpenStreetMap...</Text>
+              <Text style={[styles.loadingText, { color: colors.textSecondary }]}>Rendering OpenStreetMap...</Text>
             </View>
           )}
         />
@@ -94,47 +102,47 @@ export const OpenStreetMap: React.FC<OpenStreetMapProps> = ({
   };
 
   return (
-    <View style={[styles.container, { height }, style]}>
+    <View style={[styles.container, { height, backgroundColor: colors.card, borderColor: colors.border }, style]}>
       {/* Optional Card Header */}
       {headerTitle ? (
-        <View style={styles.header}>
+        <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
           <View style={styles.headerLeft}>
-            <View style={styles.headerIcon}>
+            <View style={[styles.headerIcon, { backgroundColor: isDark ? colors.surfaceSecondary : '#FFF1F2' }]}>
               <Navigation size={14} color="#FF4B3A" />
             </View>
             <View>
-              <Text style={styles.headerText}>{headerTitle}</Text>
+              <Text style={[styles.headerText, { color: colors.text }]}>{headerTitle}</Text>
               {headerSubtitle ? (
-                <Text style={styles.headerSub}>{headerSubtitle}</Text>
+                <Text style={[styles.headerSub, { color: colors.textSecondary }]}>{headerSubtitle}</Text>
               ) : null}
             </View>
           </View>
           {showExpandBtn && onExpandPress ? (
             <TouchableOpacity
               onPress={onExpandPress}
-              style={styles.expandPill}
+              style={[styles.expandPill, { backgroundColor: colors.surfaceSecondary }]}
               hitSlop={8}
             >
-              <Maximize2 size={12} color="#4B5563" />
-              <Text style={styles.expandPillText}>Expand</Text>
+              <Maximize2 size={12} color={colors.textSecondary} />
+              <Text style={[styles.expandPillText, { color: colors.textSecondary }]}>Expand</Text>
             </TouchableOpacity>
           ) : null}
         </View>
       ) : null}
 
       {/* Map Frame Container */}
-      <View style={styles.frameContainer}>
+      <View style={[styles.frameContainer, { backgroundColor: isDark ? '#0B0F19' : '#F8FAFC' }]}>
         {renderMapBody()}
 
         {/* Floating Expand button if no header is displayed */}
         {showExpandBtn && onExpandPress && !headerTitle ? (
           <TouchableOpacity
             onPress={onExpandPress}
-            style={styles.floatingExpandBtn}
+            style={[styles.floatingExpandBtn, { backgroundColor: colors.card, borderColor: colors.border }]}
             hitSlop={6}
             activeOpacity={0.8}
           >
-            <Maximize2 size={15} color="#111827" />
+            <Maximize2 size={15} color={colors.text} />
           </TouchableOpacity>
         ) : null}
       </View>

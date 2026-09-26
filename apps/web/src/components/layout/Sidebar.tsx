@@ -114,38 +114,38 @@ export const Sidebar: React.FC = () => {
   ];
 
   return (
-    <aside className="w-64 bg-white border-r border-gray-100 flex flex-col h-screen fixed left-0 top-0 z-30">
+    <aside className="w-64 bg-white dark:bg-slate-900 border-r border-gray-100 dark:border-slate-800 flex flex-col h-screen fixed left-0 top-0 z-30 transition-colors">
       {/* Brand Header */}
-      <div className="h-16 flex items-center px-6 border-b border-gray-100 gap-3">
+      <div className="h-16 flex items-center px-6 border-b border-gray-100 dark:border-slate-800 gap-3">
         <div className="w-9 h-9 rounded-xl bg-brand-500 flex items-center justify-center text-white shadow-md shadow-brand-500/20">
           <UtensilsCrossed className="w-5 h-5" />
         </div>
         <div>
-          <span className="font-extrabold text-lg tracking-tight text-gray-900 block leading-tight">
+          <span className="font-extrabold text-lg tracking-tight text-gray-900 dark:text-white block leading-tight">
             Feast<span className="text-brand-500">Flow</span>
           </span>
-          <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block">
+          <span className="text-[11px] font-semibold text-gray-400 dark:text-slate-400 uppercase tracking-wider block">
             Merchant Portal
           </span>
         </div>
       </div>
 
       {/* Restaurant Switcher */}
-      <div className="p-4 border-b border-gray-100">
-        <div className="bg-gray-50 border border-gray-200/80 rounded-xl p-3">
+      <div className="p-4 border-b border-gray-100 dark:border-slate-800">
+        <div className="bg-gray-50 dark:bg-slate-800/80 border border-gray-200/80 dark:border-slate-700 rounded-xl p-3">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-brand-500 shrink-0">
+            <div className="w-8 h-8 rounded-lg bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 flex items-center justify-center text-brand-500 shrink-0">
               <Store className="w-4 h-4" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-bold text-gray-900 truncate">
+              <p className="text-xs font-bold text-gray-900 dark:text-white truncate">
                 {isAdmin
                   ? restaurant?.id === 'all'
                     ? 'All Restaurants'
                     : restaurant?.name || 'All Restaurants'
                   : restaurant?.name || 'No Restaurant Selected'}
               </p>
-              <p className="text-[11px] text-gray-500 truncate">
+              <p className="text-[11px] text-gray-500 dark:text-slate-400 truncate">
                 {isAdmin
                   ? 'System Administrator'
                   : restaurant?.city
@@ -156,8 +156,8 @@ export const Sidebar: React.FC = () => {
           </div>
 
           {(restaurants.length > 1 || isAdmin) && (
-            <div className="mt-2.5 pt-2 border-t border-gray-200/60">
-              <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+            <div className="mt-2.5 pt-2 border-t border-gray-200/60 dark:border-slate-700">
+              <label className="block text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider mb-1">
                 Switch Restaurant / Branch
               </label>
               <select
@@ -174,7 +174,7 @@ export const Sidebar: React.FC = () => {
                   const found = restaurants.find((r) => r.id === e.target.value);
                   if (found) setRestaurant(found);
                 }}
-                className="w-full text-xs font-semibold bg-white border border-gray-200 rounded-lg p-1.5 text-gray-700 focus:outline-none focus:ring-1 focus:ring-brand-500 shadow-sm cursor-pointer"
+                className="w-full text-xs font-semibold bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg p-1.5 text-gray-700 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-brand-500 shadow-sm cursor-pointer"
               >
                 {isAdmin && <option value="all">🌐 All Restaurants (Platform)</option>}
                 {restaurants.map((r) => (
@@ -199,8 +199,8 @@ export const Sidebar: React.FC = () => {
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 ${
                   isActive
-                    ? 'bg-brand-50 text-brand-600 shadow-sm'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    ? 'bg-brand-50 dark:bg-brand-950/60 text-brand-600 dark:text-brand-400 shadow-sm border border-brand-100/80 dark:border-brand-900/60'
+                    : 'text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'
                 }`
               }
             >
@@ -212,22 +212,22 @@ export const Sidebar: React.FC = () => {
       </nav>
 
       {/* User Footer & Logout */}
-      <div className="p-4 border-t border-gray-100 bg-gray-50/50">
+      <div className="p-4 border-t border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-full bg-brand-100 text-brand-700 font-bold flex items-center justify-center text-xs shrink-0">
+            <div className="w-8 h-8 rounded-full bg-brand-100 dark:bg-brand-950 text-brand-700 dark:text-brand-400 font-bold flex items-center justify-center text-xs shrink-0">
               {user?.name ? user.name.slice(0, 2).toUpperCase() : 'ME'}
             </div>
             <div className="min-w-0">
-              <p className="text-xs font-bold text-gray-900 truncate">{user?.name || 'Manager'}</p>
-              <p className="text-[11px] text-gray-500 truncate">{user?.email || 'owner@restaurant.com'}</p>
+              <p className="text-xs font-bold text-gray-900 dark:text-white truncate">{user?.name || 'Manager'}</p>
+              <p className="text-[11px] text-gray-500 dark:text-slate-400 truncate">{user?.email || 'owner@restaurant.com'}</p>
             </div>
           </div>
 
           <button
             onClick={handleLogout}
             title="Log Out"
-            className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+            className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-lg transition-colors"
           >
             <LogOut className="w-4 h-4" />
           </button>

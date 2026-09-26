@@ -21,9 +21,11 @@ import {
   Clock,
   HeartHandshake,
 } from 'lucide-react-native';
+import { useTheme } from '../../theme/useTheme';
 
 export default function DriverEarningsScreen() {
   const router = useRouter();
+  const { colors, isDark } = useTheme();
 
   const { data: earnings, isLoading, isRefetching, refetch } = useQuery({
     queryKey: ['driverEarnings'],
@@ -42,13 +44,13 @@ export default function DriverEarningsScreen() {
   const recentTrips = earnings?.recentDeliveries || [];
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <ArrowLeft size={22} color="#111827" />
+          <ArrowLeft size={22} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Earnings & Payouts</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Earnings & Payouts</Text>
         <View style={{ width: 28 }} />
       </View>
 
@@ -77,26 +79,26 @@ export default function DriverEarningsScreen() {
 
         {/* Weekly & Lifetime Stats */}
         <View style={styles.statsGrid}>
-          <View style={styles.statBox}>
+          <View style={[styles.statBox, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <Calendar size={18} color="#3B82F6" />
-            <Text style={styles.statBoxLabel}>This Week</Text>
-            <Text style={styles.statBoxValue}>${formatCurrency(weekEarnings)}</Text>
+            <Text style={[styles.statBoxLabel, { color: colors.textSecondary }]}>This Week</Text>
+            <Text style={[styles.statBoxValue, { color: colors.text }]}>${formatCurrency(weekEarnings)}</Text>
           </View>
 
-          <View style={styles.statBox}>
+          <View style={[styles.statBox, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <DollarSign size={18} color="#16A34A" />
-            <Text style={styles.statBoxLabel}>Lifetime Total</Text>
-            <Text style={styles.statBoxValue}>${formatCurrency(totalEarnings)}</Text>
-            <Text style={styles.statBoxSub}>{totalTrips} all-time deliveries</Text>
+            <Text style={[styles.statBoxLabel, { color: colors.textSecondary }]}>Lifetime Total</Text>
+            <Text style={[styles.statBoxValue, { color: colors.text }]}>${formatCurrency(totalEarnings)}</Text>
+            <Text style={[styles.statBoxSub, { color: colors.textMuted }]}>{totalTrips} all-time deliveries</Text>
           </View>
         </View>
 
         {/* Tip Assurance Notice */}
-        <View style={styles.tipNotice}>
+        <View style={[styles.tipNotice, isDark && { backgroundColor: '#451A03', borderColor: '#B45309' }]}>
           <HeartHandshake size={20} color="#FF4B3A" />
           <View style={{ flex: 1 }}>
-            <Text style={styles.tipNoticeTitle}>100% Customer Tips Keep Guarantee</Text>
-            <Text style={styles.tipNoticeText}>
+            <Text style={[styles.tipNoticeTitle, isDark && { color: '#FDE68A' }]}>100% Customer Tips Keep Guarantee</Text>
+            <Text style={[styles.tipNoticeText, isDark && { color: '#FCD34D' }]}>
               Every dollar customers tip goes directly to your balance with zero platform deduction fees.
             </Text>
           </View>
@@ -104,26 +106,26 @@ export default function DriverEarningsScreen() {
 
         {/* Recent Completed Trips Log */}
         <View style={styles.tripsSection}>
-          <Text style={styles.sectionTitle}>Completed Delivery Log</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Completed Delivery Log</Text>
 
           {recentTrips.length === 0 ? (
-            <View style={styles.emptyTrips}>
-              <Text style={styles.emptyTripsText}>No delivery records found yet.</Text>
+            <View style={[styles.emptyTrips, { backgroundColor: colors.card, borderColor: colors.border }]}>
+              <Text style={[styles.emptyTripsText, { color: colors.textMuted }]}>No delivery records found yet.</Text>
             </View>
           ) : (
             <View style={styles.tripsList}>
               {recentTrips.map((trip) => (
-                <View key={trip.id} style={styles.tripCard}>
+                <View key={trip.id} style={[styles.tripCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
                   <View style={styles.tripLeft}>
-                    <Text style={styles.tripRest}>{trip.restaurantName}</Text>
-                    <Text style={styles.tripMeta}>
+                    <Text style={[styles.tripRest, { color: colors.text }]}>{trip.restaurantName}</Text>
+                    <Text style={[styles.tripMeta, { color: colors.textSecondary }]}>
                       #{trip.orderNumber} • {new Date(trip.deliveredAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </Text>
                   </View>
 
                   <View style={styles.tripRight}>
                     <Text style={styles.tripTotal}>+${formatCurrency(trip.total)}</Text>
-                    <Text style={styles.tripBreakdown}>
+                    <Text style={[styles.tripBreakdown, { color: colors.textMuted }]}>
                       ${formatCurrency(trip.payout)} + ${formatCurrency(trip.tip)} tip
                     </Text>
                   </View>

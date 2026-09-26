@@ -5,6 +5,7 @@ import { Rating } from '../ui/Rating';
 import { Badge } from '../ui/Badge';
 import { RestaurantItem } from '../../services/restaurant.service';
 import { useFavoritesStore } from '../../store/favoritesStore';
+import { useTheme } from '../../theme/useTheme';
 
 interface RestaurantCardProps {
   restaurant: RestaurantItem;
@@ -12,6 +13,7 @@ interface RestaurantCardProps {
 }
 
 export const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant, onPress }) => {
+  const { colors } = useTheme();
   const { isRestaurantFavorite, toggleRestaurant } = useFavoritesStore();
   const isFav = isRestaurantFavorite(restaurant.id);
   const defaultBanner =
@@ -25,7 +27,7 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant, onPr
   return (
     <TouchableOpacity
       activeOpacity={0.85}
-      style={styles.card}
+      style={[styles.card, { backgroundColor: colors.card, borderColor: colors.borderLight }]}
       onPress={onPress}
     >
       {/* Banner & Open Status Overlay */}
@@ -61,14 +63,14 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant, onPr
       {/* Content */}
       <View style={styles.content}>
         <View style={styles.headerRow}>
-          <Text style={styles.name} numberOfLines={1}>
+          <Text style={[styles.name, { color: colors.text }]} numberOfLines={1}>
             {restaurant.name}
           </Text>
           <Rating score={restaurant.ratingAverage} reviewCount={restaurant.ratingCount} />
         </View>
 
         {restaurant.cuisines && restaurant.cuisines.length > 0 ? (
-          <Text style={styles.cuisines} numberOfLines={1}>
+          <Text style={[styles.cuisines, { color: colors.textSecondary }]} numberOfLines={1}>
             {restaurant.cuisines.join(' • ')}
           </Text>
         ) : null}
@@ -76,27 +78,27 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant, onPr
         {/* Metadata Footer */}
         <View style={styles.footerRow}>
           <View style={styles.metaItem}>
-            <Clock size={14} color="#6B7280" />
-            <Text style={styles.metaText}>
+            <Clock size={14} color={colors.textMuted} />
+            <Text style={[styles.metaText, { color: colors.textSecondary }]}>
               {restaurant.estimatedDeliveryMin}-{restaurant.estimatedDeliveryMax} min
             </Text>
           </View>
 
-          <Text style={styles.bullet}>•</Text>
+          <Text style={[styles.bullet, { color: colors.textMuted }]}>•</Text>
 
           <View style={styles.metaItem}>
-            <Bike size={14} color="#6B7280" />
-            <Text style={styles.metaText}>
+            <Bike size={14} color={colors.textMuted} />
+            <Text style={[styles.metaText, { color: colors.textSecondary }]}>
               ${numericFee.toFixed(2)} delivery
             </Text>
           </View>
 
           {restaurant.distanceKm !== undefined ? (
             <>
-              <Text style={styles.bullet}>•</Text>
+              <Text style={[styles.bullet, { color: colors.textMuted }]}>•</Text>
               <View style={styles.metaItem}>
-                <MapPin size={14} color="#6B7280" />
-                <Text style={styles.metaText}>{restaurant.distanceKm} km</Text>
+                <MapPin size={14} color={colors.textMuted} />
+                <Text style={[styles.metaText, { color: colors.textSecondary }]}>{restaurant.distanceKm} km</Text>
               </View>
             </>
           ) : null}

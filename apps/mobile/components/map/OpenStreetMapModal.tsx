@@ -12,6 +12,7 @@ import {
 import { X, Navigation, Layers, ShieldCheck, MapPin, Bike, Utensils } from 'lucide-react-native';
 import { OSMMarker, calculateDistanceKm } from './osmHelper';
 import { OpenStreetMap } from './OpenStreetMap';
+import { useTheme } from '../../theme/useTheme';
 
 interface OpenStreetMapModalProps {
   visible: boolean;
@@ -32,7 +33,10 @@ export const OpenStreetMapModal: React.FC<OpenStreetMapModalProps> = ({
   title = 'Live OpenStreetMap Route',
   subtitle = 'Satellite & Slippy Cartography Powered by OSM',
 }) => {
-  const [tileLayer, setTileLayer] = useState<'STANDARD' | 'HUMANITARIAN' | 'CARTO_LIGHT'>('STANDARD');
+  const { colors, isDark } = useTheme();
+  const [tileLayer, setTileLayer] = useState<'STANDARD' | 'HUMANITARIAN' | 'CARTO_LIGHT' | 'CARTO_DARK'>(
+    isDark ? 'CARTO_DARK' : 'STANDARD'
+  );
 
   // Calculate distance if there are at least two markers
   let distanceKm: number | null = null;
@@ -45,45 +49,64 @@ export const OpenStreetMapModal: React.FC<OpenStreetMapModalProps> = ({
     );
   }
 
+  const layersList = (isDark
+    ? (['CARTO_DARK', 'STANDARD', 'HUMANITARIAN'] as const)
+    : (['STANDARD', 'CARTO_LIGHT', 'HUMANITARIAN'] as const));
+
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-      <SafeAreaView style={styles.safeContainer}>
+      <SafeAreaView style={[styles.safeContainer, { backgroundColor: colors.background }]}>
         {/* Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
           <View style={styles.headerLeft}>
-            <View style={styles.headerIconBox}>
+            <View style={[styles.headerIconBox, { backgroundColor: isDark ? colors.surfaceSecondary : '#FFF1F2' }]}>
               <Navigation size={20} color="#FF4B3A" />
             </View>
             <View>
-              <Text style={styles.title}>{title}</Text>
-              <Text style={styles.subtitle}>{subtitle}</Text>
+              <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
+              <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{subtitle}</Text>
             </View>
           </View>
-          <TouchableOpacity onPress={onClose} style={styles.closeBtn} hitSlop={10}>
-            <X size={20} color="#111827" />
+          <TouchableOpacity
+            onPress={onClose}
+            style={[styles.closeBtn, { backgroundColor: isDark ? colors.surfaceSecondary : '#F3F4F6' }]}
+            hitSlop={10}
+          >
+            <X size={20} color={colors.text} />
           </TouchableOpacity>
         </View>
 
         {/* Layer Selector Bar */}
-        <View style={styles.layerBar}>
+        <View style={[styles.layerBar, { backgroundColor: isDark ? colors.cardAlt : '#F9FAFB', borderBottomColor: colors.border }]}>
           <View style={styles.layerTitleRow}>
-            <Layers size={14} color="#6B7280" />
-            <Text style={styles.layerBarTitle}>OSM Tiles:</Text>
+            <Layers size={14} color={colors.textSecondary} />
+            <Text style={[styles.layerBarTitle, { color: colors.textSecondary }]}>OSM Tiles:</Text>
           </View>
           <View style={styles.layerChips}>
-            {(['STANDARD', 'CARTO_LIGHT', 'HUMANITARIAN'] as const).map((layer) => (
+            {layersList.map((layer) => (
               <TouchableOpacity
                 key={layer}
-                style={[styles.layerChip, tileLayer === layer && styles.layerChipActive]}
+                style={[
+                  styles.layerChip,
+                  { backgroundColor: isDark ? colors.surfaceSecondary : '#FFFFFF', borderColor: isDark ? colors.border : '#D1D5DB' },
+                  tileLayer === layer && styles.layerChipActive,
+                ]}
                 onPress={() => setTileLayer(layer)}
               >
                 <Text
                   style={[
                     styles.layerChipText,
+                    { color: isDark ? colors.textSecondary : '#4B5563' },
                     tileLayer === layer && styles.layerChipTextActive,
                   ]}
                 >
-                  {layer === 'STANDARD' ? 'Standard OSM' : layer === 'CARTO_LIGHT' ? 'Clean Light' : 'Hot Relief'}
+                  {layer === 'STANDARD'
+                    ? 'Standard OSM'
+                    : layer === 'CARTO_LIGHT'
+                    ? 'Clean Light'
+                    : layer === 'CARTO_DARK'
+                    ? 'Carto Dark'
+                    : 'Hot Relief'}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -91,7 +114,7 @@ export const OpenStreetMapModal: React.FC<OpenStreetMapModalProps> = ({
         </View>
 
         {/* Fullscreen Map Body */}
-        <View style={styles.mapContainer}>
+        <View style={[styles.mapContainer, { backgroundColor: colors.background }]}>
           <OpenStreetMap
             center={center}
             zoom={15}
@@ -107,21 +130,27 @@ export const OpenStreetMapModal: React.FC<OpenStreetMapModalProps> = ({
         </View>
 
         {/* Bottom Route Summary Drawer */}
-        <View style={styles.summaryDrawer}>
+        <View style={[styles.summaryDrawer, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
           <View style={styles.drawerTop}>
             <View style={styles.distanceBadge}>
-              <Text style={styles.distanceValue}>{distanceKm ? `${distanceKm} km` : 'Active Route'}</Text>
-              <Text style={styles.distanceLabel}>Total Delivery Corridor</Text>
+              <Text style={[styles.distanceValue, { color: colors.text }]}>{distanceKm ? `${distanceKm} km` : 'Active Route'}</Text>
+              <Text style={[styles.distanceLabel, { color: colors.textSecondary }]}>Total Delivery Corridor</Text>
             </View>
-            <View style={styles.legalBadge}>
-              <ShieldCheck size={13} color="#059669" />
-              <Text style={styles.legalText}>OpenStreetMap • ODbL Open Cartography</Text>
+            <View style={[styles.legalBadge, isDark && { backgroundColor: '#064E3B' }]}>
+              <ShieldCheck size={13} color={isDark ? '#34D399' : '#059669'} />
+              <Text style={[styles.legalText, isDark && { color: '#34D399' }]}>OpenStreetMap • ODbL Open Cartography</Text>
             </View>
           </View>
 
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.markersScroll}>
             {markers.map((m) => (
-              <View key={m.id} style={styles.markerCard}>
+              <View
+                key={m.id}
+                style={[
+                  styles.markerCard,
+                  { backgroundColor: isDark ? colors.surfaceSecondary : '#F9FAFB', borderColor: colors.border },
+                ]}
+              >
                 <View style={styles.markerCardHeader}>
                   {m.type === 'STORE' ? (
                     <Utensils size={15} color="#EA580C" />
@@ -130,13 +159,13 @@ export const OpenStreetMapModal: React.FC<OpenStreetMapModalProps> = ({
                   ) : (
                     <Bike size={15} color="#7C3AED" />
                   )}
-                  <Text style={styles.markerType}>
+                  <Text style={[styles.markerType, { color: colors.textSecondary }]}>
                     {m.type === 'STORE' ? 'Store Pickup' : m.type === 'CUSTOMER' ? 'Dropoff Dest' : 'Courier Partner'}
                   </Text>
                 </View>
-                <Text style={styles.markerTitle} numberOfLines={1}>{m.title}</Text>
+                <Text style={[styles.markerTitle, { color: colors.text }]} numberOfLines={1}>{m.title}</Text>
                 {m.description ? (
-                  <Text style={styles.markerDesc} numberOfLines={1}>{m.description}</Text>
+                  <Text style={[styles.markerDesc, { color: colors.textMuted }]} numberOfLines={1}>{m.description}</Text>
                 ) : null}
                 {m.speed ? (
                   <Text style={styles.markerSpeed}>Speed: {Math.round(m.speed)} km/h</Text>

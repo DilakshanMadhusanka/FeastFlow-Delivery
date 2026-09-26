@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { X, Send, MessageSquare, Sparkles, User, Bike, Store } from 'lucide-react-native';
 import { mobileChatService, MobileChatMessage } from '../../services/chat.service';
+import { useTheme } from '../../theme/useTheme';
 
 interface ChatModalProps {
   isOpen?: boolean;
@@ -39,6 +40,7 @@ export const ChatModal: React.FC<ChatModalProps> = ({
   recipientName,
   targetRole,
 }) => {
+  const { colors, isDark } = useTheme();
   const modalVisible = visible ?? isOpen ?? false;
   const activeRole = role ?? userRole ?? 'CUSTOMER';
   const effectivePartner = recipientName ?? partnerName ?? (targetRole === 'STORE' ? 'Restaurant Support' : 'Delivery Driver');
@@ -118,24 +120,24 @@ export const ChatModal: React.FC<ChatModalProps> = ({
   return (
     <Modal visible={modalVisible} animationType="slide" transparent={false} onRequestClose={onClose}>
       <KeyboardAvoidingView
-        style={styles.container}
+        style={[styles.container, { backgroundColor: colors.background }]}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         {/* Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
           <View style={styles.headerLeft}>
-            <View style={styles.headerIcon}>
+            <View style={[styles.headerIcon, isDark && { backgroundColor: colors.brandLight }]}>
               <MessageSquare size={20} color="#FF4B3A" />
             </View>
             <View>
-              <Text style={styles.headerTitle}>Order #{orderNumber} Chat</Text>
-              <Text style={styles.headerSubtitle}>
+              <Text style={[styles.headerTitle, { color: colors.text }]}>Order #{orderNumber} Chat</Text>
+              <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>
                 {effectivePartner ? `Messaging ${effectivePartner}` : isCustomer ? 'Courier & Store Support' : 'Customer & Store'}
               </Text>
             </View>
           </View>
-          <TouchableOpacity onPress={onClose} style={styles.closeBtn} hitSlop={10}>
-            <X size={22} color="#0F172A" />
+          <TouchableOpacity onPress={onClose} style={[styles.closeBtn, { backgroundColor: isDark ? colors.surfaceSecondary : '#F1F5F9' }]} hitSlop={10}>
+            <X size={22} color={colors.text} />
           </TouchableOpacity>
         </View>
 
@@ -148,13 +150,13 @@ export const ChatModal: React.FC<ChatModalProps> = ({
           {loading && messages.length === 0 ? (
             <View style={styles.loadingBox}>
               <ActivityIndicator color="#FF4B3A" size="small" />
-              <Text style={styles.loadingText}>Connecting to order channel...</Text>
+              <Text style={[styles.loadingText, { color: colors.textMuted }]}>Connecting to order channel...</Text>
             </View>
           ) : messages.length === 0 ? (
             <View style={styles.emptyBox}>
-              <MessageSquare size={36} color="#CBD5E1" />
-              <Text style={styles.emptyTitle}>No messages yet</Text>
-              <Text style={styles.emptySub}>
+              <MessageSquare size={36} color={colors.textMuted} />
+              <Text style={[styles.emptyTitle, { color: colors.text }]}>No messages yet</Text>
+              <Text style={[styles.emptySub, { color: colors.textSecondary }]}>
                 Send a quick update or delivery instruction below.
               </Text>
             </View>
@@ -172,10 +174,10 @@ export const ChatModal: React.FC<ChatModalProps> = ({
                   ]}
                 >
                   <View style={styles.metaRow}>
-                    <Text style={styles.senderLabel}>
+                    <Text style={[styles.senderLabel, { color: colors.textSecondary }]}>
                       {isMe ? 'You' : msg.senderName} ({msg.senderRole})
                     </Text>
-                    <Text style={styles.timeLabel}>
+                    <Text style={[styles.timeLabel, { color: colors.textMuted }]}>
                       {new Date(msg.timestamp).toLocaleTimeString([], {
                         hour: '2-digit',
                         minute: '2-digit',
@@ -190,13 +192,13 @@ export const ChatModal: React.FC<ChatModalProps> = ({
                         ? styles.bubbleMe
                         : isStore
                         ? styles.bubbleStore
-                        : styles.bubbleOther,
+                        : [styles.bubbleOther, { backgroundColor: colors.card, borderColor: colors.border }],
                     ]}
                   >
                     <Text
                       style={[
                         styles.bubbleText,
-                        isMe || isStore ? styles.bubbleTextLight : styles.bubbleTextDark,
+                        isMe || isStore ? styles.bubbleTextLight : [styles.bubbleTextDark, { color: colors.text }],
                       ]}
                     >
                       {msg.text}
@@ -209,7 +211,7 @@ export const ChatModal: React.FC<ChatModalProps> = ({
         </ScrollView>
 
         {/* Canned Quick Reply Chips */}
-        <View style={styles.quickRepliesContainer}>
+        <View style={[styles.quickRepliesContainer, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -218,24 +220,24 @@ export const ChatModal: React.FC<ChatModalProps> = ({
             {quickReplies.map((reply, i) => (
               <TouchableOpacity
                 key={i}
-                style={styles.quickChip}
+                style={[styles.quickChip, { backgroundColor: isDark ? colors.surfaceSecondary : '#F8FAFC', borderColor: colors.border }]}
                 activeOpacity={0.7}
                 onPress={() => handleSend(reply)}
               >
-                <Text style={styles.quickChipText}>{reply}</Text>
+                <Text style={[styles.quickChipText, { color: colors.textSecondary }]}>{reply}</Text>
               </TouchableOpacity>
             ))}
           </ScrollView>
         </View>
 
         {/* Input Bar */}
-        <View style={styles.inputBar}>
+        <View style={[styles.inputBar, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
           <TextInput
-            style={styles.textInput}
+            style={[styles.textInput, { backgroundColor: isDark ? colors.surfaceSecondary : '#F1F5F9', color: colors.text }]}
             value={inputText}
             onChangeText={setInputText}
             placeholder={isCustomer ? 'Message your driver or kitchen...' : 'Message the customer...'}
-            placeholderTextColor="#94A3B8"
+            placeholderTextColor={colors.textMuted}
             multiline={false}
             returnKeyType="send"
             onSubmitEditing={() => handleSend()}

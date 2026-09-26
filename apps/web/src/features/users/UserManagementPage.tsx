@@ -184,7 +184,7 @@ export const UserManagementPage: React.FC = () => {
   const usersList = data?.users || [];
 
   return (
-    <div className="flex-1 min-h-screen bg-gray-50 flex flex-col">
+    <div className="flex-1 min-h-screen bg-gray-50 dark:bg-slate-950 flex flex-col transition-colors">
       <Navbar
         title="Mobile App Users Management"
         onRefresh={() => refetch()}
@@ -193,18 +193,18 @@ export const UserManagementPage: React.FC = () => {
 
       <main className="p-8 max-w-7xl w-full mx-auto space-y-6">
         {/* Header Section */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm transition-colors">
           <div>
             <div className="flex items-center gap-2">
-              <span className="px-2.5 py-1 bg-brand-50 text-brand-600 text-xs font-bold rounded-lg border border-brand-100">
+              <span className="px-2.5 py-1 bg-brand-50 dark:bg-brand-950/60 text-brand-600 dark:text-brand-400 text-xs font-bold rounded-lg border border-brand-100 dark:border-brand-900/60">
                 System Admin Provisioning
               </span>
-              <span className="px-2.5 py-1 bg-blue-50 text-blue-600 text-xs font-bold rounded-lg border border-blue-100">
+              <span className="px-2.5 py-1 bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 text-xs font-bold rounded-lg border border-blue-100 dark:border-blue-900/60">
                 📱 FeastFlow Native Mobile App
               </span>
             </div>
-            <h1 className="text-2xl font-black text-gray-900 mt-2">Mobile App User Provisioning</h1>
-            <p className="text-sm text-gray-500 mt-1">
+            <h1 className="text-2xl font-black text-gray-900 dark:text-white mt-2">Mobile App User Provisioning</h1>
+            <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">
               Create and manage Diner (`CUSTOMER`) and Courier Driver (`DELIVERY_DRIVER`) accounts with instant mobile sign-in.
             </p>
           </div>
@@ -223,53 +223,53 @@ export const UserManagementPage: React.FC = () => {
 
         {/* KPI Metrics Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
+          <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex items-center gap-4 transition-colors">
+            <div className="w-12 h-12 rounded-xl bg-purple-50 dark:bg-purple-950/50 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
               <Users className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Accounts</p>
-              <h3 className="text-2xl font-black text-gray-900 mt-0.5">{metrics.totalUsers}</h3>
-              <p className="text-[11px] text-gray-500 mt-0.5">Platform registered</p>
+              <p className="text-xs font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider">Total Accounts</p>
+              <h3 className="text-2xl font-black text-gray-900 dark:text-white mt-0.5">{metrics.totalUsers}</h3>
+              <p className="text-[11px] text-gray-500 dark:text-slate-400 mt-0.5">Platform registered</p>
             </div>
           </div>
 
-          <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+          <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex items-center gap-4 transition-colors">
+            <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
               <Smartphone className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Mobile Diners</p>
-              <h3 className="text-2xl font-black text-gray-900 mt-0.5">{metrics.totalCustomers}</h3>
-              <p className="text-[11px] text-blue-600 font-medium mt-0.5">Active food ordering</p>
+              <p className="text-xs font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider">Mobile Diners</p>
+              <h3 className="text-2xl font-black text-gray-900 dark:text-white mt-0.5">{metrics.totalCustomers}</h3>
+              <p className="text-[11px] text-blue-600 dark:text-blue-400 font-medium mt-0.5">Active food ordering</p>
             </div>
           </div>
 
-          <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+          <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex items-center gap-4 transition-colors">
+            <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
               <Bike className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Courier Drivers</p>
-              <h3 className="text-2xl font-black text-gray-900 mt-0.5">{metrics.totalDrivers}</h3>
-              <p className="text-[11px] text-emerald-600 font-medium mt-0.5">Delivery fleet capacity</p>
+              <p className="text-xs font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider">Courier Drivers</p>
+              <h3 className="text-2xl font-black text-gray-900 dark:text-white mt-0.5">{metrics.totalDrivers}</h3>
+              <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium mt-0.5">Delivery fleet capacity</p>
             </div>
           </div>
 
-          <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+          <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex items-center gap-4 transition-colors">
+            <div className="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
               <ShieldCheck className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Verified Fleet</p>
-              <h3 className="text-2xl font-black text-gray-900 mt-0.5">{metrics.verifiedDrivers}</h3>
-              <p className="text-[11px] text-amber-600 font-medium mt-0.5">Ready for radar dispatch</p>
+              <p className="text-xs font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider">Verified Fleet</p>
+              <h3 className="text-2xl font-black text-gray-900 dark:text-white mt-0.5">{metrics.verifiedDrivers}</h3>
+              <p className="text-[11px] text-amber-600 dark:text-amber-400 font-medium mt-0.5">Ready for radar dispatch</p>
             </div>
           </div>
         </div>
 
         {/* Filter and Search Bar */}
-        <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4 transition-colors">
           <div className="relative w-full sm:w-80">
             <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
@@ -277,7 +277,7 @@ export const UserManagementPage: React.FC = () => {
               placeholder="Search by name, email, or phone..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
+              className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
             />
           </div>
 
@@ -286,8 +286,8 @@ export const UserManagementPage: React.FC = () => {
               onClick={() => setSelectedRole('ALL')}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
                 selectedRole === 'ALL'
-                  ? 'bg-gray-900 text-white shadow-sm'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 shadow-sm'
+                  : 'bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-700'
               }`}
             >
               All App Users ({metrics.totalUsers})
@@ -297,7 +297,7 @@ export const UserManagementPage: React.FC = () => {
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
                 selectedRole === 'CUSTOMER'
                   ? 'bg-blue-600 text-white shadow-sm'
-                  : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
+                  : 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/60'
               }`}
             >
               <Smartphone className="w-3.5 h-3.5" />
@@ -308,7 +308,7 @@ export const UserManagementPage: React.FC = () => {
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
                 selectedRole === 'DELIVERY_DRIVER'
                   ? 'bg-emerald-600 text-white shadow-sm'
-                  : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                  : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/60'
               }`}
             >
               <Bike className="w-3.5 h-3.5" />
@@ -318,11 +318,11 @@ export const UserManagementPage: React.FC = () => {
         </div>
 
         {/* Users Table */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm overflow-hidden transition-colors">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-gray-100 bg-gray-50/60 text-gray-500 text-[11px] font-extrabold uppercase tracking-wider">
+                <tr className="border-b border-gray-100 dark:border-slate-800 bg-gray-50/60 dark:bg-slate-800/60 text-gray-500 dark:text-slate-400 text-[11px] font-extrabold uppercase tracking-wider">
                   <th className="py-4 px-6">User / Identity</th>
                   <th className="py-4 px-6">Mobile Role</th>
                   <th className="py-4 px-6">Contact Phone</th>
@@ -331,7 +331,7 @@ export const UserManagementPage: React.FC = () => {
                   <th className="py-4 px-6 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100 text-sm">
+              <tbody className="divide-y divide-gray-100 dark:divide-slate-800 text-sm">
                 {isLoading ? (
                   <tr>
                     <td colSpan={6} className="py-12 text-center text-gray-400">
@@ -342,9 +342,9 @@ export const UserManagementPage: React.FC = () => {
                 ) : usersList.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="py-16 text-center text-gray-400">
-                      <Users className="w-12 h-12 mx-auto text-gray-300 mb-3" />
-                      <p className="font-bold text-gray-600">No users found</p>
-                      <p className="text-xs text-gray-400 mt-1">
+                      <Users className="w-12 h-12 mx-auto text-gray-300 dark:text-slate-600 mb-3" />
+                      <p className="font-bold text-gray-600 dark:text-slate-300">No users found</p>
+                      <p className="text-xs text-gray-400 dark:text-slate-500 mt-1">
                         Try adjusting your search criteria or click "+ Provision Mobile App User".
                       </p>
                     </td>
@@ -356,7 +356,7 @@ export const UserManagementPage: React.FC = () => {
                     const isAdminUser = user.roles.includes('ADMIN');
 
                     return (
-                      <tr key={user.id} className="hover:bg-gray-50/80 transition-colors">
+                      <tr key={user.id} className="hover:bg-gray-50/80 dark:hover:bg-slate-800/60 transition-colors">
                         {/* User / Identity */}
                         <td className="py-4 px-6">
                           <div className="flex items-center gap-3">
@@ -369,8 +369,8 @@ export const UserManagementPage: React.FC = () => {
                                 .slice(0, 2)}
                             </div>
                             <div className="min-w-0">
-                              <p className="font-bold text-gray-900 truncate">{user.name}</p>
-                              <p className="text-xs text-gray-400 truncate flex items-center gap-1">
+                              <p className="font-bold text-gray-900 dark:text-white truncate">{user.name}</p>
+                              <p className="text-xs text-gray-400 dark:text-slate-400 truncate flex items-center gap-1">
                                 <Mail className="w-3 h-3 shrink-0" />
                                 {user.email}
                               </p>
@@ -558,7 +558,7 @@ export const UserManagementPage: React.FC = () => {
 
           {/* 1. Mobile App Role Selector */}
           <div>
-            <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-500 mb-2">
+            <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-500 dark:text-slate-400 mb-2">
               Select Mobile App Role *
             </label>
             <div className="grid grid-cols-2 gap-3">
@@ -566,15 +566,15 @@ export const UserManagementPage: React.FC = () => {
                 onClick={() => setFormData((prev) => ({ ...prev, role: 'CUSTOMER' }))}
                 className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
                   formData.role === 'CUSTOMER'
-                    ? 'border-blue-600 bg-blue-50/60 shadow-sm'
-                    : 'border-gray-200 bg-white hover:border-gray-300'
+                    ? 'border-blue-600 bg-blue-50/60 dark:bg-blue-950/40 shadow-sm'
+                    : 'border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-gray-300 dark:hover:border-slate-600'
                 }`}
               >
-                <div className="flex items-center gap-2 text-blue-600 font-bold text-sm">
+                <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400 font-bold text-sm">
                   <Smartphone className="w-4 h-4" />
                   👤 Mobile Customer
                 </div>
-                <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                <p className="text-xs text-gray-500 dark:text-slate-400 mt-1 leading-relaxed">
                   Food discovery, cart checkout, and real-time delivery tracking on iOS/Android/Web.
                 </p>
               </div>
@@ -583,15 +583,15 @@ export const UserManagementPage: React.FC = () => {
                 onClick={() => setFormData((prev) => ({ ...prev, role: 'DELIVERY_DRIVER' }))}
                 className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
                   formData.role === 'DELIVERY_DRIVER'
-                    ? 'border-emerald-600 bg-emerald-50/60 shadow-sm'
-                    : 'border-gray-200 bg-white hover:border-gray-300'
+                    ? 'border-emerald-600 bg-emerald-50/60 dark:bg-emerald-950/40 shadow-sm'
+                    : 'border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-gray-300 dark:hover:border-slate-600'
                 }`}
               >
-                <div className="flex items-center gap-2 text-emerald-600 font-bold text-sm">
+                <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-sm">
                   <Bike className="w-4 h-4" />
                   🛵 Courier Driver
                 </div>
-                <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                <p className="text-xs text-gray-500 dark:text-slate-400 mt-1 leading-relaxed">
                   Accept nearby delivery radar jobs, turn-by-turn routing, and proof-of-delivery photos.
                 </p>
               </div>
@@ -601,33 +601,33 @@ export const UserManagementPage: React.FC = () => {
           {/* 2. Core Profile Details */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1">Full Name *</label>
+              <label className="block text-xs font-bold text-gray-700 dark:text-slate-300 mb-1">Full Name *</label>
               <input
                 type="text"
                 placeholder="e.g. Sarah Connor"
                 required
                 value={formData.name}
                 onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
-                className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
+                className="w-full px-3.5 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1">Email Address *</label>
+              <label className="block text-xs font-bold text-gray-700 dark:text-slate-300 mb-1">Email Address *</label>
               <input
                 type="email"
                 placeholder="e.g. sarah.connor@feastflow.com"
                 required
                 value={formData.email}
                 onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
-                className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
+                className="w-full px-3.5 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1">
+              <label className="block text-xs font-bold text-gray-700 dark:text-slate-300 mb-1">
                 Phone Number (E.164)
               </label>
               <input
@@ -635,17 +635,17 @@ export const UserManagementPage: React.FC = () => {
                 placeholder="e.g. +15554329876"
                 value={formData.phone || ''}
                 onChange={(e) => setFormData((prev) => ({ ...prev, phone: e.target.value }))}
-                className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
+                className="w-full px-3.5 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
               />
             </div>
 
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label className="text-xs font-bold text-gray-700">Initial Password *</label>
+                <label className="text-xs font-bold text-gray-700 dark:text-slate-300">Initial Password *</label>
                 <button
                   type="button"
                   onClick={handleGeneratePassword}
-                  className="text-[11px] font-bold text-brand-600 hover:text-brand-700 flex items-center gap-1"
+                  className="text-[11px] font-bold text-brand-600 dark:text-brand-400 hover:text-brand-700 flex items-center gap-1"
                 >
                   <Sparkles className="w-3 h-3" />
                   Generate
@@ -657,7 +657,7 @@ export const UserManagementPage: React.FC = () => {
                   required
                   value={formData.password}
                   onChange={(e) => setFormData((prev) => ({ ...prev, password: e.target.value }))}
-                  className="w-full pl-3.5 pr-10 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
+                  className="w-full pl-3.5 pr-10 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-sm text-gray-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
                 />
                 <button
                   type="button"
@@ -672,15 +672,15 @@ export const UserManagementPage: React.FC = () => {
 
           {/* 3. Driver Specific Fleet Fields */}
           {formData.role === 'DELIVERY_DRIVER' && (
-            <div className="p-4 bg-emerald-50/60 border border-emerald-200 rounded-2xl space-y-4">
-              <div className="flex items-center gap-2 text-emerald-800 font-bold text-xs">
+            <div className="p-4 bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/80 rounded-2xl space-y-4">
+              <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-400 font-bold text-xs">
                 <Bike className="w-4 h-4" />
                 Courier Fleet Specifications
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1">
+                  <label className="block text-xs font-bold text-gray-700 dark:text-slate-300 mb-1">
                     Primary Vehicle Type
                   </label>
                   <select
@@ -688,7 +688,7 @@ export const UserManagementPage: React.FC = () => {
                     onChange={(e) =>
                       setFormData((prev) => ({ ...prev, vehicleType: e.target.value as any }))
                     }
-                    className="w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                    className="w-full px-3.5 py-2.5 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
                   >
                     <option value="MOTORCYCLE">🛵 Motorcycle / Scooter</option>
                     <option value="BICYCLE">🚲 Bicycle / E-Bike</option>
@@ -699,7 +699,7 @@ export const UserManagementPage: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1">
+                  <label className="block text-xs font-bold text-gray-700 dark:text-slate-300 mb-1">
                     License Plate / Fleet ID
                   </label>
                   <input
@@ -709,7 +709,7 @@ export const UserManagementPage: React.FC = () => {
                     onChange={(e) =>
                       setFormData((prev) => ({ ...prev, licensePlate: e.target.value }))
                     }
-                    className="w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-xl text-sm uppercase focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                    className="w-full px-3.5 py-2.5 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-sm uppercase text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
                   />
                 </div>
               </div>
@@ -724,7 +724,7 @@ export const UserManagementPage: React.FC = () => {
                   }
                   className="rounded text-emerald-600 focus:ring-emerald-500"
                 />
-                <label htmlFor="isVerified" className="text-xs font-medium text-emerald-900 cursor-pointer">
+                <label htmlFor="isVerified" className="text-xs font-medium text-emerald-900 dark:text-emerald-300 cursor-pointer">
                   Pre-verify courier documents so they can immediately accept delivery jobs on the radar
                 </label>
               </div>
@@ -742,13 +742,13 @@ export const UserManagementPage: React.FC = () => {
               }
               className="rounded text-brand-600 focus:ring-brand-500"
             />
-            <label htmlFor="isEmailVerified" className="text-xs text-gray-600 cursor-pointer">
+            <label htmlFor="isEmailVerified" className="text-xs text-gray-600 dark:text-slate-400 cursor-pointer">
               Mark email as verified (allows immediate mobile login without email activation delay)
             </label>
           </div>
 
           {/* Modal Actions */}
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100 dark:border-slate-800">
             <Button
               type="button"
               variant="outline"

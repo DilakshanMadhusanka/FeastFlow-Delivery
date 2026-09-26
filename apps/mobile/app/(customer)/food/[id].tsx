@@ -17,9 +17,11 @@ import { useAuthStore } from '../../../store/authStore';
 import { Button } from '../../../components/ui/Button';
 import { Loading } from '../../../components/ui/Loading';
 import { ArrowLeft, Plus, Minus, Check } from 'lucide-react-native';
+import { useTheme } from '../../../theme/useTheme';
 
 export default function FoodDetailsScreen() {
   const router = useRouter();
+  const { colors, isDark } = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { isAuthenticated } = useAuthStore();
   const { addItem, isLoading: isAddingToCart } = useCartStore();
@@ -163,7 +165,7 @@ export default function FoodDetailsScreen() {
     'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&q=80';
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Large Food Image with Back Button */}
         <View style={styles.imageContainer}>
@@ -173,38 +175,38 @@ export default function FoodDetailsScreen() {
             resizeMode="cover"
           />
           <TouchableOpacity
-            style={styles.backIconButton}
+            style={[styles.backIconButton, { backgroundColor: colors.card }]}
             activeOpacity={0.8}
             onPress={() => router.back()}
           >
-            <ArrowLeft size={20} color="#111827" />
+            <ArrowLeft size={20} color={colors.text} />
           </TouchableOpacity>
         </View>
 
         {/* Content Section */}
-        <View style={styles.content}>
-          <Text style={styles.name}>{item.name}</Text>
+        <View style={[styles.content, { backgroundColor: colors.card }]}>
+          <Text style={[styles.name, { color: colors.text }]}>{item.name}</Text>
           <Text style={styles.basePrice}>
             ${(typeof item.price === 'string' ? parseFloat(item.price) : item.price).toFixed(2)}
           </Text>
 
           {item.description ? (
-            <Text style={styles.description}>{item.description}</Text>
+            <Text style={[styles.description, { color: colors.textSecondary }]}>{item.description}</Text>
           ) : null}
 
           {/* Ingredients */}
           {item.ingredients && item.ingredients.length > 0 ? (
-            <View style={styles.ingredientsBox}>
-              <Text style={styles.sectionTitle}>Ingredients</Text>
-              <Text style={styles.ingredientsText}>{item.ingredients.join(', ')}</Text>
+            <View style={[styles.ingredientsBox, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}>
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>Ingredients</Text>
+              <Text style={[styles.ingredientsText, { color: colors.textSecondary }]}>{item.ingredients.join(', ')}</Text>
             </View>
           ) : null}
 
           {/* Option Groups (e.g. Size, Doneness) */}
           {item.options?.map((option) => (
-            <View key={option.id} style={styles.optionGroup}>
+            <View key={option.id} style={[styles.optionGroup, { borderTopColor: colors.borderLight }]}>
               <View style={styles.optionHeader}>
-                <Text style={styles.optionTitle}>{option.name}</Text>
+                <Text style={[styles.optionTitle, { color: colors.text }]}>{option.name}</Text>
                 {option.isRequired ? <Text style={styles.requiredBadge}>Required</Text> : null}
               </View>
 
@@ -219,7 +221,7 @@ export default function FoodDetailsScreen() {
                 return (
                   <TouchableOpacity
                     key={addon.id}
-                    style={styles.addonRow}
+                    style={[styles.addonRow, { borderBottomColor: colors.borderLight }]}
                     activeOpacity={0.7}
                     onPress={() =>
                       option.type === 'SINGLE'
@@ -231,15 +233,16 @@ export default function FoodDetailsScreen() {
                       <View
                         style={[
                           option.type === 'SINGLE' ? styles.radioCircle : styles.checkboxSquare,
+                          { borderColor: colors.border },
                           isSelected ? styles.selectedBox : null,
                         ]}
                       >
                         {isSelected ? <Check size={12} color="#FFFFFF" strokeWidth={3} /> : null}
                       </View>
-                      <Text style={styles.addonName}>{addon.name}</Text>
+                      <Text style={[styles.addonName, { color: colors.text }]}>{addon.name}</Text>
                     </View>
 
-                    <Text style={styles.addonPrice}>
+                    <Text style={[styles.addonPrice, { color: colors.textSecondary }]}>
                       {numericAddonPrice > 0 ? `+$${numericAddonPrice.toFixed(2)}` : 'Free'}
                     </Text>
                   </TouchableOpacity>
@@ -250,8 +253,8 @@ export default function FoodDetailsScreen() {
 
           {/* Standalone Add-ons (e.g. Extra Cheese, Bacon) */}
           {item.addons && item.addons.length > 0 ? (
-            <View style={styles.optionGroup}>
-              <Text style={styles.optionTitle}>Extra Add-ons</Text>
+            <View style={[styles.optionGroup, { borderTopColor: colors.borderLight }]}>
+              <Text style={[styles.optionTitle, { color: colors.text }]}>Extra Add-ons</Text>
               {item.addons.map((addon) => {
                 const numericAddonPrice =
                   typeof addon.price === 'string' ? parseFloat(addon.price) : addon.price;
@@ -260,18 +263,18 @@ export default function FoodDetailsScreen() {
                 return (
                   <TouchableOpacity
                     key={addon.id}
-                    style={styles.addonRow}
+                    style={[styles.addonRow, { borderBottomColor: colors.borderLight }]}
                     activeOpacity={0.7}
                     onPress={() => toggleAddon(addon.id)}
                   >
                     <View style={styles.addonLeft}>
-                      <View style={[styles.checkboxSquare, isSelected ? styles.selectedBox : null]}>
+                      <View style={[styles.checkboxSquare, { borderColor: colors.border }, isSelected ? styles.selectedBox : null]}>
                         {isSelected ? <Check size={12} color="#FFFFFF" strokeWidth={3} /> : null}
                       </View>
-                      <Text style={styles.addonName}>{addon.name}</Text>
+                      <Text style={[styles.addonName, { color: colors.text }]}>{addon.name}</Text>
                     </View>
 
-                    <Text style={styles.addonPrice}>+${numericAddonPrice.toFixed(2)}</Text>
+                    <Text style={[styles.addonPrice, { color: colors.textSecondary }]}>+${numericAddonPrice.toFixed(2)}</Text>
                   </TouchableOpacity>
                 );
               })}
@@ -280,11 +283,11 @@ export default function FoodDetailsScreen() {
 
           {/* Special Instructions */}
           <View style={styles.specialInstructionsSection}>
-            <Text style={styles.optionTitle}>Special Instructions</Text>
+            <Text style={[styles.optionTitle, { color: colors.text }]}>Special Instructions</Text>
             <TextInput
               placeholder="e.g. Less spicy, dressing on the side..."
-              placeholderTextColor="#9CA3AF"
-              style={styles.specialInput}
+              placeholderTextColor={colors.textMuted}
+              style={[styles.specialInput, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border, color: colors.text }]}
               value={specialInstructions}
               onChangeText={setSpecialInstructions}
               multiline
@@ -295,19 +298,19 @@ export default function FoodDetailsScreen() {
       </ScrollView>
 
       {/* Floating Bottom Bar: Quantity & Add to Cart */}
-      <View style={styles.bottomBar}>
-        <View style={styles.quantityControl}>
+      <View style={[styles.bottomBar, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
+        <View style={[styles.quantityControl, { backgroundColor: colors.surfaceSecondary }]}>
           <TouchableOpacity
-            style={styles.qtyButton}
+            style={[styles.qtyButton, { backgroundColor: colors.card }]}
             onPress={() => setQuantity((q) => Math.max(1, q - 1))}
           >
-            <Minus size={18} color="#111827" />
+            <Minus size={18} color={colors.text} />
           </TouchableOpacity>
 
-          <Text style={styles.qtyText}>{quantity}</Text>
+          <Text style={[styles.qtyText, { color: colors.text }]}>{quantity}</Text>
 
-          <TouchableOpacity style={styles.qtyButton} onPress={() => setQuantity((q) => q + 1)}>
-            <Plus size={18} color="#111827" />
+          <TouchableOpacity style={[styles.qtyButton, { backgroundColor: colors.card }]} onPress={() => setQuantity((q) => q + 1)}>
+            <Plus size={18} color={colors.text} />
           </TouchableOpacity>
         </View>
 

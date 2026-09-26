@@ -45,21 +45,21 @@ export const Modal: React.FC<ModalProps> = ({
 
         {/* Modal Dialog */}
         <div
-          className={`relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all w-full my-8 ${maxWidths[maxWidth]} z-10 border border-gray-100`}
+          className={`relative transform overflow-hidden rounded-2xl bg-white dark:bg-slate-900 text-left shadow-2xl transition-all w-full my-8 ${maxWidths[maxWidth]} z-10 border border-gray-100 dark:border-slate-800`}
         >
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4 bg-gray-50/50">
-            <h3 className="text-lg font-bold text-gray-900">{title}</h3>
+          <div className="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 px-6 py-4 bg-gray-50/50 dark:bg-slate-900/50">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white">{title}</h3>
             <button
               onClick={onClose}
-              className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+              className="rounded-lg p-1.5 text-gray-400 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-600 dark:hover:text-white transition-colors"
             >
               <X className="h-5 w-5" />
             </button>
           </div>
 
           {/* Body */}
-          <div className="p-6 max-h-[80vh] overflow-y-auto">{children}</div>
+          <div className="p-6 max-h-[80vh] overflow-y-auto text-gray-900 dark:text-slate-100">{children}</div>
         </div>
       </div>
     </div>

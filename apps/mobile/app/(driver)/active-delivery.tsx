@@ -38,10 +38,12 @@ import { ProofOfDeliveryModal } from '../../components/modals/ProofOfDeliveryMod
 import { OpenStreetMap } from '../../components/map/OpenStreetMap';
 import { OpenStreetMapModal } from '../../components/map/OpenStreetMapModal';
 import { OSMMarker } from '../../components/map/osmHelper';
+import { useTheme } from '../../theme/useTheme';
 
 export default function ActiveDeliveryScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { colors, isDark } = useTheme();
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
   const [showChatModal, setShowChatModal] = useState(false);
   const [chatTarget, setChatTarget] = useState<'CUSTOMER' | 'STORE'>('CUSTOMER');
@@ -217,10 +219,10 @@ export default function ActiveDeliveryScreen() {
 
   if (!delivery) {
     return (
-      <View style={styles.centerContainer}>
+      <View style={[styles.centerContainer, { backgroundColor: colors.background }]}>
         <CheckCircle2 size={48} color="#16A34A" />
-        <Text style={styles.noActiveTitle}>No Active Delivery</Text>
-        <Text style={styles.noActiveSub}>
+        <Text style={[styles.noActiveTitle, { color: colors.text }]}>No Active Delivery</Text>
+        <Text style={[styles.noActiveSub, { color: colors.textSecondary }]}>
           You do not have any orders assigned at the moment.
         </Text>
         <Button
@@ -236,15 +238,15 @@ export default function ActiveDeliveryScreen() {
   const isCod = delivery.paymentMethod === 'COD';
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <ArrowLeft size={22} color="#111827" />
+          <ArrowLeft size={22} color={colors.text} />
         </TouchableOpacity>
         <View style={styles.headerCenter}>
-          <Text style={styles.headerTitle}>Order #{delivery.orderNumber}</Text>
-          <Text style={styles.headerSub}>Turn-by-Turn Delivery Route</Text>
+          <Text style={[styles.headerTitle, { color: colors.text }]}>Order #{delivery.orderNumber}</Text>
+          <Text style={[styles.headerSub, { color: colors.textSecondary }]}>Turn-by-Turn Delivery Route</Text>
         </View>
         <View style={{ width: 28 }} />
       </View>
@@ -279,12 +281,13 @@ export default function ActiveDeliveryScreen() {
                       ? styles.progressDotDone
                       : isCurrent
                       ? styles.progressDotCurrent
-                      : styles.progressDotPending,
+                      : [styles.progressDotPending, { backgroundColor: colors.border }],
                   ]}
                 />
                 <Text
                   style={[
                     styles.progressLabel,
+                    { color: colors.textMuted },
                     isCurrent ? styles.progressLabelCurrent : null,
                   ]}
                 >
@@ -335,11 +338,11 @@ export default function ActiveDeliveryScreen() {
         {/* Dynamic Card Based on Step */}
         {step === 'HEADING_TO_RESTAURANT' || step === 'ARRIVED_AT_RESTAURANT' ? (
           /* RESTAURANT PICKUP TARGET CARD */
-          <View style={styles.card}>
+          <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <View style={styles.cardTopRow}>
-              <View style={styles.cardBadge}>
-                <Utensils size={14} color="#2563EB" />
-                <Text style={styles.cardBadgeText}>Step 1: Pickup Location</Text>
+              <View style={[styles.cardBadge, isDark && { backgroundColor: '#1E3A8A' }]}>
+                <Utensils size={14} color={isDark ? '#93C5FD' : '#2563EB'} />
+                <Text style={[styles.cardBadgeText, isDark && { color: '#93C5FD' }]}>Step 1: Pickup Location</Text>
               </View>
               <View style={{ flexDirection: 'row', gap: 6 }}>
                 <TouchableOpacity
@@ -347,14 +350,14 @@ export default function ActiveDeliveryScreen() {
                     setChatTarget('STORE');
                     setShowChatModal(true);
                   }}
-                  style={styles.chatActionBtn}
+                  style={[styles.chatActionBtn, isDark && { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}
                 >
-                  <MessageCircle size={13} color="#2563EB" />
-                  <Text style={[styles.chatActionBtnText, { color: '#2563EB' }]}>Chat</Text>
+                  <MessageCircle size={13} color={isDark ? '#93C5FD' : '#2563EB'} />
+                  <Text style={[styles.chatActionBtnText, { color: isDark ? '#93C5FD' : '#2563EB' }]}>Chat</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => handleCall(delivery.restaurant.phone)}
-                  style={styles.callPill}
+                  style={[styles.callPill, isDark && { backgroundColor: colors.brandLight }]}
                 >
                   <Phone size={14} color="#FF4B3A" />
                   <Text style={styles.callPillText}>Call</Text>
@@ -362,14 +365,14 @@ export default function ActiveDeliveryScreen() {
               </View>
             </View>
 
-            <Text style={styles.locationTitle}>{delivery.restaurant.name}</Text>
-            <Text style={styles.locationAddress}>
+            <Text style={[styles.locationTitle, { color: colors.text }]}>{delivery.restaurant.name}</Text>
+            <Text style={[styles.locationAddress, { color: colors.textSecondary }]}>
               {delivery.restaurant.street}, {delivery.restaurant.city}
             </Text>
 
             {/* Checklist of items to collect */}
-            <View style={styles.itemsSection}>
-              <Text style={styles.itemsSectionTitle}>Order Items Checklist</Text>
+            <View style={[styles.itemsSection, { borderTopColor: colors.border }]}>
+              <Text style={[styles.itemsSectionTitle, { color: colors.textMuted }]}>Order Items Checklist</Text>
               {delivery.items.map((item: any) => {
                 const isChecked = Boolean(checkedItems[item.id]);
                 return (
@@ -382,6 +385,7 @@ export default function ActiveDeliveryScreen() {
                     <View
                       style={[
                         styles.checkBox,
+                        { borderColor: colors.border },
                         isChecked ? styles.checkBoxActive : null,
                       ]}
                     >
@@ -391,13 +395,14 @@ export default function ActiveDeliveryScreen() {
                       <Text
                         style={[
                           styles.checkItemName,
+                          { color: colors.text },
                           isChecked ? styles.checkItemNameDone : null,
                         ]}
                       >
                         {item.quantity}x {item.name}
                       </Text>
                       {item.addons && item.addons.length > 0 ? (
-                        <Text style={styles.checkItemAddons}>
+                        <Text style={[styles.checkItemAddons, { color: colors.textSecondary }]}>
                           + {item.addons.join(', ')}
                         </Text>
                       ) : null}
@@ -429,11 +434,11 @@ export default function ActiveDeliveryScreen() {
           </View>
         ) : (
           /* CUSTOMER DROPOFF TARGET CARD */
-          <View style={styles.card}>
+          <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <View style={styles.cardTopRow}>
-              <View style={styles.cardBadgeRed}>
+              <View style={[styles.cardBadgeRed, isDark && { backgroundColor: '#450A0A' }]}>
                 <MapPin size={14} color="#DC2626" />
-                <Text style={styles.cardBadgeRedText}>Step 2: Customer Dropoff</Text>
+                <Text style={[styles.cardBadgeRedText, isDark && { color: '#FCA5A5' }]}>Step 2: Customer Dropoff</Text>
               </View>
               <View style={{ flexDirection: 'row', gap: 6 }}>
                 <TouchableOpacity
@@ -441,7 +446,7 @@ export default function ActiveDeliveryScreen() {
                     setChatTarget('CUSTOMER');
                     setShowChatModal(true);
                   }}
-                  style={styles.chatActionBtn}
+                  style={[styles.chatActionBtn, isDark && { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}
                 >
                   <MessageCircle size={13} color="#DC2626" />
                   <Text style={[styles.chatActionBtnText, { color: '#DC2626' }]}>Chat</Text>
@@ -449,7 +454,7 @@ export default function ActiveDeliveryScreen() {
                 {delivery.customer.phone ? (
                   <TouchableOpacity
                     onPress={() => handleCall(delivery.customer.phone)}
-                    style={styles.callPill}
+                    style={[styles.callPill, isDark && { backgroundColor: colors.brandLight }]}
                   >
                     <Phone size={14} color="#FF4B3A" />
                     <Text style={styles.callPillText}>Call</Text>
@@ -458,8 +463,8 @@ export default function ActiveDeliveryScreen() {
               </View>
             </View>
 
-            <Text style={styles.locationTitle}>{delivery.customer.name}</Text>
-            <Text style={styles.locationAddress}>
+            <Text style={[styles.locationTitle, { color: colors.text }]}>{delivery.customer.name}</Text>
+            <Text style={[styles.locationAddress, { color: colors.textSecondary }]}>
               {delivery.deliveryAddress.street}
               {delivery.deliveryAddress.apartment
                 ? `, Apt ${delivery.deliveryAddress.apartment}`
@@ -468,9 +473,9 @@ export default function ActiveDeliveryScreen() {
             </Text>
 
             {delivery.deliveryAddress.deliveryInstructions ? (
-              <View style={styles.instructionsBox}>
-                <Text style={styles.instructionsLabel}>Dropoff Instructions:</Text>
-                <Text style={styles.instructionsText}>
+              <View style={[styles.instructionsBox, { backgroundColor: isDark ? colors.surfaceSecondary : '#F3F4F6' }]}>
+                <Text style={[styles.instructionsLabel, { color: colors.textSecondary }]}>Dropoff Instructions:</Text>
+                <Text style={[styles.instructionsText, { color: colors.text }]}>
                   "{delivery.deliveryAddress.deliveryInstructions}"
                 </Text>
               </View>
@@ -508,18 +513,18 @@ export default function ActiveDeliveryScreen() {
         )}
 
         {/* Delivery Compensation Summary */}
-        <View style={styles.payoutCard}>
-          <Text style={styles.payoutTitle}>Estimated Earnings for this Trip</Text>
+        <View style={[styles.payoutCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <Text style={[styles.payoutTitle, { color: colors.text }]}>Estimated Earnings for this Trip</Text>
           <View style={styles.payoutRow}>
-            <Text style={styles.payoutLabel}>Courier Base + Distance Payout</Text>
-            <Text style={styles.payoutVal}>${formatCurrency(delivery.driverPayout)}</Text>
+            <Text style={[styles.payoutLabel, { color: colors.textSecondary }]}>Courier Base + Distance Payout</Text>
+            <Text style={[styles.payoutVal, { color: colors.text }]}>${formatCurrency(delivery.driverPayout)}</Text>
           </View>
           <View style={styles.payoutRow}>
-            <Text style={styles.payoutLabel}>Customer Tip (100% yours)</Text>
-            <Text style={styles.payoutVal}>+${formatCurrency(delivery.customerTip)}</Text>
+            <Text style={[styles.payoutLabel, { color: colors.textSecondary }]}>Customer Tip (100% yours)</Text>
+            <Text style={[styles.payoutVal, { color: colors.text }]}>+${formatCurrency(delivery.customerTip)}</Text>
           </View>
-          <View style={styles.payoutTotalRow}>
-            <Text style={styles.payoutTotalLabel}>Guaranteed Total</Text>
+          <View style={[styles.payoutTotalRow, { borderTopColor: colors.border }]}>
+            <Text style={[styles.payoutTotalLabel, { color: colors.text }]}>Guaranteed Total</Text>
             <Text style={styles.payoutTotalVal}>
               ${formatCurrency(toNumber(delivery.driverPayout) + toNumber(delivery.customerTip))}
             </Text>
@@ -574,24 +579,24 @@ export default function ActiveDeliveryScreen() {
       {/* Delivery Completed Celebration Modal */}
       <Modal visible={showCelebrationModal} transparent animationType="fade">
         <View style={styles.celebrationOverlay}>
-          <View style={styles.celebrationCard}>
+          <View style={[styles.celebrationCard, { backgroundColor: colors.card }]}>
             <View style={styles.celebrationIconBox}>
               <CheckCircle2 size={52} color="#16A34A" />
             </View>
-            <Text style={styles.celebrationTitle}>Delivery Completed! 🎉</Text>
-            <Text style={styles.celebrationSub}>
+            <Text style={[styles.celebrationTitle, { color: colors.text }]}>Delivery Completed! 🎉</Text>
+            <Text style={[styles.celebrationSub, { color: colors.textSecondary }]}>
               Order #{completedOrderSummary?.orderNumber || delivery?.orderNumber}
             </Text>
 
-            <View style={styles.celebrationPayoutBox}>
-              <Text style={styles.celebrationPayoutLabel}>Total Earnings Credited</Text>
+            <View style={[styles.celebrationPayoutBox, { backgroundColor: isDark ? colors.surfaceSecondary : '#F8FAFC', borderColor: colors.border }]}>
+              <Text style={[styles.celebrationPayoutLabel, { color: colors.textSecondary }]}>Total Earnings Credited</Text>
               <Text style={styles.celebrationPayoutAmount}>
                 ${formatCurrency(
                   toNumber(completedOrderSummary?.driverPayout || delivery?.driverPayout || 5) +
                     toNumber(completedOrderSummary?.customerTip || delivery?.customerTip || 0)
                 )}
               </Text>
-              <Text style={styles.celebrationPayoutNote}>
+              <Text style={[styles.celebrationPayoutNote, { color: colors.textSecondary }]}>
                 Base Payout: ${formatCurrency(completedOrderSummary?.driverPayout || delivery?.driverPayout || 5)}
                 {Number(completedOrderSummary?.customerTip || delivery?.customerTip) > 0
                   ? ` • Tip: +$${formatCurrency(completedOrderSummary?.customerTip || delivery?.customerTip)}`
@@ -599,7 +604,7 @@ export default function ActiveDeliveryScreen() {
               </Text>
             </View>
 
-            <Text style={styles.celebrationCongratsText}>
+            <Text style={[styles.celebrationCongratsText, { color: colors.textSecondary }]}>
               Outstanding job! The customer has been notified and the trip payout is available in your balance.
             </Text>
 

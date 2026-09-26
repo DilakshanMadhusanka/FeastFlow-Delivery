@@ -12,8 +12,11 @@ import {
   Package,
   Bike,
   X,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
+import { useThemeStore } from '../../store/themeStore';
 import { webNotificationService } from '../../services/notification.service';
 import { socketService } from '../../services/socket.service';
 import { NotificationDto } from '@food-delivery/shared';
@@ -37,7 +40,7 @@ const LiveClock: React.FC = React.memo(() => {
   }, []);
 
   return (
-    <span className="text-xs font-semibold text-gray-500 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
+    <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-gray-100 dark:border-slate-700">
       🕒 {time}
     </span>
   );
@@ -45,6 +48,7 @@ const LiveClock: React.FC = React.memo(() => {
 
 export const Navbar: React.FC<NavbarProps> = ({ title, onRefresh, isRefreshing = false }) => {
   const { restaurant } = useAuthStore();
+  const { isDark, toggleTheme } = useThemeStore();
   const queryClient = useQueryClient();
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -121,20 +125,32 @@ export const Navbar: React.FC<NavbarProps> = ({ title, onRefresh, isRefreshing =
   const notifications = notificationsData?.items || [];
 
   return (
-    <header className="h-16 bg-white border-b border-gray-100 flex items-center justify-between px-8 sticky top-0 z-20">
+    <header className="h-16 bg-white dark:bg-slate-900 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between px-8 sticky top-0 z-20 transition-colors">
       <div>
-        <h1 className="text-xl font-extrabold text-gray-900 tracking-tight">{title}</h1>
+        <h1 className="text-xl font-extrabold text-gray-900 dark:text-white tracking-tight">{title}</h1>
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
         {/* Real-time Clock (isolated from Navbar renders) */}
         <LiveClock />
 
         {/* Store Active Status Pill */}
-        <div className="flex items-center gap-2 bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1 rounded-full text-xs font-bold">
+        <div className="flex items-center gap-2 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/80 px-3 py-1 rounded-full text-xs font-bold">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
           <span>{restaurant?.isActive ? 'Kitchen Active & Open' : 'Store Offline'}</span>
         </div>
+
+        {/* Dark Mode Toggle Button */}
+        <button
+          onClick={toggleTheme}
+          title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+          className="p-2 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-600 dark:text-amber-400 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors flex items-center gap-1.5"
+        >
+          {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-gray-600" />}
+          <span className="text-xs font-semibold hidden md:inline text-gray-700 dark:text-slate-200">
+            {isDark ? 'Light' : 'Dark'}
+          </span>
+        </button>
 
         {/* Audio Alert Toggle */}
         <button
@@ -142,8 +158,8 @@ export const Navbar: React.FC<NavbarProps> = ({ title, onRefresh, isRefreshing =
           title={soundEnabled ? 'Mute Order Audio Alerts' : 'Unmute Order Audio Alerts'}
           className={`p-2 rounded-xl border text-xs font-semibold transition-colors flex items-center gap-1.5 ${
             soundEnabled
-              ? 'bg-brand-50 border-brand-200 text-brand-600 hover:bg-brand-100'
-              : 'bg-gray-50 border-gray-200 text-gray-500 hover:bg-gray-100'
+              ? 'bg-brand-50 dark:bg-brand-950/40 border-brand-200 dark:border-brand-900 text-brand-600 dark:text-brand-400 hover:bg-brand-100 dark:hover:bg-brand-900/60'
+              : 'bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-gray-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-700'
           }`}
         >
           {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
@@ -156,8 +172,8 @@ export const Navbar: React.FC<NavbarProps> = ({ title, onRefresh, isRefreshing =
             onClick={handleToggleNotifications}
             className={`p-2 rounded-xl border transition-colors relative ${
               showNotifications
-                ? 'bg-gray-100 border-gray-300 text-gray-900'
-                : 'border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                ? 'bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-600 text-gray-900 dark:text-white'
+                : 'border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'
             }`}
             title="Notifications"
           >
@@ -171,10 +187,10 @@ export const Navbar: React.FC<NavbarProps> = ({ title, onRefresh, isRefreshing =
 
           {/* Notifications Drawer */}
           {showNotifications && (
-            <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-gray-100 py-3 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-              <div className="flex items-center justify-between px-4 pb-2 border-b border-gray-100">
+            <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-800 py-3 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="flex items-center justify-between px-4 pb-2 border-b border-gray-100 dark:border-slate-800">
                 <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-extrabold text-gray-900">Notifications</h3>
+                  <h3 className="text-sm font-extrabold text-gray-900 dark:text-white">Notifications</h3>
                   {unreadCount > 0 && (
                     <span className="bg-brand-50 text-brand-600 text-xs font-bold px-2 py-0.5 rounded-full">
                       {unreadCount} new

@@ -20,9 +20,10 @@ export interface OSMMapOptions {
   routeCoordinates?: Array<[number, number]>; // [lat, lng] pairs
   interactive?: boolean;
   showControls?: boolean;
-  tileLayer?: 'STANDARD' | 'HUMANITARIAN' | 'CARTO_LIGHT';
+  tileLayer?: 'STANDARD' | 'HUMANITARIAN' | 'CARTO_LIGHT' | 'CARTO_DARK';
   fitBounds?: boolean;
   themeColor?: string;
+  isDark?: boolean;
 }
 
 /**
@@ -62,16 +63,26 @@ export function generateOSMHtml(options: OSMMapOptions): string {
     tileLayer = 'STANDARD',
     fitBounds = true,
     themeColor = '#FF4B3A',
+    isDark = false,
   } = options;
+
+  let effectiveTileLayer = tileLayer;
+  if (tileLayer === 'STANDARD' && isDark) {
+    effectiveTileLayer = 'CARTO_DARK';
+  }
 
   let tileUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
   let attribution =
     '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 
-  if (tileLayer === 'HUMANITARIAN') {
+  if (effectiveTileLayer === 'HUMANITARIAN') {
     tileUrl = 'https://a.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png';
-  } else if (tileLayer === 'CARTO_LIGHT') {
+  } else if (effectiveTileLayer === 'CARTO_LIGHT') {
     tileUrl = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+    attribution =
+      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; CARTO';
+  } else if (effectiveTileLayer === 'CARTO_DARK') {
+    tileUrl = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
     attribution =
       '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; CARTO';
   }
@@ -95,7 +106,7 @@ export function generateOSMHtml(options: OSMMapOptions): string {
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body, #map { width: 100%; height: 100%; overflow: hidden; background: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    html, body, #map { width: 100%; height: 100%; overflow: hidden; background: ${isDark ? '#0B0F19' : '#F8FAFC'}; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
     
     /* Custom Markers */
     .custom-marker {
@@ -186,7 +197,12 @@ export function generateOSMHtml(options: OSMMapOptions): string {
     .leaflet-popup-content-wrapper {
       border-radius: 16px;
       padding: 4px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      background: ${isDark ? '#1E293B' : '#FFFFFF'};
+      color: ${isDark ? '#F8FAFC' : '#111827'};
+      box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+    }
+    .leaflet-popup-tip {
+      background: ${isDark ? '#1E293B' : '#FFFFFF'};
     }
     .leaflet-popup-content {
       margin: 10px 14px;
@@ -195,19 +211,19 @@ export function generateOSMHtml(options: OSMMapOptions): string {
     .popup-title {
       font-size: 14px;
       font-weight: 800;
-      color: #111827;
+      color: ${isDark ? '#F8FAFC' : '#111827'};
       margin-bottom: 2px;
     }
     .popup-desc {
       font-size: 12px;
-      color: #6B7280;
+      color: ${isDark ? '#94A3B8' : '#6B7280'};
     }
     .popup-tag {
       display: inline-block;
       font-size: 10px;
       font-weight: 700;
       color: #FF4B3A;
-      background: #FFF1F2;
+      background: ${isDark ? '#450A0A' : '#FFF1F2'};
       padding: 2px 6px;
       border-radius: 6px;
       margin-top: 6px;
@@ -227,22 +243,22 @@ export function generateOSMHtml(options: OSMMapOptions): string {
       width: 38px;
       height: 38px;
       border-radius: 12px;
-      background: #FFFFFF;
-      border: 1px solid #E5E7EB;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+      background: ${isDark ? '#1E293B' : '#FFFFFF'};
+      border: 1px solid ${isDark ? '#334155' : '#E5E7EB'};
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       font-weight: 800;
       font-size: 16px;
-      color: #374151;
+      color: ${isDark ? '#F1F5F9' : '#374151'};
       user-select: none;
       transition: all 0.15s ease;
     }
     .control-btn:active {
       transform: scale(0.92);
-      background: #F3F4F6;
+      background: ${isDark ? '#334155' : '#F3F4F6'};
     }
 
     .osm-watermark {
@@ -250,14 +266,14 @@ export function generateOSMHtml(options: OSMMapOptions): string {
       bottom: 6px;
       left: 8px;
       z-index: 1000;
-      background: rgba(255, 255, 255, 0.85);
+      background: ${isDark ? 'rgba(15, 23, 42, 0.85)' : 'rgba(255, 255, 255, 0.85)'};
       backdrop-filter: blur(4px);
       padding: 3px 8px;
       border-radius: 6px;
       font-size: 10px;
       font-weight: 600;
-      color: #4B5563;
-      border: 1px solid rgba(0,0,0,0.06);
+      color: ${isDark ? '#94A3B8' : '#4B5563'};
+      border: 1px solid ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)'};
     }
   </style>
 </head>

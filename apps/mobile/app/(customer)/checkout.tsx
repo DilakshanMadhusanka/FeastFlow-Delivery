@@ -34,6 +34,7 @@ import {
   Key,
 } from 'lucide-react-native';
 import { OpenStreetMap } from '../../components/map/OpenStreetMap';
+import { useTheme } from '../../theme/useTheme';
 
 type DropoffPreference = 'LEAVE_AT_DOOR' | 'HAND_DELIVER' | 'MEET_IN_LOBBY';
 type DeliveryTiming = 'ASAP' | 'SCHEDULED';
@@ -42,6 +43,7 @@ export default function CheckoutScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { cart, clearCart } = useCartStore();
+  const { colors, isDark } = useTheme();
 
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod>(
@@ -189,23 +191,23 @@ export default function CheckoutScreen() {
   const finalTotal = pricing ? Math.round((pricing.total + tipAmount) * 100) / 100 : 0;
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <ArrowLeft size={22} color="#111827" />
+          <ArrowLeft size={22} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Checkout</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Checkout</Text>
         <View style={{ width: 22 }} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* 1. Delivery Address Section */}
-        <View style={styles.sectionCard}>
+        <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <View style={styles.sectionHeader}>
             <View style={styles.sectionTitleRow}>
               <MapPin size={20} color="#FF4B3A" />
-              <Text style={styles.sectionTitle}>Delivery Address</Text>
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>Delivery Address</Text>
             </View>
 
             <TouchableOpacity
@@ -219,20 +221,25 @@ export default function CheckoutScreen() {
 
           {/* New Address Form */}
           {showNewAddressForm ? (
-            <View style={styles.newAddressForm}>
-              <Text style={styles.formTitle}>Add New Delivery Address</Text>
+            <View style={[styles.newAddressForm, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}>
+              <Text style={[styles.formTitle, { color: colors.text }]}>Add New Delivery Address</Text>
 
               <View style={styles.typeSelectorRow}>
                 {['Home', 'Work', 'Other'].map((type) => (
                   <TouchableOpacity
                     key={type}
-                    style={[styles.typeChip, newTitle === type ? styles.typeChipActive : null]}
+                    style={[
+                      styles.typeChip,
+                      { backgroundColor: colors.card, borderColor: colors.border },
+                      newTitle === type && styles.typeChipActive,
+                    ]}
                     onPress={() => setNewTitle(type)}
                   >
                     <Text
                       style={[
                         styles.typeChipText,
-                        newTitle === type ? styles.typeChipTextActive : null,
+                        { color: colors.textSecondary },
+                        newTitle === type && styles.typeChipTextActive,
                       ]}
                     >
                       {type}
@@ -243,32 +250,32 @@ export default function CheckoutScreen() {
 
               <TextInput
                 placeholder="Street Address (e.g. 124 W 30th St)"
-                placeholderTextColor="#9CA3AF"
-                style={styles.formInput}
+                placeholderTextColor={colors.textMuted}
+                style={[styles.formInput, { backgroundColor: colors.card, borderColor: colors.border, color: colors.text }]}
                 value={newStreet}
                 onChangeText={setNewStreet}
               />
 
               <TextInput
                 placeholder="Apt, Suite, Floor (Optional)"
-                placeholderTextColor="#9CA3AF"
-                style={styles.formInput}
+                placeholderTextColor={colors.textMuted}
+                style={[styles.formInput, { backgroundColor: colors.card, borderColor: colors.border, color: colors.text }]}
                 value={newApt}
                 onChangeText={setNewApt}
               />
 
               <TextInput
                 placeholder="City (e.g. New York)"
-                placeholderTextColor="#9CA3AF"
-                style={styles.formInput}
+                placeholderTextColor={colors.textMuted}
+                style={[styles.formInput, { backgroundColor: colors.card, borderColor: colors.border, color: colors.text }]}
                 value={newCity}
                 onChangeText={setNewCity}
               />
 
               <TextInput
                 placeholder="Dropoff notes: Ring bell, leave at door..."
-                placeholderTextColor="#9CA3AF"
-                style={styles.formInput}
+                placeholderTextColor={colors.textMuted}
+                style={[styles.formInput, { backgroundColor: colors.card, borderColor: colors.border, color: colors.text }]}
                 value={newNotes}
                 onChangeText={setNewNotes}
               />
@@ -290,20 +297,24 @@ export default function CheckoutScreen() {
               return (
                 <TouchableOpacity
                   key={addr.id}
-                  style={[styles.addressItem, isSelected ? styles.addressItemActive : null]}
+                  style={[
+                    styles.addressItem,
+                    { borderColor: colors.border, backgroundColor: colors.card },
+                    isSelected && [styles.addressItemActive, { borderColor: colors.brand, backgroundColor: colors.brandLight }],
+                  ]}
                   onPress={() => setSelectedAddressId(addr.id)}
                   activeOpacity={0.7}
                 >
-                  <View style={styles.radioBox}>
+                  <View style={[styles.radioBox, { borderColor: colors.border }]}>
                     {isSelected ? <View style={styles.radioDot} /> : null}
                   </View>
 
                   <View style={styles.addressInfo}>
                     <View style={styles.addressTitleRow}>
-                      <Text style={styles.addressTitle}>{addr.title}</Text>
+                      <Text style={[styles.addressTitle, { color: colors.text }]}>{addr.title}</Text>
                       {addr.isDefault ? <Text style={styles.defaultBadge}>Default</Text> : null}
                     </View>
-                    <Text style={styles.addressStreet} numberOfLines={1}>
+                    <Text style={[styles.addressStreet, { color: colors.textSecondary }]} numberOfLines={1}>
                       {addr.street} {addr.apartment ? `(${addr.apartment})` : ''}, {addr.city}
                     </Text>
                     {addr.deliveryInstructions ? (
@@ -350,11 +361,11 @@ export default function CheckoutScreen() {
         </View>
 
         {/* 2. Delivery Timing Section */}
-        <View style={styles.sectionCard}>
+        <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <View style={styles.sectionHeader}>
             <View style={styles.sectionTitleRow}>
               <Clock size={20} color="#FF4B3A" />
-              <Text style={styles.sectionTitle}>Delivery Timing</Text>
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>Delivery Timing</Text>
             </View>
             <View style={styles.timingBadge}>
               <Text style={styles.timingBadgeText}>
@@ -367,16 +378,18 @@ export default function CheckoutScreen() {
             <TouchableOpacity
               style={[
                 styles.timingOptionBtn,
-                deliveryTiming === 'ASAP' && styles.timingOptionBtnActive,
+                { backgroundColor: colors.surfaceSecondary, borderColor: colors.border },
+                deliveryTiming === 'ASAP' && [styles.timingOptionBtnActive, { borderColor: colors.brand, backgroundColor: colors.brandLight }],
               ]}
               onPress={() => setDeliveryTiming('ASAP')}
               activeOpacity={0.7}
             >
-              <Clock size={16} color={deliveryTiming === 'ASAP' ? '#FF4B3A' : '#6B7280'} />
+              <Clock size={16} color={deliveryTiming === 'ASAP' ? '#FF4B3A' : colors.textMuted} />
               <Text
                 style={[
                   styles.timingOptionText,
-                  deliveryTiming === 'ASAP' && styles.timingOptionTextActive,
+                  { color: colors.textSecondary },
+                  deliveryTiming === 'ASAP' && [styles.timingOptionTextActive, { color: colors.brand }],
                 ]}
               >
                 Deliver ASAP
@@ -386,16 +399,18 @@ export default function CheckoutScreen() {
             <TouchableOpacity
               style={[
                 styles.timingOptionBtn,
-                deliveryTiming === 'SCHEDULED' && styles.timingOptionBtnActive,
+                { backgroundColor: colors.surfaceSecondary, borderColor: colors.border },
+                deliveryTiming === 'SCHEDULED' && [styles.timingOptionBtnActive, { borderColor: colors.brand, backgroundColor: colors.brandLight }],
               ]}
               onPress={() => setDeliveryTiming('SCHEDULED')}
               activeOpacity={0.7}
             >
-              <Calendar size={16} color={deliveryTiming === 'SCHEDULED' ? '#FF4B3A' : '#6B7280'} />
+              <Calendar size={16} color={deliveryTiming === 'SCHEDULED' ? '#FF4B3A' : colors.textMuted} />
               <Text
                 style={[
                   styles.timingOptionText,
-                  deliveryTiming === 'SCHEDULED' && styles.timingOptionTextActive,
+                  { color: colors.textSecondary },
+                  deliveryTiming === 'SCHEDULED' && [styles.timingOptionTextActive, { color: colors.brand }],
                 ]}
               >
                 Schedule for Later
@@ -405,7 +420,7 @@ export default function CheckoutScreen() {
 
           {deliveryTiming === 'SCHEDULED' ? (
             <View style={styles.scheduleSlotContainer}>
-              <Text style={styles.slotPickerTitle}>Select Delivery Window:</Text>
+              <Text style={[styles.slotPickerTitle, { color: colors.textSecondary }]}>Select Delivery Window:</Text>
               <View style={styles.slotChipsWrap}>
                 {[
                   'Today, 6:00 - 6:30 PM',
@@ -417,10 +432,14 @@ export default function CheckoutScreen() {
                   return (
                     <TouchableOpacity
                       key={slot}
-                      style={[styles.slotChip, isSelected && styles.slotChipActive]}
+                      style={[
+                        styles.slotChip,
+                        { backgroundColor: colors.surfaceSecondary, borderColor: colors.border },
+                        isSelected && styles.slotChipActive,
+                      ]}
                       onPress={() => setScheduledSlot(slot)}
                     >
-                      <Text style={[styles.slotChipText, isSelected && styles.slotChipTextActive]}>
+                      <Text style={[styles.slotChipText, { color: colors.textSecondary }, isSelected && styles.slotChipTextActive]}>
                         {slot}
                       </Text>
                     </TouchableOpacity>
@@ -432,11 +451,11 @@ export default function CheckoutScreen() {
         </View>
 
         {/* 3. Drop-off Preferences Section */}
-        <View style={styles.sectionCard}>
+        <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <View style={styles.sectionHeader}>
             <View style={styles.sectionTitleRow}>
               <DoorClosed size={20} color="#FF4B3A" />
-              <Text style={styles.sectionTitle}>Drop-off Preference</Text>
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>Drop-off Preference</Text>
             </View>
           </View>
 
@@ -462,30 +481,34 @@ export default function CheckoutScreen() {
               return (
                 <TouchableOpacity
                   key={pref.id}
-                  style={[styles.dropoffItem, isSelected && styles.dropoffItemActive]}
+                  style={[
+                    styles.dropoffItem,
+                    { backgroundColor: colors.surfaceSecondary, borderColor: colors.border },
+                    isSelected && [styles.dropoffItemActive, { borderColor: colors.brand, backgroundColor: colors.brandLight }],
+                  ]}
                   onPress={() => setDropoffPref(pref.id)}
                   activeOpacity={0.7}
                 >
-                  <View style={styles.radioBox}>
+                  <View style={[styles.radioBox, { borderColor: colors.border }]}>
                     {isSelected ? <View style={styles.radioDot} /> : null}
                   </View>
                   <View style={{ flex: 1 }}>
-                    <Text style={[styles.dropoffItemTitle, isSelected && styles.dropoffItemTitleActive]}>
+                    <Text style={[styles.dropoffItemTitle, { color: colors.text }, isSelected && [styles.dropoffItemTitleActive, { color: colors.brand }]]}>
                       {pref.title}
                     </Text>
-                    <Text style={styles.dropoffItemDesc}>{pref.desc}</Text>
+                    <Text style={[styles.dropoffItemDesc, { color: colors.textSecondary }]}>{pref.desc}</Text>
                   </View>
                 </TouchableOpacity>
               );
             })}
           </View>
 
-          <View style={styles.buzzerRow}>
-            <Key size={16} color="#6B7280" />
+          <View style={[styles.buzzerRow, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}>
+            <Key size={16} color={colors.textMuted} />
             <TextInput
-              style={styles.buzzerInput}
+              style={[styles.buzzerInput, { color: colors.text }]}
               placeholder="Buzzer code / Gate access code (optional)"
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor={colors.textMuted}
               value={buzzerCode}
               onChangeText={setBuzzerCode}
             />
@@ -493,11 +516,11 @@ export default function CheckoutScreen() {
         </View>
 
         {/* 4. Payment Method Section */}
-        <View style={styles.sectionCard}>
+        <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <View style={styles.sectionHeader}>
             <View style={styles.sectionTitleRow}>
               <CreditCard size={20} color="#FF4B3A" />
-              <Text style={styles.sectionTitle}>Payment Method</Text>
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>Payment Method</Text>
             </View>
             <View style={styles.secureBadge}>
               <ShieldCheck size={14} color="#166534" />
@@ -509,21 +532,22 @@ export default function CheckoutScreen() {
           <TouchableOpacity
             style={[
               styles.paymentOption,
-              selectedPaymentMethod === PaymentMethod.CARD ? styles.paymentOptionActive : null,
+              { borderColor: colors.border, backgroundColor: colors.card },
+              selectedPaymentMethod === PaymentMethod.CARD && [styles.paymentOptionActive, { borderColor: colors.brand, backgroundColor: colors.brandLight }],
             ]}
             onPress={() => setSelectedPaymentMethod(PaymentMethod.CARD)}
             activeOpacity={0.7}
           >
             <View style={styles.paymentLeft}>
-              <View style={styles.paymentIconBox}>
+              <View style={[styles.paymentIconBox, { backgroundColor: colors.surfaceSecondary }]}>
                 <CreditCard size={20} color="#2563EB" />
               </View>
               <View>
-                <Text style={styles.paymentName}>Credit or Debit Card</Text>
-                <Text style={styles.paymentSub}>Visa, MasterCard, Amex via Stripe</Text>
+                <Text style={[styles.paymentName, { color: colors.text }]}>Credit or Debit Card</Text>
+                <Text style={[styles.paymentSub, { color: colors.textSecondary }]}>Visa, MasterCard, Amex via Stripe</Text>
               </View>
             </View>
-            <View style={styles.radioBox}>
+            <View style={[styles.radioBox, { borderColor: colors.border }]}>
               {selectedPaymentMethod === PaymentMethod.CARD ? <View style={styles.radioDot} /> : null}
             </View>
           </TouchableOpacity>
@@ -532,21 +556,22 @@ export default function CheckoutScreen() {
           <TouchableOpacity
             style={[
               styles.paymentOption,
-              selectedPaymentMethod === PaymentMethod.ONLINE ? styles.paymentOptionActive : null,
+              { borderColor: colors.border, backgroundColor: colors.card },
+              selectedPaymentMethod === PaymentMethod.ONLINE && [styles.paymentOptionActive, { borderColor: colors.brand, backgroundColor: colors.brandLight }],
             ]}
             onPress={() => setSelectedPaymentMethod(PaymentMethod.ONLINE)}
             activeOpacity={0.7}
           >
             <View style={styles.paymentLeft}>
-              <View style={styles.paymentIconBox}>
+              <View style={[styles.paymentIconBox, { backgroundColor: colors.surfaceSecondary }]}>
                 <Smartphone size={20} color="#7C3AED" />
               </View>
               <View>
-                <Text style={styles.paymentName}>Instant Pay (Apple Pay / Google Pay)</Text>
-                <Text style={styles.paymentSub}>1-tap biometric checkout</Text>
+                <Text style={[styles.paymentName, { color: colors.text }]}>Instant Pay (Apple Pay / Google Pay)</Text>
+                <Text style={[styles.paymentSub, { color: colors.textSecondary }]}>1-tap biometric checkout</Text>
               </View>
             </View>
-            <View style={styles.radioBox}>
+            <View style={[styles.radioBox, { borderColor: colors.border }]}>
               {selectedPaymentMethod === PaymentMethod.ONLINE ? (
                 <View style={styles.radioDot} />
               ) : null}
@@ -557,42 +582,47 @@ export default function CheckoutScreen() {
           <TouchableOpacity
             style={[
               styles.paymentOption,
-              selectedPaymentMethod === PaymentMethod.COD ? styles.paymentOptionActive : null,
+              { borderColor: colors.border, backgroundColor: colors.card },
+              selectedPaymentMethod === PaymentMethod.COD && [styles.paymentOptionActive, { borderColor: colors.brand, backgroundColor: colors.brandLight }],
             ]}
             onPress={() => setSelectedPaymentMethod(PaymentMethod.COD)}
             activeOpacity={0.7}
           >
             <View style={styles.paymentLeft}>
-              <View style={styles.paymentIconBox}>
+              <View style={[styles.paymentIconBox, { backgroundColor: colors.surfaceSecondary }]}>
                 <Banknote size={20} color="#16A34A" />
               </View>
               <View>
-                <Text style={styles.paymentName}>Cash on Delivery</Text>
-                <Text style={styles.paymentSub}>Pay driver with cash upon arrival</Text>
+                <Text style={[styles.paymentName, { color: colors.text }]}>Cash on Delivery</Text>
+                <Text style={[styles.paymentSub, { color: colors.textSecondary }]}>Pay driver with cash upon arrival</Text>
               </View>
             </View>
-            <View style={styles.radioBox}>
+            <View style={[styles.radioBox, { borderColor: colors.border }]}>
               {selectedPaymentMethod === PaymentMethod.COD ? <View style={styles.radioDot} /> : null}
             </View>
           </TouchableOpacity>
         </View>
 
         {/* 3. Courier Tip Section */}
-        <View style={styles.sectionCard}>
+        <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <View style={styles.sectionTitleRow}>
             <HeartHandshake size={20} color="#FF4B3A" />
-            <Text style={styles.sectionTitle}>Tip Your Courier</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Tip Your Courier</Text>
           </View>
-          <Text style={styles.tipSubtitle}>100% of tips go directly to your delivery driver.</Text>
+          <Text style={[styles.tipSubtitle, { color: colors.textSecondary }]}>100% of tips go directly to your delivery driver.</Text>
 
           <View style={styles.tipRow}>
             {[0, 1.0, 2.0, 3.0, 5.0].map((amount) => (
               <TouchableOpacity
                 key={amount}
-                style={[styles.tipChip, tipAmount === amount ? styles.tipChipActive : null]}
+                style={[
+                  styles.tipChip,
+                  { backgroundColor: colors.surfaceSecondary, borderColor: colors.border },
+                  tipAmount === amount && [styles.tipChipActive, { borderColor: colors.brand, backgroundColor: colors.brandLight }],
+                ]}
                 onPress={() => setTipAmount(amount)}
               >
-                <Text style={[styles.tipChipText, tipAmount === amount ? styles.tipChipTextActive : null]}>
+                <Text style={[styles.tipChipText, { color: colors.textSecondary }, tipAmount === amount && [styles.tipChipTextActive, { color: colors.brand }]]}>
                   {amount === 0 ? 'Not now' : `$${amount.toFixed(0)}`}
                 </Text>
               </TouchableOpacity>
@@ -602,35 +632,35 @@ export default function CheckoutScreen() {
 
         {/* 4. Order Summary Card */}
         {pricing ? (
-          <View style={styles.sectionCard}>
-            <Text style={styles.sectionTitle}>Order Summary</Text>
+          <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Order Summary</Text>
 
             <View style={styles.itemsSummary}>
               {items.map((item) => (
                 <View key={item.id} style={styles.summaryItemRow}>
-                  <Text style={styles.summaryItemName} numberOfLines={1}>
+                  <Text style={[styles.summaryItemName, { color: colors.textSecondary }]} numberOfLines={1}>
                     {item.quantity}x {item.name}
                   </Text>
-                  <Text style={styles.summaryItemPrice}>${formatCurrency(item.lineSubtotal)}</Text>
+                  <Text style={[styles.summaryItemPrice, { color: colors.text }]}>${formatCurrency(item.lineSubtotal)}</Text>
                 </View>
               ))}
             </View>
 
-            <View style={styles.divider} />
+            <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
             <View style={styles.billRow}>
-              <Text style={styles.billLabel}>Subtotal</Text>
-              <Text style={styles.billValue}>${formatCurrency(pricing.subtotal)}</Text>
+              <Text style={[styles.billLabel, { color: colors.textSecondary }]}>Subtotal</Text>
+              <Text style={[styles.billValue, { color: colors.text }]}>${formatCurrency(pricing.subtotal)}</Text>
             </View>
 
             <View style={styles.billRow}>
-              <Text style={styles.billLabel}>Delivery Fee</Text>
-              <Text style={styles.billValue}>${formatCurrency(pricing.deliveryFee)}</Text>
+              <Text style={[styles.billLabel, { color: colors.textSecondary }]}>Delivery Fee</Text>
+              <Text style={[styles.billValue, { color: colors.text }]}>${formatCurrency(pricing.deliveryFee)}</Text>
             </View>
 
             <View style={styles.billRow}>
-              <Text style={styles.billLabel}>Service Fee</Text>
-              <Text style={styles.billValue}>${formatCurrency(pricing.serviceFee)}</Text>
+              <Text style={[styles.billLabel, { color: colors.textSecondary }]}>Service Fee</Text>
+              <Text style={[styles.billValue, { color: colors.text }]}>${formatCurrency(pricing.serviceFee)}</Text>
             </View>
 
             {toNumber(pricing.discount) > 0 ? (
@@ -642,29 +672,29 @@ export default function CheckoutScreen() {
 
             {tipAmount > 0 ? (
               <View style={styles.billRow}>
-                <Text style={styles.billLabel}>Driver Tip</Text>
-                <Text style={styles.billValue}>+${formatCurrency(tipAmount)}</Text>
+                <Text style={[styles.billLabel, { color: colors.textSecondary }]}>Driver Tip</Text>
+                <Text style={[styles.billValue, { color: colors.text }]}>+${formatCurrency(tipAmount)}</Text>
               </View>
             ) : null}
 
             <View style={styles.billRow}>
-              <Text style={styles.billLabel}>Estimated Tax</Text>
-              <Text style={styles.billValue}>${formatCurrency(pricing.tax)}</Text>
+              <Text style={[styles.billLabel, { color: colors.textSecondary }]}>Estimated Tax</Text>
+              <Text style={[styles.billValue, { color: colors.text }]}>${formatCurrency(pricing.tax)}</Text>
             </View>
 
             <View style={styles.finalTotalRow}>
-              <Text style={styles.finalTotalLabel}>Total Due</Text>
-              <Text style={styles.finalTotalValue}>${formatCurrency(finalTotal)}</Text>
+              <Text style={[styles.finalTotalLabel, { color: colors.text }]}>Total Due</Text>
+              <Text style={[styles.finalTotalValue, { color: colors.brand }]}>${formatCurrency(finalTotal)}</Text>
             </View>
           </View>
         ) : null}
       </ScrollView>
 
       {/* Place Order Sticky Bottom Bar */}
-      <View style={styles.bottomBar}>
+      <View style={[styles.bottomBar, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
         <View style={styles.bottomPriceContainer}>
-          <Text style={styles.bottomTotalText}>Total</Text>
-          <Text style={styles.bottomAmount}>${formatCurrency(finalTotal)}</Text>
+          <Text style={[styles.bottomTotalText, { color: colors.textMuted }]}>Total</Text>
+          <Text style={[styles.bottomAmount, { color: colors.text }]}>${formatCurrency(finalTotal)}</Text>
         </View>
 
         <Button

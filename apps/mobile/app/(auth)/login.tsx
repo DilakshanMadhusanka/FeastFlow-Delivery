@@ -13,10 +13,12 @@ import { useAuthStore } from '../../store/authStore';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Mail, Lock, Utensils, ArrowLeft } from 'lucide-react-native';
+import { useTheme } from '../../theme/useTheme';
 
 export default function LoginScreen() {
   const router = useRouter();
   const { login } = useAuthStore();
+  const { colors, isDark } = useTheme();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -63,7 +65,7 @@ export default function LoginScreen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.keyboardContainer}
+      style={[styles.keyboardContainer, { backgroundColor: colors.background }]}
     >
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
         {/* Top Navigation */}
@@ -71,8 +73,8 @@ export default function LoginScreen() {
           style={styles.backButton}
           onPress={() => router.replace('/(customer)/(tabs)/home')}
         >
-          <ArrowLeft size={20} color="#374151" />
-          <Text style={styles.backText}>Skip to Browse</Text>
+          <ArrowLeft size={20} color={colors.text} />
+          <Text style={[styles.backText, { color: colors.textSecondary }]}>Skip to Browse</Text>
         </TouchableOpacity>
 
         {/* Brand Header */}
@@ -80,8 +82,8 @@ export default function LoginScreen() {
           <View style={styles.logoBadge}>
             <Utensils size={32} color="#FFFFFF" strokeWidth={2.5} />
           </View>
-          <Text style={styles.title}>Welcome Back</Text>
-          <Text style={styles.subtitle}>Sign in to track orders and save your favorites</Text>
+          <Text style={[styles.title, { color: colors.text }]}>Welcome Back</Text>
+          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Sign in to track orders and save your favorites</Text>
         </View>
 
         {/* Error Alert */}
@@ -119,35 +121,35 @@ export default function LoginScreen() {
         />
 
         {/* Quick Demo Logins */}
-        <View style={styles.demoSection}>
-          <Text style={styles.demoTitle}>Quick Demo Sign In</Text>
+        <View style={[styles.demoSection, { borderTopColor: colors.border }]}>
+          <Text style={[styles.demoTitle, { color: colors.textMuted }]}>Quick Demo Sign In</Text>
           <View style={styles.demoGrid}>
             <TouchableOpacity
-              style={styles.demoChip}
+              style={[styles.demoChip, { backgroundColor: colors.card, borderColor: colors.border }]}
               onPress={() => handleQuickFill('driver.mike@feastflow.com')}
             >
-              <Text style={styles.demoChipText}>🛵 Delivery Courier (driver.mike@feastflow.com)</Text>
+              <Text style={[styles.demoChipText, { color: colors.text }]}>🛵 Delivery Courier (driver.mike@feastflow.com)</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={styles.demoChip}
+              style={[styles.demoChip, { backgroundColor: colors.card, borderColor: colors.border }]}
               onPress={() => handleQuickFill('john.doe@gmail.com')}
             >
-              <Text style={styles.demoChipText}>👤 Customer (john.doe@gmail.com)</Text>
+              <Text style={[styles.demoChipText, { color: colors.text }]}>👤 Customer (john.doe@gmail.com)</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={styles.demoChip}
+              style={[styles.demoChip, { backgroundColor: colors.card, borderColor: colors.border }]}
               onPress={() => handleQuickFill('bistro.owner@feastflow.com')}
             >
-              <Text style={styles.demoChipText}>🍳 Restaurant Owner (bistro.owner@feastflow.com)</Text>
+              <Text style={[styles.demoChipText, { color: colors.text }]}>🍳 Restaurant Owner (bistro.owner@feastflow.com)</Text>
             </TouchableOpacity>
           </View>
         </View>
 
         {/* Footer */}
         <View style={styles.footerRow}>
-          <Text style={styles.footerText}>Don't have an account? </Text>
+          <Text style={[styles.footerText, { color: colors.textSecondary }]}>Don't have an account? </Text>
           <TouchableOpacity onPress={() => router.push('/(auth)/register')}>
             <Text style={styles.registerLink}>Sign Up</Text>
           </TouchableOpacity>

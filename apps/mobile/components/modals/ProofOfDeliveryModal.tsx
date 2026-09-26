@@ -21,6 +21,7 @@ import {
   RefreshCw,
 } from 'lucide-react-native';
 import { Button } from '../ui/Button';
+import { useTheme } from '../../theme/useTheme';
 
 interface ProofOfDeliveryModalProps {
   visible: boolean;
@@ -48,6 +49,7 @@ export const ProofOfDeliveryModal: React.FC<ProofOfDeliveryModalProps> = ({
   dropoffAddress,
   isLoading = false,
 }) => {
+  const { colors, isDark } = useTheme();
   const [selectedLocation, setSelectedLocation] = useState(DROPOFF_LOCATIONS[0]);
   const [notes, setNotes] = useState('');
   const [photoTaken, setPhotoTaken] = useState(false);
@@ -74,42 +76,46 @@ export const ProofOfDeliveryModal: React.FC<ProofOfDeliveryModalProps> = ({
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.modalOverlay}
       >
-        <View style={styles.modalContainer}>
+        <View style={[styles.modalContainer, { backgroundColor: colors.card }]}>
           {/* Header */}
-          <View style={styles.header}>
+          <View style={[styles.header, { borderBottomColor: colors.border }]}>
             <View style={styles.headerLeft}>
-              <View style={styles.headerIconBox}>
+              <View style={[styles.headerIconBox, isDark && { backgroundColor: colors.brandLight }]}>
                 <Camera size={20} color="#FF4B3A" />
               </View>
               <View>
-                <Text style={styles.title}>Proof of Delivery</Text>
-                <Text style={styles.subtitle}>Order #{orderNumber} • {customerName}</Text>
+                <Text style={[styles.title, { color: colors.text }]}>Proof of Delivery</Text>
+                <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Order #{orderNumber} • {customerName}</Text>
               </View>
             </View>
-            <TouchableOpacity onPress={onClose} style={styles.closeBtn} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-              <X size={20} color="#6B7280" />
+            <TouchableOpacity onPress={onClose} style={[styles.closeBtn, { backgroundColor: isDark ? colors.surfaceSecondary : '#F3F4F6' }]} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+              <X size={20} color={colors.text} />
             </TouchableOpacity>
           </View>
 
           <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
             {/* Destination Pill */}
-            <View style={styles.addressPill}>
+            <View style={[styles.addressPill, isDark && { backgroundColor: '#450A0A' }]}>
               <MapPin size={16} color="#DC2626" />
-              <Text style={styles.addressText} numberOfLines={1}>{dropoffAddress}</Text>
+              <Text style={[styles.addressText, isDark && { color: '#FCA5A5' }]} numberOfLines={1}>{dropoffAddress}</Text>
             </View>
 
             {/* Drop-off Placement Chips */}
-            <Text style={styles.sectionLabel}>Where was the order left?</Text>
+            <Text style={[styles.sectionLabel, { color: colors.text }]}>Where was the order left?</Text>
             <View style={styles.chipRow}>
               {DROPOFF_LOCATIONS.map((loc) => {
                 const isSelected = selectedLocation === loc;
                 return (
                   <TouchableOpacity
                     key={loc}
-                    style={[styles.locationChip, isSelected && styles.locationChipActive]}
+                    style={[
+                      styles.locationChip,
+                      { backgroundColor: isDark ? colors.surfaceSecondary : '#F3F4F6', borderColor: colors.border },
+                      isSelected && styles.locationChipActive,
+                    ]}
                     onPress={() => setSelectedLocation(loc)}
                   >
-                    <Text style={[styles.locationChipText, isSelected && styles.locationChipTextActive]}>
+                    <Text style={[styles.locationChipText, { color: colors.textSecondary }, isSelected && styles.locationChipTextActive]}>
                       {loc}
                     </Text>
                   </TouchableOpacity>
@@ -118,9 +124,13 @@ export const ProofOfDeliveryModal: React.FC<ProofOfDeliveryModalProps> = ({
             </View>
 
             {/* Camera / Photo Capture Zone */}
-            <Text style={styles.sectionLabel}>Drop-off Photo Verification</Text>
+            <Text style={[styles.sectionLabel, { color: colors.text }]}>Drop-off Photo Verification</Text>
             <TouchableOpacity
-              style={[styles.cameraBox, photoTaken && styles.cameraBoxTaken]}
+              style={[
+                styles.cameraBox,
+                { backgroundColor: isDark ? colors.surfaceSecondary : '#F9FAFB', borderColor: colors.border },
+                photoTaken && styles.cameraBoxTaken,
+              ]}
               onPress={handleTakeSimulatedPhoto}
               activeOpacity={0.8}
             >
@@ -142,30 +152,30 @@ export const ProofOfDeliveryModal: React.FC<ProofOfDeliveryModalProps> = ({
                 </View>
               ) : (
                 <View style={styles.cameraPlaceholderContent}>
-                  <View style={styles.cameraIconCircle}>
+                  <View style={[styles.cameraIconCircle, isDark && { backgroundColor: colors.brandLight }]}>
                     <Camera size={26} color="#FF4B3A" />
                   </View>
-                  <Text style={styles.cameraPromptText}>Tap to Capture Drop-off Photo</Text>
-                  <Text style={styles.cameraPromptSub}>Shows customer safe package placement</Text>
+                  <Text style={[styles.cameraPromptText, { color: colors.text }]}>Tap to Capture Drop-off Photo</Text>
+                  <Text style={[styles.cameraPromptSub, { color: colors.textMuted }]}>Shows customer safe package placement</Text>
                 </View>
               )}
             </TouchableOpacity>
 
             {/* Drop-off Note / Buzzer Input */}
-            <Text style={styles.sectionLabel}>Additional Delivery Note (Optional)</Text>
+            <Text style={[styles.sectionLabel, { color: colors.text }]}>Additional Delivery Note (Optional)</Text>
             <TextInput
-              style={styles.notesInput}
+              style={[styles.notesInput, { backgroundColor: isDark ? colors.surfaceSecondary : '#F9FAFB', borderColor: colors.border, color: colors.text }]}
               placeholder="e.g. Left right next to green potted plant on porch"
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor={colors.textMuted}
               value={notes}
               onChangeText={setNotes}
               multiline
               numberOfLines={2}
             />
 
-            <View style={styles.guaranteeBox}>
-              <ShieldCheck size={16} color="#059669" />
-              <Text style={styles.guaranteeText}>
+            <View style={[styles.guaranteeBox, isDark && { backgroundColor: '#064E3B' }]}>
+              <ShieldCheck size={16} color={isDark ? '#6EE7B7' : '#059669'} />
+              <Text style={[styles.guaranteeText, isDark && { color: '#A7F3D0' }]}>
                 Proof of delivery protects you from dispute claims and instantly releases trip payout.
               </Text>
             </View>

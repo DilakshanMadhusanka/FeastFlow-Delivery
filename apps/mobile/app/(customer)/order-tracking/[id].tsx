@@ -56,6 +56,7 @@ import { PostOrderRewardModal } from '../../../components/modals/PostOrderReward
 import { OpenStreetMap } from '../../../components/map/OpenStreetMap';
 import { OpenStreetMapModal } from '../../../components/map/OpenStreetMapModal';
 import { OSMMarker } from '../../../components/map/osmHelper';
+import { useTheme } from '../../../theme/useTheme';
 
 
 const TRACKING_STEPS = [
@@ -133,6 +134,7 @@ function getStepIndex(status: OrderStatus): number {
 }
 
 export default function OrderTrackingScreen() {
+  const { colors, isDark } = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -389,12 +391,12 @@ export default function OrderTrackingScreen() {
 
   if (!order) {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={styles.pageWrapper}>
-          <View style={styles.centerContainer}>
+          <View style={[styles.centerContainer, { backgroundColor: colors.background }]}>
             <AlertCircle size={48} color="#EF4444" />
-            <Text style={styles.notFoundTitle}>Order Not Found</Text>
-            <Text style={styles.notFoundSub}>
+            <Text style={[styles.notFoundTitle, { color: colors.text }]}>Order Not Found</Text>
+            <Text style={[styles.notFoundSub, { color: colors.textSecondary }]}>
               We couldn't retrieve the details for this order.
             </Text>
             <Button
@@ -436,17 +438,17 @@ export default function OrderTrackingScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.pageWrapper}>
         {/* Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
           <TouchableOpacity
             onPress={() => router.back()}
-            style={styles.backBtn}
+            style={[styles.backBtn, { backgroundColor: isDark ? colors.surfaceSecondary : '#F1F5F9' }]}
             accessibilityLabel="Go back"
             hitSlop={10}
           >
-            <ArrowLeft size={22} color="#0F172A" />
+            <ArrowLeft size={22} color={colors.text} />
           </TouchableOpacity>
 
           <View style={styles.headerTitleContainer}>
@@ -455,11 +457,11 @@ export default function OrderTrackingScreen() {
               onPress={() => handleCopyOrderNumber(order.orderNumber)}
               activeOpacity={0.7}
             >
-              <Text style={styles.headerTitle}>Order #{order.orderNumber}</Text>
+              <Text style={[styles.headerTitle, { color: colors.text }]}>Order #{order.orderNumber}</Text>
               {copiedId ? (
                 <Check size={14} color="#16A34A" />
               ) : (
-                <Copy size={13} color="#94A3B8" />
+                <Copy size={13} color={colors.textMuted} />
               )}
             </TouchableOpacity>
 
@@ -467,7 +469,7 @@ export default function OrderTrackingScreen() {
               {isSocketLive && !isCancelledOrRejected ? (
                 <View style={styles.headerLiveDot} />
               ) : null}
-              <Text style={styles.headerSub}>
+              <Text style={[styles.headerSub, { color: colors.textSecondary }]}>
                 {copiedId ? 'Order # Copied!' : isSocketLive ? 'Live Tracking' : 'Order Details'}
               </Text>
             </View>
@@ -485,22 +487,22 @@ export default function OrderTrackingScreen() {
         >
           {/* Status / ETA Hero Card */}
           {isCancelledOrRejected ? (
-            <View style={styles.cancelledCard}>
+            <View style={[styles.cancelledCard, isDark && { backgroundColor: '#450A0A', borderColor: '#991B1B' }]}>
               <XCircle size={36} color="#DC2626" />
               <View style={{ flex: 1 }}>
-                <Text style={styles.cancelledTitle}>
+                <Text style={[styles.cancelledTitle, isDark && { color: '#FCA5A5' }]}>
                   {order.status === OrderStatus.CANCELLED ? 'Order Cancelled' : 'Order Declined'}
                 </Text>
-                <Text style={styles.cancelledReason}>
+                <Text style={[styles.cancelledReason, isDark && { color: '#F87171' }]}>
                   {order.cancellationReason || 'This order was cancelled.'}
                 </Text>
               </View>
             </View>
           ) : (
-            <View style={styles.heroCard}>
+            <View style={[styles.heroCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
               <View style={styles.heroTop}>
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.heroStatusText}>
+                  <Text style={[styles.heroStatusText, { color: colors.text }]}>
                     {order.status === OrderStatus.DELIVERED
                       ? 'Delivered 🎉'
                       : order.status === OrderStatus.ON_THE_WAY || order.status === OrderStatus.PICKED_UP
@@ -509,14 +511,14 @@ export default function OrderTrackingScreen() {
                       ? 'Kitchen is Cooking'
                       : 'Order in Progress'}
                   </Text>
-                  <Text style={styles.heroEstText}>
+                  <Text style={[styles.heroEstText, { color: colors.textSecondary }]}>
                     {order.status === OrderStatus.DELIVERED
                       ? 'Thank you for ordering with FeastFlow!'
                       : `Estimated Arrival: ~${formatEstimatedTime(order.estimatedDeliveryAt)}`}
                   </Text>
                 </View>
 
-                <View style={styles.heroIconBox}>
+                <View style={[styles.heroIconBox, { backgroundColor: isDark ? colors.brandLight : '#FFF1F0' }]}>
                   {order.status === OrderStatus.DELIVERED ? (
                     <CheckCircle2 size={28} color="#16A34A" />
                   ) : order.status === OrderStatus.ON_THE_WAY || order.status === OrderStatus.PICKED_UP ? (
@@ -555,10 +557,10 @@ export default function OrderTrackingScreen() {
 
               {/* Live Courier GPS Telemetry telemetry pill */}
               {(courierLocation || isSocketLive) ? (
-                <View style={styles.mapTelemetryRow}>
+                <View style={[styles.mapTelemetryRow, { backgroundColor: colors.card, borderColor: colors.border }]}>
                   <View style={styles.livePulseContainer}>
                     <View style={styles.livePulseDot} />
-                    <Text style={styles.livePulseTitle}>
+                    <Text style={[styles.livePulseTitle, { color: colors.text }]}>
                       {courierLocation ? `GPS: ${courierLocation.latitude.toFixed(4)}, ${courierLocation.longitude.toFixed(4)}` : 'Live Telemetry Active'}
                     </Text>
                   </View>
@@ -574,8 +576,8 @@ export default function OrderTrackingScreen() {
 
           {/* 7-Step Fulfillment Stepper */}
           {!isCancelledOrRejected ? (
-            <View style={styles.sectionCard}>
-              <Text style={styles.sectionTitle}>Delivery Progress</Text>
+            <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>Delivery Progress</Text>
               <View style={styles.stepperContainer}>
                 {TRACKING_STEPS.map((step, index) => {
                   const isCompleted = currentStepIdx > index;
@@ -593,7 +595,7 @@ export default function OrderTrackingScreen() {
                               ? styles.stepCircleCompleted
                               : isCurrent
                               ? styles.stepCircleCurrent
-                              : styles.stepCirclePending,
+                              : [styles.stepCirclePending, { backgroundColor: isDark ? colors.surfaceSecondary : '#F1F5F9', borderColor: colors.border }],
                           ]}
                         >
                           {isCompleted ? (
@@ -601,7 +603,7 @@ export default function OrderTrackingScreen() {
                           ) : (
                             <StepIcon
                               size={15}
-                              color={isCurrent ? '#FFFFFF' : '#94A3B8'}
+                              color={isCurrent ? '#FFFFFF' : colors.textMuted}
                             />
                           )}
                         </View>
@@ -610,7 +612,7 @@ export default function OrderTrackingScreen() {
                           <View
                             style={[
                               styles.stepLine,
-                              isCompleted ? styles.stepLineCompleted : styles.stepLinePending,
+                              isCompleted ? styles.stepLineCompleted : [styles.stepLinePending, { backgroundColor: colors.border }],
                             ]}
                           />
                         ) : null}
@@ -624,13 +626,13 @@ export default function OrderTrackingScreen() {
                             isCurrent
                               ? styles.stepTitleCurrent
                               : isCompleted
-                              ? styles.stepTitleCompleted
-                              : styles.stepTitlePending,
+                              ? [styles.stepTitleCompleted, { color: colors.text }]
+                              : [styles.stepTitlePending, { color: colors.textMuted }],
                           ]}
                         >
                           {step.title}
                         </Text>
-                        <Text style={styles.stepDesc}>{step.desc}</Text>
+                        <Text style={[styles.stepDesc, { color: colors.textSecondary }]}>{step.desc}</Text>
                       </View>
                     </View>
                   );
@@ -641,11 +643,11 @@ export default function OrderTrackingScreen() {
 
           {/* Assigned Courier Card */}
           {order.deliveryAssignment?.driver && !isCancelledOrRejected ? (
-            <View style={[styles.sectionCard, styles.courierCardHighlight]}>
+            <View style={[styles.sectionCard, isDark ? { backgroundColor: '#1E1B4B', borderColor: '#4338CA' } : styles.courierCardHighlight]}>
               <View style={styles.cardHeaderRow}>
                 <View style={styles.cardHeaderLeft}>
-                  <Bike size={18} color="#7C3AED" />
-                  <Text style={[styles.sectionTitle, { color: '#6B21A8' }]}>Assigned Courier</Text>
+                  <Bike size={18} color={isDark ? '#A5B4FC' : '#7C3AED'} />
+                  <Text style={[styles.sectionTitle, { color: isDark ? '#A5B4FC' : '#6B21A8' }]}>Assigned Courier</Text>
                 </View>
                 <View style={{ flexDirection: 'row', gap: 6 }}>
                   <TouchableOpacity
@@ -653,18 +655,18 @@ export default function OrderTrackingScreen() {
                       setChatTarget('COURIER');
                       setShowChatModal(true);
                     }}
-                    style={styles.chatCourierPill}
+                    style={[styles.chatCourierPill, isDark && { backgroundColor: '#312E81', borderColor: '#4338CA' }]}
                   >
-                    <MessageCircle size={13} color="#7C3AED" />
-                    <Text style={styles.chatCourierPillText}>Chat</Text>
+                    <MessageCircle size={13} color={isDark ? '#C7D2FE' : '#7C3AED'} />
+                    <Text style={[styles.chatCourierPillText, isDark && { color: '#C7D2FE' }]}>Chat</Text>
                   </TouchableOpacity>
                   {order.deliveryAssignment.driver.user?.phone ? (
                     <TouchableOpacity
                       onPress={() => handleCall(order.deliveryAssignment?.driver?.user?.phone || '')}
-                      style={styles.callCourierPill}
+                      style={[styles.callCourierPill, isDark && { backgroundColor: '#312E81' }]}
                     >
-                      <Phone size={13} color="#7C3AED" />
-                      <Text style={styles.callCourierPillText}>Call</Text>
+                      <Phone size={13} color={isDark ? '#C7D2FE' : '#7C3AED'} />
+                      <Text style={[styles.callCourierPillText, isDark && { color: '#C7D2FE' }]}>Call</Text>
                     </TouchableOpacity>
                   ) : null}
                 </View>
@@ -685,16 +687,16 @@ export default function OrderTrackingScreen() {
                 )}
 
                 <View style={{ flex: 1, marginLeft: 12 }}>
-                  <Text style={styles.courierName}>
+                  <Text style={[styles.courierName, { color: colors.text }]}>
                     {order.deliveryAssignment.driver.user?.name || 'Assigned Courier'}
                   </Text>
-                  <Text style={styles.courierVehicle}>
+                  <Text style={[styles.courierVehicle, { color: isDark ? '#A5B4FC' : '#6B21A8' }]}>
                     {order.deliveryAssignment.driver.vehicleType || 'Motorcycle'}
                     {order.deliveryAssignment.driver.vehiclePlate
                       ? ` • ${order.deliveryAssignment.driver.vehiclePlate}`
                       : ''}
                   </Text>
-                  <Text style={styles.courierStatusSub}>
+                  <Text style={[styles.courierStatusSub, { color: isDark ? '#C7D2FE' : '#9333EA' }]}>
                     {order.status === OrderStatus.ON_THE_WAY
                       ? 'En route to your location'
                       : order.status === OrderStatus.PICKED_UP
@@ -707,11 +709,11 @@ export default function OrderTrackingScreen() {
           ) : null}
 
           {/* Restaurant Details Card */}
-          <View style={styles.sectionCard}>
+          <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <View style={styles.cardHeaderRow}>
               <View style={styles.cardHeaderLeft}>
                 <Utensils size={18} color="#FF4B3A" />
-                <Text style={styles.sectionTitle}>Restaurant Details</Text>
+                <Text style={[styles.sectionTitle, { color: colors.text }]}>Restaurant Details</Text>
               </View>
               <View style={{ flexDirection: 'row', gap: 6 }}>
                 <TouchableOpacity
@@ -719,7 +721,7 @@ export default function OrderTrackingScreen() {
                     setChatTarget('STORE');
                     setShowChatModal(true);
                   }}
-                  style={styles.chatStorePill}
+                  style={[styles.chatStorePill, isDark && { backgroundColor: colors.brandLight, borderColor: colors.brand }]}
                 >
                   <MessageCircle size={13} color="#FF4B3A" />
                   <Text style={styles.chatStorePillText}>Chat</Text>
@@ -727,7 +729,7 @@ export default function OrderTrackingScreen() {
                 {order.restaurant?.phone ? (
                   <TouchableOpacity
                     onPress={() => handleCall(order.restaurant?.phone)}
-                    style={styles.callPill}
+                    style={[styles.callPill, isDark && { backgroundColor: colors.brandLight }]}
                   >
                     <Phone size={13} color="#FF4B3A" />
                     <Text style={styles.callPillText}>Call</Text>
@@ -736,32 +738,32 @@ export default function OrderTrackingScreen() {
               </View>
             </View>
 
-            <Text style={styles.restaurantName}>{order.restaurant?.name}</Text>
-            <Text style={styles.addressSub}>
+            <Text style={[styles.restaurantName, { color: colors.text }]}>{order.restaurant?.name}</Text>
+            <Text style={[styles.addressSub, { color: colors.textSecondary }]}>
               {order.restaurant?.street}, {order.restaurant?.city}
             </Text>
           </View>
 
           {/* Delivery Address Card */}
-          <View style={styles.sectionCard}>
+          <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <View style={styles.cardHeaderRow}>
               <View style={styles.cardHeaderLeft}>
                 <MapPin size={18} color="#FF4B3A" />
-                <Text style={styles.sectionTitle}>Delivery Destination</Text>
+                <Text style={[styles.sectionTitle, { color: colors.text }]}>Delivery Destination</Text>
               </View>
             </View>
 
-            <Text style={styles.addressTitle}>
+            <Text style={[styles.addressTitle, { color: colors.text }]}>
               {order.deliveryAddress?.title || 'Address'}
             </Text>
-            <Text style={styles.addressSub}>
+            <Text style={[styles.addressSub, { color: colors.textSecondary }]}>
               {order.deliveryAddress?.street}
               {order.deliveryAddress?.apartment ? `, Apt ${order.deliveryAddress.apartment}` : ''},{' '}
               {order.deliveryAddress?.city}
             </Text>
             {order.deliveryAddress?.deliveryInstructions ? (
-              <View style={styles.instructionsBox}>
-                <Text style={styles.instructionsText}>
+              <View style={[styles.instructionsBox, { backgroundColor: isDark ? colors.surfaceSecondary : '#F1F5F9' }]}>
+                <Text style={[styles.instructionsText, { color: colors.textSecondary }]}>
                   Note: {order.deliveryAddress.deliveryInstructions}
                 </Text>
               </View>
@@ -769,11 +771,11 @@ export default function OrderTrackingScreen() {
           </View>
 
           {/* Ordered Items Breakdown */}
-          <View style={styles.sectionCard}>
+          <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <View style={styles.cardHeaderRow}>
               <View style={styles.cardHeaderLeft}>
                 <Receipt size={18} color="#FF4B3A" />
-                <Text style={styles.sectionTitle}>Ordered Items</Text>
+                <Text style={[styles.sectionTitle, { color: colors.text }]}>Ordered Items</Text>
               </View>
             </View>
 
@@ -782,37 +784,37 @@ export default function OrderTrackingScreen() {
                 <View style={styles.itemLeft}>
                   <Text style={styles.itemQty}>{item.quantity}x</Text>
                   <View style={{ flex: 1 }}>
-                    <Text style={styles.itemName}>{item.nameSnapshot}</Text>
+                    <Text style={[styles.itemName, { color: colors.text }]}>{item.nameSnapshot}</Text>
                     {item.addons && item.addons.length > 0 ? (
-                      <Text style={styles.itemAddons}>
+                      <Text style={[styles.itemAddons, { color: colors.textSecondary }]}>
                         + {item.addons.map((a) => a.nameSnapshot).join(', ')}
                       </Text>
                     ) : null}
                     {item.specialNotes ? (
-                      <Text style={styles.itemNotes}>"{item.specialNotes}"</Text>
+                      <Text style={[styles.itemNotes, { color: colors.textMuted }]}>"{item.specialNotes}"</Text>
                     ) : null}
                   </View>
                 </View>
-                <Text style={styles.itemPrice}>${formatCurrency(item.subtotal)}</Text>
+                <Text style={[styles.itemPrice, { color: colors.text }]}>${formatCurrency(item.subtotal)}</Text>
               </View>
             ))}
 
-            <View style={styles.divider} />
+            <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
             {/* Bill Breakdown */}
             <View style={styles.billRow}>
-              <Text style={styles.billLabel}>Subtotal</Text>
-              <Text style={styles.billValue}>${formatCurrency(order.subtotal)}</Text>
+              <Text style={[styles.billLabel, { color: colors.textSecondary }]}>Subtotal</Text>
+              <Text style={[styles.billValue, { color: colors.text }]}>${formatCurrency(order.subtotal)}</Text>
             </View>
 
             <View style={styles.billRow}>
-              <Text style={styles.billLabel}>Delivery Fee</Text>
-              <Text style={styles.billValue}>${formatCurrency(order.deliveryFee)}</Text>
+              <Text style={[styles.billLabel, { color: colors.textSecondary }]}>Delivery Fee</Text>
+              <Text style={[styles.billValue, { color: colors.text }]}>${formatCurrency(order.deliveryFee)}</Text>
             </View>
 
             <View style={styles.billRow}>
-              <Text style={styles.billLabel}>Service Fee</Text>
-              <Text style={styles.billValue}>${formatCurrency(order.serviceFee)}</Text>
+              <Text style={[styles.billLabel, { color: colors.textSecondary }]}>Service Fee</Text>
+              <Text style={[styles.billValue, { color: colors.text }]}>${formatCurrency(order.serviceFee)}</Text>
             </View>
 
             {toNumber(order.discountAmount) > 0 ? (
@@ -824,21 +826,21 @@ export default function OrderTrackingScreen() {
 
             {toNumber(order.tipAmount) > 0 ? (
               <View style={styles.billRow}>
-                <Text style={styles.billLabel}>Courier Tip</Text>
-                <Text style={styles.billValue}>+${formatCurrency(order.tipAmount)}</Text>
+                <Text style={[styles.billLabel, { color: colors.textSecondary }]}>Courier Tip</Text>
+                <Text style={[styles.billValue, { color: colors.text }]}>+${formatCurrency(order.tipAmount)}</Text>
               </View>
             ) : null}
 
-            <View style={styles.totalRow}>
+            <View style={[styles.totalRow, { borderTopColor: colors.border }]}>
               <View>
-                <Text style={styles.totalLabel}>Total Paid</Text>
+                <Text style={[styles.totalLabel, { color: colors.text }]}>Total Paid</Text>
                 <View style={styles.paymentMethodRow}>
                   {order.payment?.paymentMethod === 'COD' ? (
                     <Banknote size={14} color="#16A34A" />
                   ) : (
                     <CreditCard size={14} color="#2563EB" />
                   )}
-                  <Text style={styles.paymentMethodText}>
+                  <Text style={[styles.paymentMethodText, { color: colors.textSecondary }]}>
                     {order.payment?.paymentMethod === 'COD'
                       ? 'Cash on Delivery'
                       : 'Credit Card (Stripe)'}
@@ -851,27 +853,27 @@ export default function OrderTrackingScreen() {
 
           {/* Verified Proof of Delivery Card */}
           {order.status === OrderStatus.DELIVERED ? (
-            <View style={[styles.sectionCard, styles.proofCard]}>
+            <View style={[styles.sectionCard, styles.proofCard, isDark && { backgroundColor: '#064E3B', borderColor: '#059669' }]}>
               <View style={styles.cardHeaderRow}>
                 <View style={styles.cardHeaderLeft}>
-                  <ShieldCheck size={18} color="#059669" />
-                  <Text style={[styles.sectionTitle, { color: '#065F46' }]}>
+                  <ShieldCheck size={18} color={isDark ? '#6EE7B7' : '#059669'} />
+                  <Text style={[styles.sectionTitle, { color: isDark ? '#6EE7B7' : '#065F46' }]}>
                     Verified Proof of Delivery
                   </Text>
                 </View>
-                <View style={styles.proofBadge}>
-                  <Check size={12} color="#047857" />
-                  <Text style={styles.proofBadgeText}>Completed</Text>
+                <View style={[styles.proofBadge, isDark && { backgroundColor: '#047857' }]}>
+                  <Check size={12} color={isDark ? '#A7F3D0' : '#047857'} />
+                  <Text style={[styles.proofBadgeText, isDark && { color: '#A7F3D0' }]}>Completed</Text>
                 </View>
               </View>
 
-              <Text style={styles.proofDesc}>
+              <Text style={[styles.proofDesc, isDark && { color: '#D1FAE5' }]}>
                 Drop-off location verified and photo logged by courier upon delivery handover.
               </Text>
 
-              <View style={styles.proofDetailsRow}>
-                <Camera size={14} color="#059669" />
-                <Text style={styles.proofDetailsText}>
+              <View style={[styles.proofDetailsRow, isDark && { backgroundColor: '#022C22', borderColor: '#065F46' }]}>
+                <Camera size={14} color={isDark ? '#6EE7B7' : '#059669'} />
+                <Text style={[styles.proofDetailsText, isDark && { color: '#A7F3D0' }]}>
                   Drop-off photo verification encrypted & saved to delivery record.
                 </Text>
               </View>
@@ -881,25 +883,30 @@ export default function OrderTrackingScreen() {
           {/* Gamified Post-Order Mystery Reward Perk Card */}
           {order.status === OrderStatus.DELIVERED ? (
             <TouchableOpacity
-              style={styles.rewardBanner}
+              style={[styles.rewardBanner, isDark && { backgroundColor: '#451A03', borderColor: '#B45309' }]}
               activeOpacity={0.88}
               onPress={() => setShowRewardModal(true)}
             >
-              <View style={styles.rewardBannerIcon}>
-                <Gift size={22} color="#D97706" />
+              <View style={[styles.rewardBannerIcon, isDark && { backgroundColor: '#78350F', borderColor: '#92400E' }]}>
+                <Gift size={22} color={isDark ? '#FDE68A' : '#D97706'} />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={styles.rewardBannerTitle}>Claim Your Mystery Reward Card! 🎁</Text>
-                <Text style={styles.rewardBannerSub}>Scratch & reveal 15% discount for your next order</Text>
+                <Text style={[styles.rewardBannerTitle, isDark && { color: '#FDE68A' }]}>Claim Your Mystery Reward Card! 🎁</Text>
+                <Text style={[styles.rewardBannerSub, isDark && { color: '#FCD34D' }]}>Scratch & reveal 15% discount for your next order</Text>
               </View>
-              <ArrowRight size={18} color="#D97706" />
+              <ArrowRight size={18} color={isDark ? '#FDE68A' : '#D97706'} />
             </TouchableOpacity>
           ) : null}
 
           {/* Action Buttons: Rate & Review, Order Again, or Cancel */}
           {order.status === OrderStatus.DELIVERED ? (
             <TouchableOpacity
-              style={[styles.reviewBtn, hasReviewed && styles.reviewBtnDisabled]}
+              style={[
+                styles.reviewBtn,
+                hasReviewed && styles.reviewBtnDisabled,
+                isDark && !hasReviewed && { backgroundColor: '#451A03', borderColor: '#B45309' },
+                isDark && hasReviewed && { backgroundColor: '#064E3B', borderColor: '#059669' },
+              ]}
               onPress={() => setShowReviewModal(true)}
               disabled={hasReviewed}
               activeOpacity={0.88}
@@ -912,6 +919,7 @@ export default function OrderTrackingScreen() {
               <Text
                 style={[
                   styles.reviewBtnText,
+                  isDark && !hasReviewed && { color: '#FDE68A' },
                   hasReviewed && { color: '#16A34A', fontWeight: '800' },
                 ]}
               >
@@ -940,12 +948,12 @@ export default function OrderTrackingScreen() {
 
           {canCancel ? (
             <TouchableOpacity
-              style={styles.cancelBtn}
+              style={[styles.cancelBtn, isDark && { backgroundColor: '#450A0A', borderColor: '#7F1D1D' }]}
               onPress={() => setShowCancelModal(true)}
               disabled={isCancelling}
               activeOpacity={0.85}
             >
-              <Text style={styles.cancelBtnText}>
+              <Text style={[styles.cancelBtnText, isDark && { color: '#FCA5A5' }]}>
                 {isCancelling ? 'Cancelling...' : 'Cancel Order'}
               </Text>
             </TouchableOpacity>
@@ -960,18 +968,18 @@ export default function OrderTrackingScreen() {
           onRequestClose={() => setShowCancelModal(false)}
         >
           <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
+            <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
               <View style={styles.modalHeader}>
                 <View style={styles.modalTitleRow}>
                   <AlertTriangle size={20} color="#DC2626" />
-                  <Text style={styles.modalTitle}>Cancel Order</Text>
+                  <Text style={[styles.modalTitle, { color: colors.text }]}>Cancel Order</Text>
                 </View>
                 <TouchableOpacity onPress={() => setShowCancelModal(false)} hitSlop={10}>
-                  <X size={20} color="#64748B" />
+                  <X size={20} color={colors.textSecondary} />
                 </TouchableOpacity>
               </View>
 
-              <Text style={styles.modalSubtitle}>
+              <Text style={[styles.modalSubtitle, { color: colors.textSecondary }]}>
                 Please select a reason for cancelling order #{order.orderNumber}:
               </Text>
 
@@ -981,7 +989,11 @@ export default function OrderTrackingScreen() {
                   return (
                     <TouchableOpacity
                       key={reason}
-                      style={[styles.reasonOption, isSelected && styles.reasonOptionSelected]}
+                      style={[
+                        styles.reasonOption,
+                        { backgroundColor: isDark ? colors.surfaceSecondary : '#F8FAFC', borderColor: colors.border },
+                        isSelected && (isDark ? { borderColor: '#EF4444', backgroundColor: '#450A0A' } : styles.reasonOptionSelected),
+                      ]}
                       onPress={() => setSelectedReason(reason)}
                       activeOpacity={0.8}
                     >
@@ -989,7 +1001,11 @@ export default function OrderTrackingScreen() {
                         {isSelected ? <View style={styles.radioDot} /> : null}
                       </View>
                       <Text
-                        style={[styles.reasonText, isSelected && styles.reasonTextSelected]}
+                        style={[
+                          styles.reasonText,
+                          { color: colors.text },
+                          isSelected && (isDark ? { color: '#FCA5A5', fontWeight: '700' } : styles.reasonTextSelected),
+                        ]}
                       >
                         {reason}
                       </Text>
@@ -1000,9 +1016,9 @@ export default function OrderTrackingScreen() {
 
               {selectedReason === 'Other reason' ? (
                 <TextInput
-                  style={styles.customReasonInput}
+                  style={[styles.customReasonInput, { backgroundColor: isDark ? colors.surfaceSecondary : '#F8FAFC', borderColor: colors.border, color: colors.text }]}
                   placeholder="Please describe why you're cancelling..."
-                  placeholderTextColor="#94A3B8"
+                  placeholderTextColor={colors.textMuted}
                   value={customReason}
                   onChangeText={setCustomReason}
                   multiline
@@ -1012,10 +1028,10 @@ export default function OrderTrackingScreen() {
 
               <View style={styles.modalActions}>
                 <TouchableOpacity
-                  style={styles.keepOrderBtn}
+                  style={[styles.keepOrderBtn, { backgroundColor: isDark ? colors.surfaceSecondary : '#F1F5F9' }]}
                   onPress={() => setShowCancelModal(false)}
                 >
-                  <Text style={styles.keepOrderBtnText}>Keep Order</Text>
+                  <Text style={[styles.keepOrderBtnText, { color: colors.text }]}>Keep Order</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -1042,18 +1058,18 @@ export default function OrderTrackingScreen() {
           onRequestClose={() => setShowReviewModal(false)}
         >
           <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
+            <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
               <View style={styles.modalHeader}>
                 <View style={styles.modalTitleRow}>
                   <Star size={20} color="#F59E0B" fill="#F59E0B" />
-                  <Text style={styles.modalTitle}>Rate Your Experience</Text>
+                  <Text style={[styles.modalTitle, { color: colors.text }]}>Rate Your Experience</Text>
                 </View>
                 <TouchableOpacity onPress={() => setShowReviewModal(false)} hitSlop={10}>
-                  <X size={20} color="#64748B" />
+                  <X size={20} color={colors.textSecondary} />
                 </TouchableOpacity>
               </View>
 
-              <Text style={styles.modalSubtitle}>
+              <Text style={[styles.modalSubtitle, { color: colors.textSecondary }]}>
                 How was your meal from {order.restaurant?.name || 'this restaurant'}?
               </Text>
 
@@ -1069,16 +1085,16 @@ export default function OrderTrackingScreen() {
                     <Star
                       size={32}
                       color="#F59E0B"
-                      fill={star <= reviewRating ? '#F59E0B' : '#FFFFFF'}
+                      fill={star <= reviewRating ? '#F59E0B' : (isDark ? '#374151' : '#FFFFFF')}
                     />
                   </TouchableOpacity>
                 ))}
               </View>
 
               <TextInput
-                style={styles.reviewTextInput}
+                style={[styles.reviewTextInput, { backgroundColor: isDark ? colors.surfaceSecondary : '#F8FAFC', borderColor: colors.border, color: colors.text }]}
                 placeholder="Share your thoughts about food taste, packaging, or speed..."
-                placeholderTextColor="#94A3B8"
+                placeholderTextColor={colors.textMuted}
                 value={reviewComment}
                 onChangeText={setReviewComment}
                 multiline
@@ -1087,10 +1103,10 @@ export default function OrderTrackingScreen() {
 
               <View style={styles.modalActions}>
                 <TouchableOpacity
-                  style={styles.keepOrderBtn}
+                  style={[styles.keepOrderBtn, { backgroundColor: isDark ? colors.surfaceSecondary : '#F1F5F9' }]}
                   onPress={() => setShowReviewModal(false)}
                 >
-                  <Text style={styles.keepOrderBtnText}>Later</Text>
+                  <Text style={[styles.keepOrderBtnText, { color: colors.text }]}>Later</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity

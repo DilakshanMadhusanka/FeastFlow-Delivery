@@ -16,9 +16,11 @@ import { Rating } from '../../../components/ui/Rating';
 import { Badge } from '../../../components/ui/Badge';
 import { Loading } from '../../../components/ui/Loading';
 import { ArrowLeft, Clock, Bike, MapPin } from 'lucide-react-native';
+import { useTheme } from '../../../theme/useTheme';
 
 export default function RestaurantDetailsScreen() {
   const router = useRouter();
+  const { colors, isDark } = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
   const [selectedCategoryIndex, setSelectedCategoryIndex] = useState(0);
 
@@ -42,8 +44,8 @@ export default function RestaurantDetailsScreen() {
 
   if (!restaurant || !menuData) {
     return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorTitle}>Restaurant Not Found</Text>
+      <View style={[styles.errorContainer, { backgroundColor: colors.background }]}>
+        <Text style={[styles.errorTitle, { color: colors.text }]}>Restaurant Not Found</Text>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
           <Text style={styles.backBtnText}>Go Back</Text>
         </TouchableOpacity>
@@ -62,7 +64,7 @@ export default function RestaurantDetailsScreen() {
       : restaurant.deliveryFeeBase;
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Banner with Back Button */}
         <View style={styles.bannerContainer}>
@@ -73,11 +75,11 @@ export default function RestaurantDetailsScreen() {
           />
 
           <TouchableOpacity
-            style={styles.backIconButton}
+            style={[styles.backIconButton, { backgroundColor: colors.card }]}
             activeOpacity={0.8}
             onPress={() => router.back()}
           >
-            <ArrowLeft size={20} color="#111827" />
+            <ArrowLeft size={20} color={colors.text} />
           </TouchableOpacity>
 
           <View style={styles.statusBadgeOverlay}>
@@ -90,33 +92,33 @@ export default function RestaurantDetailsScreen() {
         </View>
 
         {/* Info Card */}
-        <View style={styles.infoCard}>
+        <View style={[styles.infoCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <View style={styles.titleRow}>
-            <Text style={styles.restaurantName}>{restaurant.name}</Text>
+            <Text style={[styles.restaurantName, { color: colors.text }]}>{restaurant.name}</Text>
             <Rating score={restaurant.ratingAverage} reviewCount={restaurant.ratingCount} size={16} />
           </View>
 
           {restaurant.description ? (
-            <Text style={styles.description}>{restaurant.description}</Text>
+            <Text style={[styles.description, { color: colors.textSecondary }]}>{restaurant.description}</Text>
           ) : null}
 
           {/* Delivery Meta Row */}
-          <View style={styles.metaRow}>
+          <View style={[styles.metaRow, { borderTopColor: colors.borderLight }]}>
             <View style={styles.metaItem}>
               <Clock size={16} color="#FF4B3A" />
-              <Text style={styles.metaText}>
+              <Text style={[styles.metaText, { color: colors.text }]}>
                 {restaurant.estimatedDeliveryMin}-{restaurant.estimatedDeliveryMax} mins
               </Text>
             </View>
 
             <View style={styles.metaItem}>
               <Bike size={16} color="#FF4B3A" />
-              <Text style={styles.metaText}>${numericFee.toFixed(2)} Fee</Text>
+              <Text style={[styles.metaText, { color: colors.text }]}>${numericFee.toFixed(2)} Fee</Text>
             </View>
 
             <View style={styles.metaItem}>
               <MapPin size={16} color="#FF4B3A" />
-              <Text style={styles.metaText}>{restaurant.city}</Text>
+              <Text style={[styles.metaText, { color: colors.text }]}>{restaurant.city}</Text>
             </View>
           </View>
         </View>
@@ -133,11 +135,19 @@ export default function RestaurantDetailsScreen() {
               return (
                 <TouchableOpacity
                   key={cat.id}
-                  style={[styles.categoryTab, isSelected ? styles.categoryTabActive : null]}
+                  style={[
+                    styles.categoryTab,
+                    { backgroundColor: colors.card, borderColor: colors.border },
+                    isSelected && [styles.categoryTabActive, { backgroundColor: colors.text, borderColor: colors.text }],
+                  ]}
                   onPress={() => setSelectedCategoryIndex(idx)}
                 >
                   <Text
-                    style={[styles.categoryTabText, isSelected ? styles.categoryTabTextActive : null]}
+                    style={[
+                      styles.categoryTabText,
+                      { color: colors.textSecondary },
+                      isSelected && [styles.categoryTabTextActive, { color: colors.background }],
+                    ]}
                   >
                     {cat.name} ({cat.foodItems.length})
                   </Text>
@@ -151,9 +161,9 @@ export default function RestaurantDetailsScreen() {
         <View style={styles.itemsSection}>
           {currentCategory ? (
             <>
-              <Text style={styles.categoryHeading}>{currentCategory.name}</Text>
+              <Text style={[styles.categoryHeading, { color: colors.text }]}>{currentCategory.name}</Text>
               {currentCategory.foodItems.length === 0 ? (
-                <Text style={styles.noItemsText}>No items available in this category yet.</Text>
+                <Text style={[styles.noItemsText, { color: colors.textMuted }]}>No items available in this category yet.</Text>
               ) : (
                 currentCategory.foodItems.map((item) => (
                   <FoodCard
@@ -165,7 +175,7 @@ export default function RestaurantDetailsScreen() {
               )}
             </>
           ) : (
-            <Text style={styles.noItemsText}>No menu categories found.</Text>
+            <Text style={[styles.noItemsText, { color: colors.textMuted }]}>No menu categories found.</Text>
           )}
         </View>
       </ScrollView>

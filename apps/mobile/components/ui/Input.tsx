@@ -7,6 +7,7 @@ import {
   TextInputProps,
   ViewStyle,
 } from 'react-native';
+import { useTheme } from '../../theme/useTheme';
 
 interface InputProps extends TextInputProps {
   label?: string;
@@ -30,23 +31,38 @@ export const Input: React.FC<InputProps> = ({
   ...props
 }) => {
   const [isFocused, setIsFocused] = useState(false);
+  const { colors, isDark } = useTheme();
 
   return (
     <View style={[styles.container, containerStyle]}>
-      {label ? <Text style={styles.label}>{label}</Text> : null}
+      {label ? <Text style={[styles.label, { color: colors.text }]}>{label}</Text> : null}
 
       <View
         style={[
           styles.inputWrapper,
-          isFocused ? styles.inputFocused : null,
-          error ? styles.inputError : null,
+          {
+            backgroundColor: colors.inputBackground,
+            borderColor: colors.inputBorder,
+          },
+          isFocused
+            ? [
+                styles.inputFocused,
+                { borderColor: colors.brand, backgroundColor: colors.inputBackground },
+              ]
+            : null,
+          error
+            ? [
+                styles.inputError,
+                { backgroundColor: isDark ? '#450A0A' : '#FEF2F2', borderColor: '#EF4444' },
+              ]
+            : null,
         ]}
       >
         {leftIcon ? <View style={styles.iconLeft}>{leftIcon}</View> : null}
 
         <TextInput
-          placeholderTextColor="#9CA3AF"
-          style={[styles.input, style]}
+          placeholderTextColor={colors.textMuted}
+          style={[styles.input, { color: colors.text }, style]}
           onFocus={(e) => {
             setIsFocused(true);
             onFocus?.(e);
@@ -60,6 +76,7 @@ export const Input: React.FC<InputProps> = ({
 
         {rightIcon ? <View style={styles.iconRight}>{rightIcon}</View> : null}
       </View>
+
 
       {error ? (
         <Text style={styles.errorText}>{error}</Text>
