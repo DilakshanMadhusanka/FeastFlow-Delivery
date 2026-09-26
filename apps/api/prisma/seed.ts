@@ -73,7 +73,7 @@ async function main() {
     prisma.role.create({ data: { name: UserRoleEnum.CUSTOMER, description: 'End Customer' } }),
   ]);
 
-  const roleMap = new Map(roles.map((r) => [r.name, r.id]));
+  const roleMap = new Map(roles.map((r: { name: string; id: string }) => [r.name, r.id]));
   console.log('✅ Created 4 System Roles');
 
   // Helper for password hash
@@ -88,7 +88,7 @@ async function main() {
       phone: '+15550000001',
       avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
       isEmailVerified: true,
-      userRoles: { create: [{ roleId: roleMap.get(UserRoleEnum.ADMIN)! }] },
+      userRoles: { create: [{ roleId: String(roleMap.get(UserRoleEnum.ADMIN)!) }] },
     },
   });
 
@@ -100,7 +100,7 @@ async function main() {
       phone: '+15550000002',
       avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80',
       isEmailVerified: true,
-      userRoles: { create: [{ roleId: roleMap.get(UserRoleEnum.RESTAURANT_OWNER)! }] },
+      userRoles: { create: [{ roleId: String(roleMap.get(UserRoleEnum.RESTAURANT_OWNER)!) }] },
     },
   });
 
@@ -112,7 +112,7 @@ async function main() {
       phone: '+15550000003',
       avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80',
       isEmailVerified: true,
-      userRoles: { create: [{ roleId: roleMap.get(UserRoleEnum.RESTAURANT_OWNER)! }] },
+      userRoles: { create: [{ roleId: String(roleMap.get(UserRoleEnum.RESTAURANT_OWNER)!) }] },
     },
   });
 
@@ -124,7 +124,7 @@ async function main() {
       phone: '+15550000004',
       avatarUrl: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=300&q=80',
       isEmailVerified: true,
-      userRoles: { create: [{ roleId: roleMap.get(UserRoleEnum.DELIVERY_DRIVER)! }] },
+      userRoles: { create: [{ roleId: String(roleMap.get(UserRoleEnum.DELIVERY_DRIVER)!) }] },
     },
   });
 
@@ -136,7 +136,7 @@ async function main() {
       phone: '+15550000005',
       avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=300&q=80',
       isEmailVerified: true,
-      userRoles: { create: [{ roleId: roleMap.get(UserRoleEnum.DELIVERY_DRIVER)! }] },
+      userRoles: { create: [{ roleId: String(roleMap.get(UserRoleEnum.DELIVERY_DRIVER)!) }] },
     },
   });
 
@@ -148,7 +148,7 @@ async function main() {
       phone: '+15550000006',
       avatarUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=300&q=80',
       isEmailVerified: true,
-      userRoles: { create: [{ roleId: roleMap.get(UserRoleEnum.CUSTOMER)! }] },
+      userRoles: { create: [{ roleId: String(roleMap.get(UserRoleEnum.CUSTOMER)!) }] },
     },
   });
 
