@@ -1,3 +1,4 @@
+// FeastFlow API Server Entrypoint
 import http from 'http';
 import { createApp } from './app';
 import { initSocketServer } from './sockets';
