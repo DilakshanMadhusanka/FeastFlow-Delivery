@@ -1,0 +1,40 @@
+# Dependency directories
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Git and OS metadata
+.git
+.gitignore
+.DS_Store
+Thumbs.db
+
+# Build artifacts & temporary directories
+dist
+build
+.expo
+.expo-shared
+web-build
+coverage
+*.tsbuildinfo
+
+# Local Environment files
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Documentation, Diagrams & PDF artifacts
+*.png
+*.jpg
+*.jpeg
+*.pdf
+scratch/
+
+# IDE configurations
+.vscode
+.idea
+*.swp
