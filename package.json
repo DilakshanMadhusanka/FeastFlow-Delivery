@@ -8,7 +8,7 @@
     "apps/*"
   ],
   "scripts": {
-    "build": "npm --workspace=@food-delivery/shared run build && npm --workspace=@food-delivery/web run build",
+    "build": "npm --workspace=@food-delivery/shared run build && npm --workspace=@food-delivery/api run db:generate",
     "build:all": "npm --workspace=@food-delivery/shared run build && npm --workspace=@food-delivery/api run db:generate && npm run build --workspaces --if-present",
     "build:web": "npm --workspace=@food-delivery/shared run build && npm --workspace=@food-delivery/web run build",
     "build:api": "npm --workspace=@food-delivery/shared run build && npm --workspace=@food-delivery/api run db:generate && npm --workspace=@food-delivery/api run build",

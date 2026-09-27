@@ -1,23 +1,10 @@
 {
-  "buildCommand": "npm --workspace=@food-delivery/shared run build && npm --workspace=@food-delivery/api run db:generate && npm --workspace=@food-delivery/web run build",
-  "outputDirectory": "apps/web/dist",
-  "cleanUrls": true,
+  "version": 2,
+  "buildCommand": "npm --workspace=@food-delivery/shared run build && npm --workspace=@food-delivery/api run db:generate",
   "rewrites": [
     {
-      "source": "/health",
-      "destination": "/api"
-    },
-    {
-      "source": "/api/v1/(.*)",
-      "destination": "/api"
-    },
-    {
-      "source": "/api/(.*)",
-      "destination": "/api"
-    },
-    {
       "source": "/(.*)",
-      "destination": "/index.html"
+      "destination": "/api"
     }
   ]
 }
