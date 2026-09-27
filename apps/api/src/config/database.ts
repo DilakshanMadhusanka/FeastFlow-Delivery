@@ -7,8 +7,8 @@ declare global {
   var prisma: PrismaClient | undefined;
 }
 
-export const prisma: PrismaClient =
-  global.prisma ??
+export const prisma =
+  global.prisma ||
   new PrismaClient({
     adapter: new PrismaPg({ connectionString: env.DATABASE_URL }),
     log:
