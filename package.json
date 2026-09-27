@@ -23,6 +23,12 @@
     "db:push": "npm --workspace=apps/api run db:push",
     "db:seed": "npm --workspace=apps/api run db:seed"
   },
+  "allowScripts": {
+    "@prisma/engines": true,
+    "prisma": true,
+    "esbuild": true,
+    "@scarf/scarf": true
+  },
   "keywords": [
     "food-delivery",
     "react-native",

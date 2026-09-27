@@ -14,6 +14,12 @@
     "db:seed": "prisma db seed",
     "db:studio": "prisma studio"
   },
+  "allowScripts": {
+    "@prisma/engines": true,
+    "prisma": true,
+    "esbuild": true,
+    "@scarf/scarf": true
+  },
   "dependencies": {
     "@food-delivery/shared": "*",
     "@prisma/adapter-pg": "^7.0.0",
