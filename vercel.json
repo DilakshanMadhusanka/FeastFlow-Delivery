@@ -1,0 +1,11 @@
+{
+  "buildCommand": "npm --workspace=@food-delivery/shared run build && npm --workspace=@food-delivery/web run build",
+  "outputDirectory": "apps/web/dist",
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
