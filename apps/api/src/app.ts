@@ -37,7 +37,7 @@ export function createApp(): Application {
           'http://localhost:8081',
           'http://127.0.0.1:8081',
           'http://localhost:8082',
-//           'http://127.0.0.1:8082',
+          'http://127.0.0.1:8082',
         ];
         if (
           staticAllowed.includes(requestOrigin) ||
@@ -61,7 +61,7 @@ export function createApp(): Application {
   // Parsing Middleware
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-  app.use(cookieParser());
+//   app.use(cookieParser());
 
   // Logging Middleware
   if (env.NODE_ENV !== 'test') {
