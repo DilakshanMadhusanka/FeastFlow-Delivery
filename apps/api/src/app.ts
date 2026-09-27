@@ -34,7 +34,8 @@ export function createApp(): Application {
         if (
           staticAllowed.includes(requestOrigin) ||
           /^https?:\/\/localhost(:\d+)?$/.test(requestOrigin) ||
-          /^https?:\/\/127\.0\.0\.1(:\d+)?$/.test(requestOrigin)
+          /^https?:\/\/127\.0\.0\.1(:\d+)?$/.test(requestOrigin) ||
+          /\.vercel\.app$/.test(requestOrigin.replace(/^https?:\/\//, '').split(/[:/]/)[0])
         ) {
           return callback(null, true);
         }

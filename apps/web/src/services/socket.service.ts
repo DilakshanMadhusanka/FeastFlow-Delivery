@@ -14,7 +14,8 @@ class SocketService {
 
   connect(): TypedSocket {
     const token = localStorage.getItem('feastflow_access_token');
-    const socketUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    const rawSocketUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    const socketUrl = rawSocketUrl.replace(/\/api\/v1\/?$/, '').replace(/\/+$/, '') || 'http://localhost:5000';
 
     if (this.socket) {
       if (!this.socket.connected) {
