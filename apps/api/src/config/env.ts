@@ -9,10 +9,10 @@ dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.string().default('5000').transform((val) => parseInt(val, 10)),
-  DATABASE_URL: z.string().url(),
+  DATABASE_URL: z.string().default('postgresql://postgres:postgres@localhost:5432/feastflow'),
   REDIS_URL: z.string().default('redis://localhost:6379'),
-  JWT_ACCESS_SECRET: z.string().min(16),
-  JWT_REFRESH_SECRET: z.string().min(16),
+  JWT_ACCESS_SECRET: z.string().min(16).default('feastflow_default_secret_jwt_access_key_2026_xyz'),
+  JWT_REFRESH_SECRET: z.string().min(16).default('feastflow_default_secret_jwt_refresh_key_2026_xyz'),
   JWT_ACCESS_EXPIRES_IN: z.string().default('15m'),
   JWT_REFRESH_EXPIRES_IN: z.string().default('7d'),
   FRONTEND_WEB_URL: z.string().default('http://localhost:5173'),

@@ -14,6 +14,14 @@ import apiRoutes from './routes';
 export function createApp(): Application {
   const app: Application = express();
 
+  // Vercel serverless URL rewrite normalizer
+  app.use((req: Request, _res: Response, next) => {
+    if (req.originalUrl && (req.url === '/api' || req.url === '/api/index' || req.url.startsWith('/api/index?'))) {
+      req.url = req.originalUrl;
+    }
+    next();
+  });
+
   // Security Middleware
   app.use(helmet({ crossOriginResourcePolicy: false })); // allow static image fetching across domains
   app.use(
@@ -59,6 +67,20 @@ export function createApp(): Application {
   if (env.NODE_ENV !== 'test') {
     app.use(morgan(env.NODE_ENV === 'development' ? 'dev' : 'combined'));
   }
+
+  // Root Info Handler
+  app.get('/', (_req: Request, res: Response) => {
+    return sendSuccess(
+      res,
+      {
+        name: 'FeastFlow Food Delivery Backend API',
+        status: 'operational',
+        health: '/health',
+        api: '/api/v1',
+      },
+      'FeastFlow API is up and running'
+    );
+  });
 
   // Health Check
   app.get('/health', (_req: Request, res: Response) => {
