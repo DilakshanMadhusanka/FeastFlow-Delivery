@@ -1,6 +1,11 @@
 {
   "version": 2,
   "buildCommand": "npm --workspace=@food-delivery/shared run build && npm --workspace=@food-delivery/api run db:generate",
+  "functions": {
+    "api/index.ts": {
+      "includeFiles": "node_modules/.prisma/client/**"
+    }
+  },
   "rewrites": [
     {
       "source": "/(.*)",

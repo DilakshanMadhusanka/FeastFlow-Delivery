@@ -48,10 +48,9 @@ export function errorHandler(
 
   return sendError(
     res,
-    process.env.NODE_ENV === 'production'
-      ? 'An unexpected error occurred. Please try again later.'
-      : err.message || 'Internal server error',
+    err.message || 'Internal server error',
     ErrorCode.INTERNAL_SERVER_ERROR,
-    HttpStatus.INTERNAL_SERVER_ERROR
+    HttpStatus.INTERNAL_SERVER_ERROR,
+    { message: err.message, stack: process.env.NODE_ENV === 'development' ? err.stack : undefined }
   );
 }
