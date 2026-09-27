@@ -30,14 +30,14 @@ export function createApp(): Application {
         // Allow requests with no origin (like native mobile apps, curl, server-to-server)
         if (!requestOrigin) return callback(null, true);
         const staticAllowed = [
-//           env.FRONTEND_WEB_URL,
+          env.FRONTEND_WEB_URL,
           env.MOBILE_APP_URL,
           'http://localhost:3000',
           'http://localhost:5173',
           'http://localhost:8081',
           'http://127.0.0.1:8081',
           'http://localhost:8082',
-          'http://127.0.0.1:8082',
+//           'http://127.0.0.1:8082',
         ];
         if (
           staticAllowed.includes(requestOrigin) ||
