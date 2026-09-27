@@ -1,3 +1,4 @@
+"use strict";
 var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
@@ -31,7 +32,6 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
   mod
 ));
-var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
 // node_modules/depd/index.js
 var require_depd = __commonJS({
@@ -68766,13 +68766,6 @@ var require_dist4 = __commonJS({
   }
 });
 
-// api/index.ts
-var index_exports = {};
-__export(index_exports, {
-  default: () => index_default
-});
-module.exports = __toCommonJS(index_exports);
-
 // apps/api/src/app.ts
 var import_path3 = __toESM(require("path"));
 var import_express21 = __toESM(require_express2());
@@ -81408,9 +81401,9 @@ function createApp() {
   return app2;
 }
 
-// api/index.ts
+// apps/api/src/serverless.ts
 var app = createApp();
-var index_default = app;
+module.exports = app;
 /*! Bundled license information:
 
 depd/index.js:
