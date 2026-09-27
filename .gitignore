@@ -35,3 +35,9 @@ yarn-error.log*
 
 # Prisma
 generated/
+
+FeastFlow_ER_Diagram_Core.png 
+FeastFlow_System_Architecture.png 
+FeastFlow_System_Design_and_Database_Schema.pdf 
+FeastFlow_Database_Schema.png 
+FeastFlow_ER_Diagram.png
