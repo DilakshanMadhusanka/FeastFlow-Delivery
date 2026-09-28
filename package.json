@@ -12,6 +12,7 @@
     "build:all": "npm --workspace=@food-delivery/shared run build && npm --workspace=@food-delivery/api run db:generate && npm run build --workspaces --if-present",
     "build:web": "npm --workspace=@food-delivery/shared run build && npm --workspace=@food-delivery/web run build",
     "build:api": "npm --workspace=@food-delivery/shared run build && npm --workspace=@food-delivery/api run db:generate && npm --workspace=@food-delivery/api run build",
+    "build:mobile": "npm --workspace=@food-delivery/shared run build && npm --workspace=@food-delivery/mobile run build",
     "lint": "npm run lint --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "dev:api": "npm --workspace=apps/api run dev",
