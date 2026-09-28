@@ -4,7 +4,8 @@
   "description": "Production REST & Real-time API for Food Delivery Platform",
   "main": "dist/server.js",
   "scripts": {
-    "build": "tsc",
+    "build": "prisma generate && npx esbuild src/serverless.ts --bundle --platform=node --target=node18 --format=cjs --outfile=api/index.js --external:@prisma/client --external:@prisma/adapter-pg --external:pg --external:ioredis",
+    "build:tsc": "tsc",
     "dev": "nodemon --watch src --ext ts --exec tsx src/server.ts",
     "start": "node dist/server.js",
     "test": "vitest run",
