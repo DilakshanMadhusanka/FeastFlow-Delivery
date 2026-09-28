@@ -81300,6 +81300,8 @@ function createApp() {
     );
   });
   app2.use("/api/v1", routes_default);
+  app2.use("/api", routes_default);
+  app2.use(routes_default);
   app2.use((req) => {
     throw new NotFoundError(`Endpoint not found: ${req.method} ${req.originalUrl}`);
   });

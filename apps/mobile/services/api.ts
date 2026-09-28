@@ -3,7 +3,13 @@ import { getItem, setItem, removeItem, StorageKeys } from './storage';
 import { ApiResponse } from '@food-delivery/shared';
 
 // Default to localhost for web/emulator or configure via EXPO_PUBLIC_API_URL
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+const rawApiUrl = (process.env.EXPO_PUBLIC_API_URL || 'http://localhost:5000/api/v1').trim();
+const BASE_URL = rawApiUrl.endsWith('/api/v1')
+  ? rawApiUrl
+  : rawApiUrl.endsWith('/api')
+  ? `${rawApiUrl}/v1`
+  : `${rawApiUrl.replace(/\/+$/, '')}/api/v1`;
+
 
 export const apiClient = axios.create({
   baseURL: BASE_URL,

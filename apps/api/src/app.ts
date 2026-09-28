@@ -100,8 +100,10 @@ export function createApp(): Application {
     );
   });
 
-  // Mount API Domain Routes
+  // Mount API Domain Routes (support /api/v1, /api, and direct root paths)
   app.use('/api/v1', apiRoutes);
+  app.use('/api', apiRoutes);
+  app.use(apiRoutes);
 
   // Fallthrough 404 handler
   app.use((req: Request) => {
